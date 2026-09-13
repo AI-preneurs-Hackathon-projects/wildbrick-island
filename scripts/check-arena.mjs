@@ -5,6 +5,7 @@ import {newRoom,addPlayer,makeKit,advanceRoom,applyInput,hurt,roomSnapshot,solid
 import {creationStats,WEAPONS} from '../public/combat.js';
 import {WORLD_ENTITIES,RING_RADIUS} from '../public/world-data.js';
 import {RINGS} from '../public/rules.js';
+import {SUPPLY_BLUEPRINTS,EQUIPMENT_DROPS} from '../public/supply-catalog.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {blueprintMetrics} from '../public/blueprint-metrics.js';
 import {createGeneratedModel} from '../public/generated-model.js';
@@ -59,6 +60,25 @@ await check('bow reaches distant rivals, projectiles respect cover, melee has no
 await check('melee uses height, facing and line of sight, including placed scenery',()=>{const [r,p]=room(['crate:0','crate:2']);Object.assign(p,{kit:makeKit('sword'),x:-13,z:12,y:20,yaw:0});applyInput(r,p.id,{seq:1,input:{cameraYaw:0},command:{id:1,type:'fire'}},r.time);assert.equal(Object.keys(r.damage).length,0);p.x=0;p.z=0;p.y=0;p.nextShot=0;r.placed.push({id:'placed:test',x:0,z:2,w:1,h:2,d:1,hp:30,color:'#ffffff'});applyInput(r,p.id,{seq:2,input:{cameraYaw:0},command:{id:2,type:'fire'}},r.time);run(r,220);assert.ok(r.destroyed['placed:test']);});
 await check('automatic fire overheats and stale inputs stop firing and movement',()=>{const [r,p]=room();p.kit=makeKit('gun',{...dragon,movement:'carry',traits:{...dragon.traits,weapon:'automatic'}});run(r,2400,{a:{fire:true}});assert.ok(r.events.filter(e=>e.type==='shot').length>5);assert.ok(p.overheatedUntil>r.time);p.kit=makeKit();p.input={z:1,fire:true};p.inputAt=r.time-1000;const shots=r.events.filter(e=>e.type==='shot').length;advanceRoom(r,r.time+500);assert.equal(r.events.filter(e=>e.type==='shot').length,shots);assert.equal(p.speed,0);});
 await check('one player claims each landed pickup; buffs last ten seconds',()=>{const [r,p]=room(),b=addPlayer(r,'b','Beta');p.x=b.x=0;p.z=b.z=0;p.health=35;for(const type of ['health','defense','speed'])r.drops.push({id:type,type,x:0,z:0,born:r.time-6000,lands:r.time-500,expires:r.time+1000});run(r,34);assert.equal(r.drops.length,0);assert.equal(p.health,100);assert.ok(p.defenseUntil-r.time>9900&&p.speedUntil-r.time>9900);assert.equal(b.defenseUntil,0);const timer=p.speedUntil;run(r,10050);assert.ok(r.time>timer);});
+await check('scheduled gear alternates with supplies, lands before collection and expires normally',()=>{
+ const [r,p]=room();Object.assign(p,{x:40,z:40});const types=[];
+ for(let i=0;i<9;i++){r.nextDrop=r.time;run(r,34);const d=r.drops.at(-1);types.push(d.type==='equipment'?d.equipment:d.type);assert.equal(d.lands-d.born,5500);assert.ok(r.drops.length<=6);}
+ assert.deepEqual(types,['health','defense','sword','speed','health','bow','defense','speed','supply:rover']);
+ const drop=r.drops.at(-1);p.x=drop.x;p.z=drop.z;run(r,100);assert.equal(p.kit.id,'foot');run(r,5500);assert.equal(p.kit.id,'supply:rover');
+ r.nextDrop=r.time+1e6;run(r,46000);assert.equal(r.drops.length,0);
+});
+await check('gear has one eligible collector, preserves existing equipment and assembly, and refuses blocked mounts',()=>{
+ const [r,p]=room(),q=addPlayer(r,'b','Rival');Object.assign(p,{x:0,z:0});Object.assign(q,{x:0,z:0});r.nextDrop=r.time+1e6;
+ const supply=id=>({id,type:'equipment',equipment:id,name:id,x:0,z:0,born:r.time-6000,lands:r.time-500,expires:r.time+10000});
+ r.drops.push(supply('sword'));run(r,34);assert.equal(p.kit.id,'sword');assert.equal(q.kit.id,'foot');assert.equal(r.events.filter(e=>e.type==='pickup').length,1);
+ q.building={kit:makeKit('bow'),starts:r.time,ends:r.time+5000};r.drops.push(supply('bow'));run(r,34);assert.equal(r.drops.length,1);assert.equal(p.kit.id,'sword');assert.ok(q.building);q.building=null;run(r,34);assert.equal(q.kit.id,'bow');
+ p.kit=makeKit();p.y=1;r.drops.push(supply('supply:rover'));run(r,34);assert.equal(p.kit.id,'foot');p.y=0;
+ r.placed.push({id:'placed:nearby',x:2,y:1,z:0,w:1,h:2,d:1,hp:100});const before={x:p.x,y:p.y,z:p.z};run(r,34);assert.equal(p.kit.id,'foot');assert.equal(r.drops.length,1);assert.deepEqual({x:p.x,y:p.y,z:p.z},before);
+ r.placed=[];run(r,34);assert.equal(p.kit.id,'supply:rover');assert.equal(p.mountHealth,p.kit.stats.mountMax);assert.deepEqual({x:p.x,y:p.y,z:p.z},before);assert.equal(r.drops.length,0);run(r,34);assert.equal(r.events.filter(e=>e.type==='pickup').length,3);
+});
+await check('each airdrop equips a trusted usable attack and the rover keeps its captured geometry',()=>{
+ for(const id of EQUIPMENT_DROPS){const blueprint=SUPPLY_BLUEPRINTS.get(id);if(blueprint)validateBlueprint(blueprint);const [r,p]=room();Object.assign(p,{x:0,z:0,yaw:0});r.nextDrop=r.time+1e6;r.drops.push({id:'gear',type:'equipment',equipment:id,name:id,x:0,z:0,born:r.time-6000,lands:r.time-500,expires:r.time+10000});run(r,34);assert.equal(p.kit.id,id);assert.ok(p.kit.stats.damage>0);run(r,900);applyInput(r,p.id,{seq:p.lastSeq+1,input:{cameraYaw:0},command:{id:1,type:'fire'}},r.time);assert.ok(r.events.some(e=>['shot','swing'].includes(e.type)));if(blueprint){assert.equal(p.kit.stats.weapon,'automatic');assert.equal(p.kit.stats.movement,'drive');assert.deepEqual(blueprint,JSON.parse(fs.readFileSync(new URL('../validation/live/final-compact-none/armed-car.json',import.meta.url))).blueprint);}}
+});
 await check('generated scenery is placed once with shared bounded shot cover',()=>{const [r,p]=room();p.x=0;p.z=0;const b={...dragon,movement:'static',ability:'none',traits:{...dragon.traits,weapon:'none'}};applyInput(r,p.id,{seq:1,command:{id:1,type:'build'}},r.time,makeKit('statue',b));run(r,2900);assert.equal(r.placed.length,1);assert.equal(p.kit.id,'foot');assert.ok(solidBoxes(r).some(e=>e.entity.id===r.placed[0].id));applyInput(r,p.id,{seq:2,command:{id:1,type:'build'}},r.time,makeKit('statue',b));run(r,3000);assert.equal(r.placed.length,1);});
 // SQLite executes the actual generated migrations and SQL, with async scheduling
 // to exercise competing D1-style requests. This is not a network performance test.

@@ -103,6 +103,10 @@ await check('only actual arena respawn increments teleport epoch; pre-death fram
  applyInput(room,p.id,{seq:2,motionEpoch:1,frames:[packFrame(1,{z:1})]},room.time);assert.ok(distance(p,spawn)>0);
 });
 
+await check('a rover pickup survives delayed snapshots without relocating or fetching a new blueprint',async()=>{
+ const n=network(600);await n.join();for(let i=0;i<65;i++)await n.step();const before=pose(n.client.self);n.room.drops.push({id:'rover',type:'equipment',equipment:'supply:rover',name:'Rover',x:n.player.x,z:n.player.z,born:n.now-6000,lands:n.now-1000,expires:n.now+10000});
+ for(let i=0;i<120;i++)await n.step();assert.equal(n.client.self.kit.id,'supply:rover');assert.deepEqual(pose(n.client.self),before);assert.equal(n.packets.filter(p=>p.path.includes('/blueprint')).length,0);assert.equal(n.events.filter(e=>e.type==='pickup').length,1);assert.equal(n.client.blueprints.get('supply:rover').movement,'drive');
+});
 for(const latency of [250,600])await check(`a one-frame attack survives ${latency}ms latency and a lost response without duplicate damage or effects`,async()=>{
  const n=network(latency);await n.join();Object.assign(n.player,{x:0,z:10,y:0,yaw:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
  // Let the normal snapshot acknowledge the fixture positions before input.

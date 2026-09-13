@@ -5,6 +5,7 @@ import {segmentBox} from './geometry.js';
 export {segmentBox} from './geometry.js';
 import {creationStats,clamp} from './combat.js';
 import {blueprintMetrics} from './blueprint-metrics.js';
+import {SUPPLY_BLUEPRINTS,EQUIPMENT_DROPS} from './supply-catalog.js';
 import {WORLD_ENTITIES,WORLD_BY_ID,SPAWNS,DROP_POINTS} from './world-data.js';
 export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750;
 export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];if(!stats.mounted&&blueprint){const grip=metrics.normalize([0,0,0]);muzzle=muzzle.map((v,i)=>v-grip[i]+[.76,1.1,.3][i]);}muzzle=muzzle.map((v,i)=>clamp(v,i===1?.2:-(metrics?.size[i]||stats.collision[i])/2-.8,i===1?(metrics?.size[1]||stats.collision[1])+.8:(metrics?.size[i]||stats.collision[i])/2+.8));if(!blueprint&&mode==='bow')muzzle=[-.72,1.26,1.48];return {placementSize:blueprint?.movement==='static'?metrics.size:null,id:mode,name:stats.name,blueprintId:blueprint?mode:null,mode:mode==='foot'&&!blueprint?'foot':stats.mounted?(stats.movement==='fly'?'plane':'car'):stats.weapon==='none'?'foot':['blade','knife','hammer','punch'].includes(stats.weapon)?'sword':'bow',stats,muzzle,color:blueprint?.palette?.[0]||'#ffcf55'};}
@@ -73,6 +74,29 @@ function finishBuild(room,p){const kit=p.building.kit;p.building=null;
  if(!canFit(p,movementShape(kit.stats),movementBoxes(room))){event(room,'notice',{player:p.id,text:'Move into open space, then rebuild your saved creation. Your position is unchanged.'});return;}
  p.kit=kit;p.mountHealth=kit.stats.mountMax;p.vertical=0;p.flightAltitude=p.y;p.jumpRemaining=0;event(room,'built',{player:p.id,kit:kit.id,name:kit.name});
 }
+const dropKits=new Map();
+function dropEquipment(id){if(!EQUIPMENT_DROPS.includes(id))return null;if(!dropKits.has(id))dropKits.set(id,makeKit(id,SUPPLY_BLUEPRINTS.get(id)||null));return dropKits.get(id);}
+function spawnDrop(room){
+ const i=room.dropIndex++,equipment=i%3===2?EQUIPMENT_DROPS[Math.floor(i/3)%EQUIPMENT_DROPS.length]:null,kit=dropEquipment(equipment);
+ const type=kit?'equipment':['health','defense','speed'][(i-Math.floor(i/3))%3];
+ const shape=movementShape((kit||makeKit()).stats),boxes=movementBoxes(room);
+ const point=DROP_POINTS.map((_,offset)=>DROP_POINTS[(i+offset)%DROP_POINTS.length]).find(([x,z])=>canFit({x,y:0,z},shape,boxes));
+ room.nextDrop=room.time+12000;if(!point)return;
+ const [x,z]=point,d={id:'drop:'+i,type,x,z,born:room.time,lands:room.time+5500,expires:room.time+45000};
+ if(kit)Object.assign(d,{equipment,name:kit.name});room.drops.push(d);if(room.drops.length>6)room.drops.shift();
+ if(kit)event(room,'airdrop',{equipment,name:kit.name,x,y:22,z});
+}
+function collectDrops(room,players){
+ for(let i=room.drops.length-1;i>=0;i--){const d=room.drops[i];if(room.time>d.expires){room.drops.splice(i,1);continue;}if(room.time<d.lands)continue;
+  const kit=d.type==='equipment'?dropEquipment(d.equipment):null;if(d.type==='equipment'&&!kit)continue;
+  const shape=kit&&movementShape(kit.stats),boxes=kit&&movementBoxes(room);
+  const p=players.find(p=>p.health>0&&p.y<(kit ? .15 : 2.5)&&Math.hypot(p.x-d.x,p.z-d.z)<(kit?1.6:2.3)&&(!kit||p.kit.id==='foot'&&!p.building&&canFit(p,shape,boxes)));
+  if(!p)continue;
+  if(kit){p.kit=structuredClone(kit);p.mountHealth=kit.stats.mountMax;p.melee=null;p.heat=0;p.overheatedUntil=0;p.vertical=0;p.flightAltitude=p.y;p.jumpRemaining=0;p.nextShot=Math.max(p.nextShot,room.time+kit.stats.interval*1000);}
+  if(d.type==='health')p.health=100;if(d.type==='defense')p.defenseUntil=room.time+10000;if(d.type==='speed')p.speedUntil=room.time+10000;
+  event(room,'pickup',{player:p.id,pickup:d.type,...(kit?{equipment:d.equipment,name:kit.name}:{}),x:d.x,y:1,z:d.z});room.drops.splice(i,1);
+ }
+}
 function step(room,dt){
  for(const [id,until] of Object.entries(room.destroyed))if(until<=room.time){const entity=WORLD_BY_ID.get(id)||room.placed.find(e=>e.id===id);const boxes=entity?.boxes||[entity&&{...entity,y:entity.h/2}].filter(Boolean);if(entity&&isMovementBlocker(entity)&&Object.values(room.players).some(p=>p.health>0&&boxes.some(b=>overlapsBody(p,movementShape(p.kit.stats),b)))){room.destroyed[id]=room.time+1000;continue;}delete room.destroyed[id];event(room,'restore',{entity:id});}
  for(const p of Object.values(room.players)){if(room.time-p.lastSeen>20000){removePlayer(room,p.id);continue;}if(p.health<=0){if(room.time>=p.respawnAt)respawn(room,p);continue;}p.heat=Math.max(0,p.heat-dt*.13);if(p.building&&room.time>=p.building.ends)finishBuild(room,p);const input=room.time-p.inputAt<INPUT_STALE_MS?p.input:{};if(!p.motion)movePlayer(room,p,dt,input);if(input.fire)shoot(room,p,input);resolveMelee(room,p);}
@@ -82,8 +106,8 @@ function step(room,dt){
   for(const p of players){if(p.id===b.owner||p.health<=0)continue;const bb=bounds(p),h=segmentBox(b,end,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);if(h&&(!hit||h.t<hit.t))hit={...h,player:p};}
   if(hit){const point={x:b.x+(end.x-b.x)*hit.t,y:b.y+(end.y-b.y)*hit.t,z:b.z+(end.z-b.z)*hit.t,attack:b.id,color:b.color};if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}else{destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',point);}room.projectiles.splice(i,1);}else if(room.time>=b.expires||end.y<0)room.projectiles.splice(i,1);else Object.assign(b,end);
  }
- if(room.time>=room.nextDrop){const i=room.dropIndex++,[x,z]=DROP_POINTS[i%DROP_POINTS.length];room.drops.push({id:'drop:'+i,type:['health','defense','speed'][i%3],x,z,born:room.time,lands:room.time+5500,expires:room.time+45000});room.nextDrop=room.time+12000;if(room.drops.length>6)room.drops.shift();}
- for(let i=room.drops.length-1;i>=0;i--){const d=room.drops[i];if(room.time>d.expires){room.drops.splice(i,1);continue;}if(room.time<d.lands)continue;const p=players.find(p=>p.health>0&&p.y<2.5&&Math.hypot(p.x-d.x,p.z-d.z)<2.3);if(p){if(d.type==='health')p.health=100;if(d.type==='defense')p.defenseUntil=room.time+10000;if(d.type==='speed')p.speedUntil=room.time+10000;event(room,'pickup',{player:p.id,pickup:d.type,x:d.x,y:1,z:d.z});room.drops.splice(i,1);}}
+ if(room.time>=room.nextDrop)spawnDrop(room);
+ collectDrops(room,players);
 }
 export function advanceRoom(room,now){now=Math.max(room.time,now);let elapsed=Math.max(0,now-room.time);if(elapsed>1000){room.time=now-1000;elapsed=1000;}while(elapsed>0){const ms=Math.min(1000/30,elapsed);room.time+=ms;step(room,ms/1000);elapsed-=ms;}room.time=now;return room;}
 export function applyInput(room,id,packet,now,kit=null){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}p.input=cleanInput(packet.input);p.inputAt=now;applyFrames(room,p,packet,now);

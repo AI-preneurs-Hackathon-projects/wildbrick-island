@@ -3,12 +3,13 @@ import {predictPlayer,cleanInput} from './arena-core.js';
 import {MOVE_DT} from './movement.js';
 import {packFrame,frameInput,MAX_MOVE_FRAMES} from './movement-stream.js';
 import {validateBlueprint} from './blueprint.js';
+import {SUPPLY_BLUEPRINTS} from './supply-catalog.js';
 export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
  let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
  let previewAt=0,fireHeldAt=0;
  let frames=[],nextFrame=0,motionEpoch=0,accumulator=0,jumpQueued=false;
- const blueprints=new Map(),loading=new Set(),view=createMotionView();
+ const blueprints=new Map(SUPPLY_BLUEPRINTS),loading=new Set(),view=createMotionView();
  async function request(path,body){const abort=new AbortController(),timeout=setTimer(()=>abort.abort(),12000);try{const r=await fetcher(path,{keepalive:path.endsWith('/leave'),method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:abort.signal,cache:'no-store'});let d;try{d=await r.json();}catch{throw Error('The arena did not respond. Reconnecting…');}if(!r.ok){const e=Error(d.error||'The arena could not connect.');e.status=r.status;throw e;}return d;}finally{clearTimer(timeout);}}
  function fetchBlueprint(id){if(!id||blueprints.has(id)||loading.has(id))return;loading.add(id);request('/api/arena/blueprint?id='+encodeURIComponent(id)).then(d=>blueprints.set(id,validateBlueprint(d.blueprint))).catch(e=>onError(e.message,e.status)).finally(()=>loading.delete(id));}
  function accept(s){
