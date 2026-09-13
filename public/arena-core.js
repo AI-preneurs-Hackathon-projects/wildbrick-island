@@ -1,3 +1,4 @@
+import {weaponMuzzle} from './weapon-aim.js';
 import {movementShape,isMovementBlocker,canFit,overlapsBody} from './movement-blocking.js';
 import {moveDirect,startJump,MOVE_DT} from './movement.js';
 import {newMotion,frameInput,validFrames,MAX_MOVE_FRAMES} from './movement-stream.js';
@@ -5,7 +6,7 @@ import {segmentBox} from './geometry.js';
 export {segmentBox} from './geometry.js';
 import {creationStats,clamp} from './combat.js';
 import {blueprintMetrics} from './blueprint-metrics.js';
-import {SUPPLY_BLUEPRINTS,EQUIPMENT_DROPS} from './supply-catalog.js';
+import {SUPPORT_DROPS} from './supply-catalog.js';
 import {WORLD_ENTITIES,WORLD_BY_ID,SPAWNS,DROP_POINTS} from './world-data.js';
 export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750;
 export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];if(!stats.mounted&&blueprint){const grip=metrics.normalize([0,0,0]);muzzle=muzzle.map((v,i)=>v-grip[i]+[.76,1.1,.3][i]);}muzzle=muzzle.map((v,i)=>clamp(v,i===1?.2:-(metrics?.size[i]||stats.collision[i])/2-.8,i===1?(metrics?.size[1]||stats.collision[1])+.8:(metrics?.size[i]||stats.collision[i])/2+.8));if(!blueprint&&mode==='bow')muzzle=[-.72,1.26,1.48];return {placementSize:blueprint?.movement==='static'?metrics.size:null,id:mode,name:stats.name,blueprintId:blueprint?mode:null,mode:mode==='foot'&&!blueprint?'foot':stats.mounted?(stats.movement==='fly'?'plane':'car'):stats.weapon==='none'?'foot':['blade','knife','hammer','punch'].includes(stats.weapon)?'sword':'bow',stats,muzzle,color:blueprint?.palette?.[0]||'#ffcf55'};}
@@ -40,7 +41,7 @@ function applyFrames(room,p,packet,now){
 export function predictPlayer(p,input,dt,worldState){if(p.health<=0)return;const world={...worldState,preview:true,players:{[p.id]:p},events:[],eventId:0,damage:{...worldState.damage},destroyed:{...worldState.destroyed}},controls=cleanInput(input);for(let left=Math.min(.1,dt);left>1e-8;){const step=Math.min(left,1/30);movePlayer(world,p,step,controls);left-=step;world.time+=step*1000;}}
 function rand(room){let n=room.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;room.seed=n>>>0;return room.seed/4294967296;}
 function shoot(room,p,input){const k=p.kit.stats;if(p.health<=0||p.building||!k.damage||room.time<p.nextShot||room.time<p.overheatedUntil||room.time<p.protectedUntil)return;
- p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=k.weapon==='punch'?p.yaw:input.cameraYaw??p.yaw;
+ p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=k.projectileSpeed===0?p.yaw:input.cameraYaw??p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
  let yaw=p.actionYaw,pitch=input.aimPitch||0;const dir={x:Math.sin(yaw)*Math.cos(pitch),y:Math.sin(pitch),z:Math.cos(yaw)*Math.cos(pitch)},anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
  // Gentle assisted aiming includes airborne opponents, with world cover still traced.
@@ -49,12 +50,12 @@ function shoot(room,p,input){const k=p.kit.stats;if(p.health<=0||p.building||!k.
  if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
 
  yaw+=(rand(room)-.5)*k.spread;pitch+=(rand(room)-.5)*k.spread*.7;
- const m=p.kit.muzzle||[0,1.4,1],from={x:p.x+Math.cos(yaw)*m[0]+Math.sin(yaw)*m[2],y:p.y+Math.max(.4,m[1]),z:p.z-Math.sin(yaw)*m[0]+Math.cos(yaw)*m[2]};
- let obstruction=1;for(const {box} of solidBoxes(room)){const hit=segmentBox(anchor,from,box);if(hit)obstruction=Math.min(obstruction,Math.max(0,hit.t-.02));}for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*obstruction;
+ const from=weaponMuzzle(p,yaw,pitch);
+ let obstruction=from.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-from.y)):1;for(const {box} of solidBoxes(room)){const hit=segmentBox(anchor,from,box);if(hit)obstruction=Math.min(obstruction,Math.max(0,hit.t-.02));}for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*obstruction;
  if(target){const dx=anchor.x+target.v.x-from.x,dy=anchor.y+target.v.y-from.y,dz=anchor.z+target.v.z-from.z;yaw=Math.atan2(dx,dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));}
  // Bound each shooter's outstanding work without deleting another player's shots.
  if(room.projectiles.filter(b=>b.owner===p.id).length>=24||room.projectiles.length>=2048){event(room,'notice',{player:p.id,text:'The arena has a lot of projectiles. Try attacking again shortly.'});return;}
- const id=++room.eventId;room.projectiles.push({id,owner:p.id,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range});event(room,'shot',{player:p.id,weapon:k.weapon,yaw,pitch,...from});
+ const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};room.projectiles.push(projectile);event(room,'shot',{player:p.id,weapon:k.weapon,yaw,pitch,...from,projectile:{...projectile}});
 }
 function resolveMelee(room,p){
  const m=p.melee;if(!m||room.time<m.at)return;p.melee=null;
@@ -74,43 +75,36 @@ function finishBuild(room,p){const kit=p.building.kit;p.building=null;
  if(!canFit(p,movementShape(kit.stats),movementBoxes(room))){event(room,'notice',{player:p.id,text:'Move into open space, then rebuild your saved creation. Your position is unchanged.'});return;}
  p.kit=kit;p.mountHealth=kit.stats.mountMax;p.vertical=0;p.flightAltitude=p.y;p.jumpRemaining=0;event(room,'built',{player:p.id,kit:kit.id,name:kit.name});
 }
-const dropKits=new Map();
-function dropEquipment(id){if(!EQUIPMENT_DROPS.includes(id))return null;if(!dropKits.has(id))dropKits.set(id,makeKit(id,SUPPLY_BLUEPRINTS.get(id)||null));return dropKits.get(id);}
 function spawnDrop(room){
- const i=room.dropIndex++,equipment=i%3===2?EQUIPMENT_DROPS[Math.floor(i/3)%EQUIPMENT_DROPS.length]:null,kit=dropEquipment(equipment);
- const type=kit?'equipment':['health','defense','speed'][(i-Math.floor(i/3))%3];
- const shape=movementShape((kit||makeKit()).stats),boxes=movementBoxes(room);
- const point=DROP_POINTS.map((_,offset)=>DROP_POINTS[(i+offset)%DROP_POINTS.length]).find(([x,z])=>canFit({x,y:0,z},shape,boxes));
+ const type=SUPPORT_DROPS[room.dropIndex++%SUPPORT_DROPS.length];
+ const shape=movementShape(makeKit().stats),boxes=movementBoxes(room);
+ const point=DROP_POINTS.map((_,offset)=>DROP_POINTS[(room.dropIndex-1+offset)%DROP_POINTS.length]).find(([x,z])=>canFit({x,y:0,z},shape,boxes));
  room.nextDrop=room.time+12000;if(!point)return;
- const [x,z]=point,d={id:'drop:'+i,type,x,z,born:room.time,lands:room.time+5500,expires:room.time+45000};
- if(kit)Object.assign(d,{equipment,name:kit.name});room.drops.push(d);if(room.drops.length>6)room.drops.shift();
- if(kit)event(room,'airdrop',{equipment,name:kit.name,x,y:22,z});
+ const [x,z]=point;room.drops.push({id:'drop:'+room.dropIndex,type,x,z,born:room.time,lands:room.time+5500,expires:room.time+45000});if(room.drops.length>6)room.drops.shift();
 }
 function collectDrops(room,players){
  for(let i=room.drops.length-1;i>=0;i--){const d=room.drops[i];if(room.time>d.expires){room.drops.splice(i,1);continue;}if(room.time<d.lands)continue;
-  const kit=d.type==='equipment'?dropEquipment(d.equipment):null;if(d.type==='equipment'&&!kit)continue;
-  const shape=kit&&movementShape(kit.stats),boxes=kit&&movementBoxes(room);
-  const p=players.find(p=>p.health>0&&p.y<(kit ? .15 : 2.5)&&Math.hypot(p.x-d.x,p.z-d.z)<(kit?1.6:2.3)&&(!kit||p.kit.id==='foot'&&!p.building&&canFit(p,shape,boxes)));
+  const p=players.find(p=>p.health>0&&p.y<2.5&&Math.hypot(p.x-d.x,p.z-d.z)<2.3);
   if(!p)continue;
-  if(kit){p.kit=structuredClone(kit);p.mountHealth=kit.stats.mountMax;p.melee=null;p.heat=0;p.overheatedUntil=0;p.vertical=0;p.flightAltitude=p.y;p.jumpRemaining=0;p.nextShot=Math.max(p.nextShot,room.time+kit.stats.interval*1000);}
   if(d.type==='health')p.health=100;if(d.type==='defense')p.defenseUntil=room.time+10000;if(d.type==='speed')p.speedUntil=room.time+10000;
-  event(room,'pickup',{player:p.id,pickup:d.type,...(kit?{equipment:d.equipment,name:kit.name}:{}),x:d.x,y:1,z:d.z});room.drops.splice(i,1);
+  event(room,'pickup',{player:p.id,pickup:d.type,x:d.x,y:1,z:d.z});room.drops.splice(i,1);
  }
 }
 function step(room,dt){
+ room.drops=room.drops.filter(d=>SUPPORT_DROPS.includes(d.type));
  for(const [id,until] of Object.entries(room.destroyed))if(until<=room.time){const entity=WORLD_BY_ID.get(id)||room.placed.find(e=>e.id===id);const boxes=entity?.boxes||[entity&&{...entity,y:entity.h/2}].filter(Boolean);if(entity&&isMovementBlocker(entity)&&Object.values(room.players).some(p=>p.health>0&&boxes.some(b=>overlapsBody(p,movementShape(p.kit.stats),b)))){room.destroyed[id]=room.time+1000;continue;}delete room.destroyed[id];event(room,'restore',{entity:id});}
  for(const p of Object.values(room.players)){if(room.time-p.lastSeen>20000){removePlayer(room,p.id);continue;}if(p.health<=0){if(room.time>=p.respawnAt)respawn(room,p);continue;}p.heat=Math.max(0,p.heat-dt*.13);if(p.building&&room.time>=p.building.ends)finishBuild(room,p);const input=room.time-p.inputAt<INPUT_STALE_MS?p.input:{};if(!p.motion)movePlayer(room,p,dt,input);if(input.fire)shoot(room,p,input);resolveMelee(room,p);}
  const players=Object.values(room.players);
- const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],end={x:b.x+b.vx*dt,y:b.y+b.vy*dt,z:b.z+b.vz*dt};let hit=null;
+ const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],travel=Math.min(dt,Math.max(0,(b.expires-room.time+dt*1000)/1000)),end={x:b.x+b.vx*travel,y:b.y+b.vy*travel,z:b.z+b.vz*travel};let hit=end.y<=0&&b.y>=0?{t:b.y/Math.max(1e-9,b.y-end.y),ground:true}:null;
   for(const {entity,box} of boxes){if(room.destroyed[entity.id])continue;const h=segmentBox(b,end,box);if(h&&(!hit||h.t<hit.t))hit={...h,entity};}
   for(const p of players){if(p.id===b.owner||p.health<=0)continue;const bb=bounds(p),h=segmentBox(b,end,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);if(h&&(!hit||h.t<hit.t))hit={...h,player:p};}
-  if(hit){const point={x:b.x+(end.x-b.x)*hit.t,y:b.y+(end.y-b.y)*hit.t,z:b.z+(end.z-b.z)*hit.t,attack:b.id,color:b.color};if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}else{destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',point);}room.projectiles.splice(i,1);}else if(room.time>=b.expires||end.y<0)room.projectiles.splice(i,1);else Object.assign(b,end);
+  if(hit){const point={x:b.x+(end.x-b.x)*hit.t,y:b.y+(end.y-b.y)*hit.t,z:b.z+(end.z-b.z)*hit.t,attack:b.id,color:b.color};if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}else{if(hit.entity)destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',{...point,by:b.owner,entity:hit.entity?.id||'ground'});}room.projectiles.splice(i,1);}else if(room.time>=b.expires){event(room,'shot-end',{...end,attack:b.id});room.projectiles.splice(i,1);}else Object.assign(b,end);
  }
  if(room.time>=room.nextDrop)spawnDrop(room);
  collectDrops(room,players);
 }
 export function advanceRoom(room,now){now=Math.max(room.time,now);let elapsed=Math.max(0,now-room.time);if(elapsed>1000){room.time=now-1000;elapsed=1000;}while(elapsed>0){const ms=Math.min(1000/30,elapsed);room.time+=ms;step(room,ms/1000);elapsed-=ms;}room.time=now;return room;}
-export function applyInput(room,id,packet,now,kit=null){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}p.input=cleanInput(packet.input);p.inputAt=now;applyFrames(room,p,packet,now);
+export function applyInput(room,id,packet,now,kit=null){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}p.input=cleanInput(packet.input);p.aimYaw=p.input.cameraYaw;p.aimPitch=p.input.aimPitch;p.inputAt=now;applyFrames(room,p,packet,now);
  const command=packet.command;if(!command||!Number.isSafeInteger(command.id)||command.id<=p.lastCommand)return;p.lastCommand=command.id;if(p.health<=0)return;
  if(command.type==='fire')shoot(room,p,p.input);
  if(command.type==='jump')startJump(p,p.kit.stats.mounted);

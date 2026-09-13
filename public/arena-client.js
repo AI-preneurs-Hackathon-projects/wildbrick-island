@@ -1,3 +1,4 @@
+import {weaponMuzzle} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
 import {predictPlayer,cleanInput} from './arena-core.js';
 import {MOVE_DT} from './movement.js';
@@ -56,7 +57,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
   if(self&&snapshot&&fresh){
    const time=serverTime(),k=self.kit.stats;
-   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:k.weapon==='punch'?self.yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}
+   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:k.projectileSpeed===0?self.yaw:input.cameraYaw,pitch:input.aimPitch,origin:weaponMuzzle(view.state||self,input.cameraYaw,input.aimPitch),time},self.id);}
 
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){
@@ -67,7 +68,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const moving=Math.hypot(input.x,input.z)>.06||input.up||input.down;
   // Keep the last displayed pose when offline, and never pull an idle player
   // across the map to hide a network correction. Correct gradually while moving.
-  return self?view.update(self,fresh?dt:0,{correct:!!moving&&!!fresh}):null;
+  const pose=self?view.update(self,fresh?dt:0,{correct:!!moving&&!!fresh}):null;if(pose){pose.aimYaw=input.cameraYaw;pose.aimPitch=input.aimPitch;}return pose;
  }
  return {join,leave,tick,command,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return !!credentials;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !credentials||clock()-lastSuccess>1000;},serverTime};
 }

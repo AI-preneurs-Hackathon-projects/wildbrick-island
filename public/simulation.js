@@ -1,3 +1,5 @@
+import {makeKit} from './arena-core.js';
+import {weaponMuzzle,aimDirection} from './weapon-aim.js';
 import {movementShape,isMovementBlocker,canFit} from './movement-blocking.js';
 import {creationStats} from './combat.js';
 import {segmentBox,boxesOverlap} from './geometry.js';
@@ -29,17 +31,23 @@ export async function createSimulation(obstacles,onEvent){
   s.building={mode,custom,time:0,duration:1.2};emit('build',{mode,custom});return true;
  }
  function jump(){if(s.started&&!s.paused&&startJump(s,['car','plane'].includes(s.mode)))emit('jump');}
- function action(){
+ function action(aim){
   if(!s.started||s.paused||s.building||s.cooldown>0)return;
   s.actionTime=.40;s.cooldown=s.mode==='bow'?.62:s.mode==='sword'?.48:.3;
-  if(s.custom?.blueprint.ability==='pulse'){
-   const from={x:s.x,y:s.y+Math.max(1.5,(s.custom.dimensions?.[1]||2)*.7),z:s.z};
-   const list=TARGETS.map((t,i)=>({...t,id:i})).filter(t=>!s.targets.includes(t.id)&&rayDistance(from,{x:t.x,y:1.9,z:t.z},'target:'+t.id)>=Math.hypot(t.x-from.x,1.9-from.y,t.z-from.z)-.01);
-   const target=nearestTarget(s,list,36,.15);emit('shoot',{target:target?.id??null,from,yaw:s.yaw,pulse:true,color:s.custom.blueprint.palette[1]||s.custom.blueprint.palette[0]});return;
+  if(s.custom?.blueprint.ability==='pulse'||s.mode==='bow'&&!s.custom){
+   const kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),yaw=aim?.cameraYaw??s.yaw,pitch=aim?.aimPitch||0,from=weaponMuzzle({...s,kit},yaw,pitch),dir=aimDirection(yaw,pitch),range=kit.stats.range;
+   let to={x:from.x+dir.x*range,y:from.y+dir.y*range,z:from.z+dir.z*range};
+   // Preserve the legacy programmatic action's assistance; live controls aim explicitly.
+   if(!aim){const list=TARGETS.map((t,i)=>({...t,id:i})).filter(t=>!s.targets.includes(t.id)&&rayDistance(from,{x:t.x,y:1.9,z:t.z},'target:'+t.id)>=Math.hypot(t.x-from.x,1.9-from.y,t.z-from.z)-.01),target=nearestTarget(s,list,range,.15);if(target)to={x:target.x,y:1.9,z:target.z};}
+   let nearest=to.y<=0?{t:from.y/Math.max(1e-9,from.y-to.y),id:'ground'}:null;
+   const targets=TARGETS.map((t,i)=>({x:t.x,y:1.9,z:t.z,w:1.75,h:1.75,d:.4,id:'target:'+i})).filter((_,i)=>!s.targets.includes(i));
+   for(const o of [...scenery.values(),...placements.values(),...targets]){const hit=segmentBox(from,to,o);if(hit&&(!nearest||hit.t<nearest.t))nearest={...hit,id:o.id};}
+   if(nearest)to=Object.fromEntries(['x','y','z'].map(key=>[key,from[key]+(to[key]-from[key])*nearest.t]));
+   const target=String(nearest?.id).startsWith('target:')?Number(nearest.id.slice(7)):null;
+   emit('shoot',{target,from,to,yaw,pitch,impact:!!nearest,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
   }
   if(s.mode==='foot')jump();
   if(s.mode==='car'&&s.custom?.blueprint.ability!=='swing'){s.boostUntil=s.time+.7;emit('boost');}
-  if(s.mode==='bow'&&!s.custom){const from={x:s.x,y:s.y+1.5,z:s.z};const list=TARGETS.map((t,i)=>({...t,id:i})).filter(t=>!s.targets.includes(t.id)&&rayDistance(from,{x:t.x,y:1.9,z:t.z},'target:'+t.id)>=Math.hypot(t.x-from.x,1.9-from.y,t.z-from.z)-.01);const target=nearestTarget(s,list,32,.15);emit('shoot',{target:target?.id??null,from,yaw:s.yaw});}
   if((s.mode==='sword'&&!s.custom)||s.custom?.blueprint.ability==='swing'){const list=CRATES.map((t,i)=>({...t,id:i})).filter(t=>!s.crates.includes(t.id));const target=nearestTarget(s,list,3.8,-.25);if(target){s.crates.push(target.id);s.bricks+=12;emit('smash',{id:target.id});}else emit('swing');}
  }
  function hitTarget(id){if(Number.isInteger(id)&&id>=0&&id<TARGETS.length&&!s.targets.includes(id)){s.targets.push(id);s.bricks+=10;emit('target',{id});}}

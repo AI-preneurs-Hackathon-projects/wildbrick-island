@@ -8,6 +8,7 @@ function apiPreview(){return {name:'brickwild-private-api-preview',configureServ
  server.middlewares.use(async(req,res,next)=>{
   // Isolated development-only HUD validation, including when WebGL is unavailable.
   if(req.url?.split('?')[0]==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
+  if(req.url==='/__combat'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/combat-harness.html')));return;}
   if(req.url==='/__layouts'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/layout-harness.html')));return;}
   if(!req.url?.startsWith('/api/'))return next();
   if(req.url.startsWith('/api/arena/')){res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({error:'Arena multiplayer is unavailable in this local preview. Choose Back to Explore, or play on the published site after signing in.'}));return;}

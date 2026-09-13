@@ -153,3 +153,12 @@ Smallest owner action: open the published Site in two signed-in, authorized devi
 All 132 checks pass. Coverage includes exit-to-home across online, reconnecting, expired, offline and defeated Arena states; Explore exit and fresh entry with another name; eight persistent avatar choices; independent character materials; and authenticated HTTP clients receiving the chosen color with an invalid-color fallback. Existing movement and generation checks also pass.
 
 The actual local WebGL game was inspected at the default viewport and 390×844. Dragging rotated the avatar, selecting Blue changed its shirt, and the pause-menu Exit to home returned the name screen with focus and the chosen color intact. The game's read-state tool confirmed started=false and no pending generation. Multiplayer color propagation was tested through the HTTP/SQLite harness, not a live multiplayer session or physical touch device.
+
+
+## September 14 — firing direction, visible contacts and support drops
+
+140 automated checks pass, including all ranged weapon families in carried, driving and flying forms across horizontal and vertical aim angles. Focused checks cover unchanged body facing, grip-relative emitter coordinates, shots born and hit between snapshots, actual ground/target/cover contacts, suppression of invented miss impacts, independent render cleanup, and Explore wall/ground shots. Existing network retry and movement regressions pass.
+
+The local WebGL combat harness uses the real Arena simulation and renderer, with controlled snapshot delivery. Bow and twin-gun rover shots visibly left their emitters, traveled toward cover, and produced contact markers at the reported coordinates while body yaw remained 1.20 radians. A downward bow shot landed at ground y=0. This is local rendered validation, not a production multiplayer or physical-device performance claim. The harness is development-only and is not included in the hosted assets.
+
+Sky drops now cycle health, defense and speed only; persisted equipment drops are discarded and legacy equipment is not rendered. Checks confirm support effects, retained equipped creations, and no new weapon/vehicle lifetime. The legacy rover blueprint remains available to existing builds. Room-code work was cancelled before editing; no room-code changes were included.
