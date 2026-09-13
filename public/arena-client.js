@@ -6,7 +6,7 @@ import {validateBlueprint} from './blueprint.js';
 export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
  let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
- let previewAt=0;
+ let previewAt=0,fireHeldAt=0;
  let frames=[],nextFrame=0,motionEpoch=0,accumulator=0,jumpQueued=false;
  const blueprints=new Map(),loading=new Set(),view=createMotionView();
  async function request(path,body){const abort=new AbortController(),timeout=setTimer(()=>abort.abort(),12000);try{const r=await fetcher(path,{keepalive:path.endsWith('/leave'),method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:abort.signal,cache:'no-store'});let d;try{d=await r.json();}catch{throw Error('The arena did not respond. Reconnecting…');}if(!r.ok){const e=Error(d.error||'The arena could not connect.');e.status=r.status;throw e;}return d;}finally{clearTimer(timeout);}}
@@ -26,11 +26,11 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   for(const frame of frames)predictPlayer(self,frameInput(frame),MOVE_DT,{...s,time:s.time,preview:true});
   view.accept(self,{teleport});
   for(const p of s.players){fetchBlueprint(p.kit.blueprintId);fetchBlueprint(p.building?.kit.blueprintId);}for(const p of s.placed||[])fetchBlueprint(p.blueprintId);
-  if(lastEvent===0)lastEvent=Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&clock()-previewAt<2000},s.self);lastEvent=e.id;}
+  if(lastEvent===0)lastEvent=s.eventCursor??Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&clock()-previewAt<2000},s.self);lastEvent=e.id;}lastEvent=Math.max(lastEvent,s.eventCursor||0);
   onSnapshot(s);onStatus('online');
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
- async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input,frames:frames.slice(),motionEpoch,command:command?{id:command.id,type:command.type,mode:command.mode}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
+ async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=180},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,command:command?{id:command.id,type:command.type,mode:command.mode}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
   try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
    if(command?.blueprint){const own=result.snapshot.players.find(p=>p.id===result.snapshot.self),kit=own?.building?.kit||own?.kit;if(kit?.blueprintId)blueprints.set(kit.blueprintId,command.blueprint);}
    accept(result.snapshot);schedule();}
@@ -52,7 +52,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;commands.push({id:++commandId,type,mode,blueprint});schedule(0);return true;}
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){
-  const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed)command('fire');const fresh=credentials&&clock()-lastSuccess<1000;
+  const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
   if(self&&snapshot&&fresh){
    const time=serverTime(),k=self.kit.stats;
    if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}

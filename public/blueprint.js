@@ -18,6 +18,20 @@ export const COMPACT_BLUEPRINT_SCHEMA=structuredClone(BLUEPRINT_SCHEMA);
 COMPACT_BLUEPRINT_SCHEMA.properties.version.enum=[4];
 COMPACT_BLUEPRINT_SCHEMA.properties.parts.minItems=20;
 COMPACT_BLUEPRINT_SCHEMA.properties.parts.maxItems=64;
+// Only fresh model output may receive this unambiguous indexing repair. Saved
+// designs and arena uploads still go directly through the strict validator.
+export function normalizeGeneratedBlueprint(value){
+ if(value?.version!==4||!Array.isArray(value.parts))return value;
+ const b=structuredClone(value);
+ for(const [field,list,minimum] of [['joint',b.joints,0],['color',b.palette,-1]]){
+  if(!Array.isArray(list)||!list.length)continue;
+  const references=b.parts.map(p=>p?.[field]).filter(n=>n>minimum);
+  const usesZero=b.parts.some(p=>p?.[field]===0);
+  if(!usesZero&&references.includes(list.length)&&references.every(n=>Number.isInteger(n)&&n>=1&&n<=list.length))
+   for(const part of b.parts)if(part[field]>=1)part[field]--;
+ }
+ return b;
+}
 export function validateBlueprint(value){
  let stage='structure';const fail=(code=stage)=>{const error=new Error('The design could not be assembled. Try a simpler description.');error.code=code;throw error;};
  const exact=(x,keys)=>{if(!x||Array.isArray(x)||typeof x!=='object'||Object.keys(x).some(k=>!keys.includes(k))||keys.some(k=>!Object.hasOwn(x,k)))fail();};

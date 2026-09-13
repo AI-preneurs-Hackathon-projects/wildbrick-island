@@ -1,0 +1,107 @@
+{
+  "kind": "Synthetic SQLite with four CAS contenders; CPU-only flame stress, no real D1, network, WebGL or signed-in clients",
+  "contention": [
+    {
+      "clients": 10,
+      "isolates": 4,
+      "storageDelayMs": 5,
+      "requests": 40,
+      "errors": 0,
+      "conflicts": 43,
+      "queries": 170,
+      "p95Ms": 121.3,
+      "maxMs": 121.8
+    },
+    {
+      "clients": 20,
+      "isolates": 4,
+      "storageDelayMs": 5,
+      "requests": 80,
+      "errors": 0,
+      "conflicts": 83,
+      "queries": 330,
+      "p95Ms": 192,
+      "maxMs": 201.6
+    },
+    {
+      "clients": 40,
+      "isolates": 4,
+      "storageDelayMs": 5,
+      "requests": 160,
+      "errors": 0,
+      "conflicts": 167,
+      "queries": 658,
+      "p95Ms": 378.3,
+      "maxMs": 412.1
+    },
+    {
+      "clients": 80,
+      "isolates": 4,
+      "storageDelayMs": 5,
+      "requests": 320,
+      "errors": 0,
+      "conflicts": 376,
+      "queries": 1396,
+      "p95Ms": 752.9,
+      "maxMs": 835
+    }
+  ],
+  "combat": [
+    {
+      "clients": 10,
+      "simulationSeconds": 10,
+      "frames": 300,
+      "p95TickMs": 2.5,
+      "maxTickMs": 5.26,
+      "peakProjectiles": 40,
+      "peakEvents": 310,
+      "minRetainedEventMs": 5000,
+      "maxSnapshotBytes": 84556,
+      "maxDeltaSnapshotBytes": 23036,
+      "estimatedDeltaFanoutMbpsAt8Hz": 14.74,
+      "estimatedFanoutMbpsAt8Hz": 54.12
+    },
+    {
+      "clients": 20,
+      "simulationSeconds": 10,
+      "frames": 300,
+      "p95TickMs": 5.51,
+      "maxTickMs": 9,
+      "peakProjectiles": 80,
+      "peakEvents": 620,
+      "minRetainedEventMs": 5000,
+      "maxSnapshotBytes": 169526,
+      "maxDeltaSnapshotBytes": 45863,
+      "estimatedDeltaFanoutMbpsAt8Hz": 58.7,
+      "estimatedFanoutMbpsAt8Hz": 216.99
+    },
+    {
+      "clients": 40,
+      "simulationSeconds": 10,
+      "frames": 300,
+      "p95TickMs": 10.54,
+      "maxTickMs": 13.69,
+      "peakProjectiles": 152,
+      "peakEvents": 1342,
+      "minRetainedEventMs": 4867,
+      "maxSnapshotBytes": 357063,
+      "maxDeltaSnapshotBytes": 89999,
+      "estimatedDeltaFanoutMbpsAt8Hz": 230.4,
+      "estimatedFanoutMbpsAt8Hz": 914.08
+    },
+    {
+      "clients": 80,
+      "simulationSeconds": 10,
+      "frames": 300,
+      "p95TickMs": 8.34,
+      "maxTickMs": 11.71,
+      "peakProjectiles": 52,
+      "peakEvents": 4380,
+      "minRetainedEventMs": 4867,
+      "maxSnapshotBytes": 989235,
+      "maxDeltaSnapshotBytes": 124426,
+      "estimatedDeltaFanoutMbpsAt8Hz": 637.06,
+      "estimatedFanoutMbpsAt8Hz": 5064.88
+    }
+  ]
+}

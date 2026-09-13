@@ -21,7 +21,7 @@ function network(latency=250){
    else if(path.endsWith('/leave'))delete room.players[packet.session];
    else if(forced){status=forced;data={error:'Fixture connection ended'};}
    else if(!room.players[packet.session]){status=410;data={error:'Fixture seat expired'};}
-   else{applyInput(room,packet.session,packet,now,packet.command?.type==='build'?makeKit(packet.command.mode):null);room.revision++;data={snapshot:structuredClone(roomSnapshot(room,packet.session))};if(failAfterApply>0&&(!lossCommandOnly||packet.command?.type==='fire')){failAfterApply--;status=503;data={error:'Fixture lost response'};}}
+   else{applyInput(room,packet.session,packet,now,packet.command?.type==='build'?makeKit(packet.command.mode):null);room.revision++;data={snapshot:structuredClone(roomSnapshot(room,packet.session,packet.afterEvent))};if(failAfterApply>0&&(!lossCommandOnly||packet.command?.type==='fire')){failAfterApply--;status=503;data={error:'Fixture lost response'};}}
    setTimer(()=>resolve({ok:status===200,status,json:async()=>data}),latency/2);
   },latency/2);
  })};
@@ -103,12 +103,12 @@ await check('only actual arena respawn increments teleport epoch; pre-death fram
  applyInput(room,p.id,{seq:2,motionEpoch:1,frames:[packFrame(1,{z:1})]},room.time);assert.ok(distance(p,spawn)>0);
 });
 
-await check('a one-frame attack survives release and a lost response without duplicate damage or confirmed effects',async()=>{
- const n=network(250);await n.join();Object.assign(n.player,{x:0,z:10,y:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
+for(const latency of [250,600])await check(`a one-frame attack survives ${latency}ms latency and a lost response without duplicate damage or effects`,async()=>{
+ const n=network(latency);await n.join();Object.assign(n.player,{x:0,z:10,y:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
  // Let the normal snapshot acknowledge the fixture positions before input.
- for(let i=0;i<30;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:0});
+ for(let i=0;i<65;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:0});
  assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(q.health,100,'prediction never causes damage');
- for(let i=0;i<150;i++)await n.step({cameraYaw:0});
+ for(let i=0;i<240;i++)await n.step({cameraYaw:0});
  assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
  const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);
 });

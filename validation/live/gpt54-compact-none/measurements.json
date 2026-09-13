@@ -1,0 +1,116 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "gpt54-compact-none",
+      "httpStatus": 502,
+      "requestMs": 26432,
+      "headersMs": 26430.6,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 12153,
+        "upstreamMs": 12153,
+        "inputTokens": 1591,
+        "outputTokens": 2296,
+        "reasoningTokens": 0
+      },
+      "error": "The design didn’t fit together. Try again or simplify your description.",
+      "issue": "joint_index"
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "gpt54-compact-none",
+      "httpStatus": 200,
+      "requestMs": 22788.2,
+      "headersMs": 22784.4,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 10311,
+        "upstreamMs": 10311,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 1872,
+        "reasoningTokens": 0
+      },
+      "validationMs": 2.5,
+      "modelConstructionMs": 6.56,
+      "parts": 30,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "light",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.45,
+          2.95
+        ]
+      },
+      "name": "Red Twin-Gun Roadster",
+      "size": [
+        3.6,
+        2.01,
+        5.175000000000001
+      ],
+      "seat": [
+        0,
+        1.4,
+        -0.012500000000000233
+      ],
+      "waitingMovementMetres": 164.5,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "gpt54-compact-none",
+      "httpStatus": 200,
+      "requestMs": 26448.2,
+      "headersMs": 26408.3,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 13384,
+        "upstreamMs": 13384,
+        "validationMs": 0,
+        "inputTokens": 1592,
+        "outputTokens": 2456,
+        "reasoningTokens": 0
+      },
+      "validationMs": 0.71,
+      "modelConstructionMs": 3.79,
+      "parts": 35,
+      "joints": 13,
+      "movement": "drive",
+      "traits": {
+        "weapon": "pulse",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.55,
+          2.95
+        ]
+      },
+      "name": "Wheelopus Laser Rider",
+      "size": [
+        7.242993810000344,
+        2.571379625494437,
+        6.9
+      ],
+      "seat": [
+        0,
+        2.5462538430204806,
+        0.1499999999999999
+      ],
+      "waitingMovementMetres": 191.22,
+      "live": true
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "dragon-diagnostic",
+      "httpStatus": 200,
+      "requestMs": 29474.6,
+      "headersMs": 29430.4,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 14474,
+        "upstreamMs": 14474,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 2341,
+        "reasoningTokens": 498
+      },
+      "validationMs": 1.64,
+      "modelConstructionMs": 7.89,
+      "parts": 27,
+      "joints": 7,
+      "movement": "fly",
+      "traits": {
+        "weapon": "flame",
+        "armor": "medium",
+        "mass": "heavy",
+        "emitter": [
+          0,
+          2.45,
+          3.95
+        ]
+      },
+      "name": "Sunwing Rider Dragon",
+      "size": [
+        8,
+        2.541132774434417,
+        6.972664927704158
+      ],
+      "seat": [
+        0,
+        2.264626215835539,
+        0.1092582823429426
+      ],
+      "waitingMovementMetres": 213.15,
+      "live": true
+    }
+  ]
+}
