@@ -1,0 +1,149 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "final-compact-none",
+      "httpStatus": 200,
+      "requestMs": 27110.1,
+      "headersMs": 27106.7,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "reasoningEffort": "none",
+        "indexRepair": false,
+        "durationMs": 12549,
+        "upstreamMs": 12549,
+        "validationMs": 0,
+        "inputTokens": 1651,
+        "outputTokens": 2435,
+        "reasoningTokens": 0
+      },
+      "validationMs": 1.58,
+      "modelConstructionMs": 9.88,
+      "parts": 39,
+      "joints": 7,
+      "movement": "fly",
+      "traits": {
+        "weapon": "flame",
+        "armor": "medium",
+        "mass": "heavy",
+        "emitter": [
+          0,
+          4.25,
+          4.95
+        ]
+      },
+      "name": "Goldenwing Ride Dragon",
+      "size": [
+        7.422511331289844,
+        3.116396258309647,
+        8
+      ],
+      "seat": [
+        0,
+        2.1225778017548156,
+        0.6879018934462173
+      ],
+      "waitingMovementMetres": 195.77,
+      "live": true
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "final-compact-none",
+      "httpStatus": 200,
+      "requestMs": 9852.4,
+      "headersMs": 9808.1,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "reasoningEffort": "none",
+        "indexRepair": false,
+        "durationMs": 8969,
+        "upstreamMs": 8969,
+        "validationMs": 0,
+        "inputTokens": 1651,
+        "outputTokens": 1629,
+        "reasoningTokens": 0
+      },
+      "validationMs": 0.62,
+      "modelConstructionMs": 1.92,
+      "parts": 25,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.85,
+          2.6
+        ]
+      },
+      "name": "Red Twin-Gun Roadster",
+      "size": [
+        3.2,
+        2.769527920650425,
+        5.08
+      ],
+      "seat": [
+        0,
+        2.0637319511850727,
+        0.06000000000000011
+      ],
+      "waitingMovementMetres": 71.28,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "final-compact-none",
+      "httpStatus": 200,
+      "requestMs": 12621,
+      "headersMs": 12578.2,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "reasoningEffort": "none",
+        "indexRepair": false,
+        "durationMs": 11693,
+        "upstreamMs": 11693,
+        "validationMs": 0,
+        "inputTokens": 1652,
+        "outputTokens": 2156,
+        "reasoningTokens": 0
+      },
+      "validationMs": 0.58,
+      "modelConstructionMs": 1.84,
+      "parts": 33,
+      "joints": 8,
+      "movement": "drive",
+      "traits": {
+        "weapon": "pulse",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          2.2,
+          2.95
+        ]
+      },
+      "name": "Wheeltop Mecha Octopus",
+      "size": [
+        6,
+        2.7956124875971526,
+        6.691701908741743
+      ],
+      "seat": [
+        0,
+        2.795612487597153,
+        -2.220446049250313e-16
+      ],
+      "waitingMovementMetres": 91.23,
+      "live": true
+    }
+  ]
+}

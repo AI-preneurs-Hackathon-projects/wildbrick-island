@@ -17,7 +17,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const authoritative=structuredClone(s.players.find(p=>p.id===s.self)||null);
   if(!authoritative||authoritative.motion?.version!==1)throw Object.assign(Error('Your arena seat expired. Your position is held; join again to continue.'),{status:410});
   const teleport=!self||motionEpoch!==(authoritative.spawnSerial||0);
-  if(teleport){frames=[];nextFrame=authoritative.motion.frame;accumulator=0;jumpQueued=false;motionEpoch=authoritative.spawnSerial||0;}
+  if(teleport){commands=[];frames=[];nextFrame=authoritative.motion.frame;accumulator=0;jumpQueued=false;motionEpoch=authoritative.spawnSerial||0;}
   else{frames=frames.filter(f=>f[0]>authoritative.motion.frame);nextFrame=Math.max(nextFrame,authoritative.motion.frame);}
   epoch=s.epoch;revision=s.revision;snapshot=s;self=authoritative;
   seq=Math.max(seq,self.lastSeq);commandId=Math.max(commandId,self.lastCommand);commands=commands.filter(c=>c.id>self.lastCommand);lastSuccess=clock();

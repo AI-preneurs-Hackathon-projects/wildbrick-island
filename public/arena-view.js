@@ -21,7 +21,7 @@ if(a.modelId!==p.kit.id||(!a.model&&p.kit.blueprintId&&cache.has(p.kit.blueprint
   if(!p.building&&pose.active){a.pilot.arms.forEach((arm,i)=>{arm.rotation.x=p.kit.stats.weapon==='punch'?(i===1?-.35-strike*1.65:-.65):-.9-strike*.55;arm.position.z=i===1?strike*.5:0;});}else a.pilot.arms.forEach(arm=>arm.position.z=0);
   a.arc.visible=pose.active&&p.kit.stats.projectileSpeed===0;a.arc.scale.setScalar(p.kit.stats.weapon==='punch'?1:1.7);a.arc.material.opacity=strike*.65;
   a.flash.visible=elapsed>=0&&elapsed<(p.kit.stats.weapon==='flame'?.17:.12)&&p.kit.stats.projectileSpeed>0;
-  if(a.flash.visible){const m=p.kit.muzzle||[0,1.4,1];a.flash.position.set(...m);const flame=p.kit.stats.weapon==='flame';a.flash.scale.set(flame?2:1,flame?2:1,flame?5:1.8);a.flash.position.z+=flame?.8:0;a.flash.material.color.set(flame?0xff7836:0xffed9a);}
+  if(a.flash.visible){const m=p.kit.muzzle||[0,1.4,1];a.flash.position.set(...m);const flame=p.kit.stats.weapon==='flame';a.flash.scale.set(flame?2:1,flame?2:1,flame?5:1.8);const pitch=action?.pitch||0;a.flash.rotation.x=-pitch;if(flame){a.flash.position.y+=Math.sin(pitch)*.8;a.flash.position.z+=Math.cos(pitch)*.8;}a.flash.material.color.set(flame?0xff7836:0xffed9a);}
   const reaction=reactions.get(p.id),recoil=reaction?Math.max(0,1-(time-reaction.time)/350):0;
   a.pilot.group.rotation.x=-recoil*.25;a.pilot.group.rotation.z=recoil*.16;
   a.pilot.group.traverse(m=>{if(m.isMesh&&m.material.emissive){m.material.emissive.set(reaction?.type==='blocked'?0x339eff:0xffc27a);m.material.emissiveIntensity=recoil*1.6;}});
@@ -38,7 +38,7 @@ if(a.modelId!==p.kit.id||(!a.model&&p.kit.blueprintId&&cache.has(p.kit.blueprint
   for(let i=effects.length-1;i>=0;i--){const e=effects[i];e.life-=dt;e.mesh.scale.setScalar(Math.max(0,e.life/.4));if(e.life<=0){e.mesh.geometry.dispose();e.mesh.removeFromParent();effects.splice(i,1);}}
  }
  function effect(e){
-  if(['attack-preview','shot','swing'].includes(e.type)){if(!e.predicted)attacks.set(e.player,{time:viewTime||e.time,yaw:e.yaw||0});return;}
+  if(['attack-preview','shot','swing'].includes(e.type)){if(!e.predicted)attacks.set(e.player,{time:viewTime||e.time,yaw:e.yaw||0,pitch:e.pitch||0});return;}
   if(['hit','blocked'].includes(e.type))reactions.set(e.player,{time:viewTime||e.time,type:e.type});
   if(e.type==='respawn'){reactions.delete(e.player);attacks.delete(e.player);}
   if(!['break','crash','ko','hit','blocked','pickup','impact','respawn'].includes(e.type))return;

@@ -131,7 +131,7 @@ PASS a one-frame attack survives 600ms latency and a lost response without dupli
 PASS durable generation slots, per-requester rate and global minute budget are atomic
 PASS compact version 4 bounds and legacy version limits remain distinct
 PASS fresh uniform one-based references repair without weakening saved or mixed-index validation
-PASS captured compact dragon-diagnostic/dragon: assembly movement, joints, emitter, damage and saved blueprint
-PASS captured compact gpt54-compact/armed-car: assembly movement, joints, emitter, damage and saved blueprint
-PASS captured compact gpt54-compact/octopus: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/dragon: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/armed-car: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/octopus: assembly movement, joints, emitter, damage and saved blueprint
 3 current live-output arena replays passed; no new API calls or rendered gameplay.

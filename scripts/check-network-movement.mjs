@@ -99,7 +99,7 @@ await check('a join response arriving after Leave cannot reactivate or relocate 
 });
 await check('only actual arena respawn increments teleport epoch; pre-death frames cannot move it',()=>{
  const room=newRoom(1e5),p=addPlayer(room,'p','Respawn');p.motion=newMotion(room.time);p.protectedUntil=0;p.x=31;p.z=29;hurt(room,p,1000,null);p.respawnAt=room.time+50;advanceRoom(room,room.time+60);assert.equal(p.spawnSerial,1);assert.equal(p.motion.frame,0);const spawn=pose(p);
- applyInput(room,p.id,{seq:1,motionEpoch:0,frames:[packFrame(1,{z:1})]},room.time);assert.deepEqual(pose(p),spawn);
+ applyInput(room,p.id,{seq:1,motionEpoch:0,frames:[packFrame(1,{z:1})],input:{fire:true},command:{id:1,type:'build'}},room.time,makeKit('car'));assert.deepEqual(pose(p),spawn);assert.equal(p.building,null);assert.ok(!p.input.fire);
  applyInput(room,p.id,{seq:2,motionEpoch:1,frames:[packFrame(1,{z:1})]},room.time);assert.ok(distance(p,spawn)>0);
 });
 

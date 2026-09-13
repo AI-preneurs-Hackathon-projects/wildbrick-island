@@ -1,0 +1,837 @@
+{
+  "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+  "blueprint": {
+    "version": 4,
+    "name": "Wheeltop Mecha Octopus",
+    "description": "A purple mechanical octopus with eight articulated tentacles, four visible wheels, a top seat, and a forward laser cannon.",
+    "movement": "drive",
+    "ability": "pulse",
+    "palette": [
+      "#6F3CC3",
+      "#B08CFF",
+      "#2A2238",
+      "#FFF4D6",
+      "#FF5A6E"
+    ],
+    "seat": [
+      0,
+      2.7,
+      0
+    ],
+    "joints": [
+      {
+        "parent": -1,
+        "pivot": [
+          1.7,
+          0.8,
+          1.7
+        ],
+        "axis": "x",
+        "motion": "spin",
+        "amplitude": 0,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -1.7,
+          0.8,
+          1.7
+        ],
+        "axis": "x",
+        "motion": "spin",
+        "amplitude": 0,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          1.7,
+          0.8,
+          -1.7
+        ],
+        "axis": "x",
+        "motion": "spin",
+        "amplitude": 0,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -1.7,
+          0.8,
+          -1.7
+        ],
+        "axis": "x",
+        "motion": "spin",
+        "amplitude": 0,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          0,
+          1.2,
+          2.1
+        ],
+        "axis": "y",
+        "motion": "sway",
+        "amplitude": 18,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          0,
+          1.2,
+          -2.1
+        ],
+        "axis": "y",
+        "motion": "sway",
+        "amplitude": 18,
+        "phase": 180
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          2.1,
+          1.2,
+          0
+        ],
+        "axis": "y",
+        "motion": "sway",
+        "amplitude": 18,
+        "phase": 90
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -2.1,
+          1.2,
+          0
+        ],
+        "axis": "y",
+        "motion": "sway",
+        "amplitude": 18,
+        "phase": 270
+      }
+    ],
+    "parts": [
+      {
+        "shape": "box",
+        "position": [
+          0,
+          1.4,
+          0
+        ],
+        "size": [
+          3.6,
+          1.6,
+          3.6
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          0,
+          2.1,
+          0
+        ],
+        "size": [
+          3.2,
+          1.9,
+          3.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          2.55,
+          0
+        ],
+        "size": [
+          1.4,
+          0.3,
+          1.2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          2.35,
+          1.95
+        ],
+        "size": [
+          1.5,
+          0.8,
+          1.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          0,
+          2.2,
+          2.55
+        ],
+        "size": [
+          1.2,
+          0.6,
+          0.9
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0,
+          2.2,
+          2.65
+        ],
+        "size": [
+          0.45,
+          0.45,
+          0.9
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 4,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          0.45,
+          2.35,
+          2.82
+        ],
+        "size": [
+          0.22,
+          0.22,
+          0.22
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          -0.45,
+          2.35,
+          2.82
+        ],
+        "size": [
+          0.22,
+          0.22,
+          0.22
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          0.45,
+          2.32,
+          2.93
+        ],
+        "size": [
+          0.1,
+          0.1,
+          0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          -0.45,
+          2.32,
+          2.93
+        ],
+        "size": [
+          0.1,
+          0.1,
+          0.1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          1.9,
+          -2.1
+        ],
+        "size": [
+          1.4,
+          0.9,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          1.7,
+          0.8,
+          1.7
+        ],
+        "size": [
+          0.9,
+          0.8,
+          0.9
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 0,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -1.7,
+          0.8,
+          1.7
+        ],
+        "size": [
+          0.9,
+          0.8,
+          0.9
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 1,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          1.7,
+          0.8,
+          -1.7
+        ],
+        "size": [
+          0.9,
+          0.8,
+          0.9
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -1.7,
+          0.8,
+          -1.7
+        ],
+        "size": [
+          0.9,
+          0.8,
+          0.9
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0.7,
+          1,
+          2.25
+        ],
+        "size": [
+          0.5,
+          0.35,
+          1.2
+        ],
+        "rotation": [
+          0,
+          25,
+          35
+        ],
+        "color": 1,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          1.15,
+          0.75,
+          2.8
+        ],
+        "size": [
+          0.4,
+          0.3,
+          1
+        ],
+        "rotation": [
+          0,
+          35,
+          55
+        ],
+        "color": 1,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -0.7,
+          1,
+          2.25
+        ],
+        "size": [
+          0.5,
+          0.35,
+          1.2
+        ],
+        "rotation": [
+          0,
+          -25,
+          -35
+        ],
+        "color": 1,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -1.15,
+          0.75,
+          2.8
+        ],
+        "size": [
+          0.4,
+          0.3,
+          1
+        ],
+        "rotation": [
+          0,
+          -35,
+          -55
+        ],
+        "color": 1,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0.7,
+          1,
+          -2.25
+        ],
+        "size": [
+          0.5,
+          0.35,
+          1.2
+        ],
+        "rotation": [
+          0,
+          155,
+          -35
+        ],
+        "color": 1,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          1.15,
+          0.75,
+          -2.8
+        ],
+        "size": [
+          0.4,
+          0.3,
+          1
+        ],
+        "rotation": [
+          0,
+          145,
+          -55
+        ],
+        "color": 1,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -0.7,
+          1,
+          -2.25
+        ],
+        "size": [
+          0.5,
+          0.35,
+          1.2
+        ],
+        "rotation": [
+          0,
+          -155,
+          35
+        ],
+        "color": 1,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -1.15,
+          0.75,
+          -2.8
+        ],
+        "size": [
+          0.4,
+          0.3,
+          1
+        ],
+        "rotation": [
+          0,
+          -145,
+          55
+        ],
+        "color": 1,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          2.25,
+          1,
+          0.7
+        ],
+        "size": [
+          1.2,
+          0.35,
+          0.5
+        ],
+        "rotation": [
+          35,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          2.8,
+          0.75,
+          1.15
+        ],
+        "size": [
+          1,
+          0.3,
+          0.4
+        ],
+        "rotation": [
+          55,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          2.25,
+          1,
+          -0.7
+        ],
+        "size": [
+          1.2,
+          0.35,
+          0.5
+        ],
+        "rotation": [
+          -35,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          2.8,
+          0.75,
+          -1.15
+        ],
+        "size": [
+          1,
+          0.3,
+          0.4
+        ],
+        "rotation": [
+          -55,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -2.25,
+          1,
+          0.7
+        ],
+        "size": [
+          1.2,
+          0.35,
+          0.5
+        ],
+        "rotation": [
+          -35,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 7,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -2.8,
+          0.75,
+          1.15
+        ],
+        "size": [
+          1,
+          0.3,
+          0.4
+        ],
+        "rotation": [
+          -55,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 7,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -2.25,
+          1,
+          -0.7
+        ],
+        "size": [
+          1.2,
+          0.35,
+          0.5
+        ],
+        "rotation": [
+          35,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 7,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -2.8,
+          0.75,
+          -1.15
+        ],
+        "size": [
+          1,
+          0.3,
+          0.4
+        ],
+        "rotation": [
+          55,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": 7,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0.95,
+          2.55,
+          1.45
+        ],
+        "size": [
+          0.25,
+          0.4,
+          0.25
+        ],
+        "rotation": [
+          0,
+          0,
+          20
+        ],
+        "color": 4,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -0.95,
+          2.55,
+          1.45
+        ],
+        "size": [
+          0.25,
+          0.4,
+          0.25
+        ],
+        "rotation": [
+          0,
+          0,
+          -20
+        ],
+        "color": 4,
+        "joint": -1,
+        "studs": false
+      }
+    ],
+    "traits": {
+      "weapon": "pulse",
+      "armor": "medium",
+      "mass": "medium",
+      "emitter": [
+        0,
+        2.2,
+        2.95
+      ]
+    }
+  },
+  "generation": {
+    "model": "gpt-5.4",
+    "profile": "compact",
+    "reasoningEffort": "none",
+    "indexRepair": false,
+    "durationMs": 11693,
+    "upstreamMs": 11693,
+    "validationMs": 0,
+    "inputTokens": 1652,
+    "outputTokens": 2156,
+    "reasoningTokens": 0
+  }
+}

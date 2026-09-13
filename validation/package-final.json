@@ -1,0 +1,8 @@
+{
+  "assets": 45,
+  "migrations": 3,
+  "byteIdentical": true,
+  "developmentFilesExcluded": true,
+  "unauthenticatedArenaStatus": 401,
+  "publicSecretScan": "passed"
+}

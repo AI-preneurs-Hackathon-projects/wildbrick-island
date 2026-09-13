@@ -6,7 +6,7 @@ import {createGeneratedModel} from '../public/generated-model.js';
 import {newRoom,addPlayer,applyInput,advanceRoom,makeKit} from '../public/arena-core.js';
 import {createState} from '../public/rules.js';
 import {createAdventure} from '../public/adventure.js';
-for(const [file,weapon,movement] of [['dragon-diagnostic/dragon','flame','fly'],['gpt54-compact/armed-car','automatic','drive'],['gpt54-compact/octopus','pulse','drive']]){
+for(const [file,weapon,movement] of [['final-compact-none/dragon','flame','fly'],['final-compact-none/armed-car','automatic','drive'],['final-compact-none/octopus','pulse','drive']]){
  const b=JSON.parse(fs.readFileSync('validation/live/'+file+'.json')).blueprint,model=createGeneratedModel(b);
  assert.equal(b.version,4);assert.equal(b.traits.weapon,weapon);assert.equal(b.movement,movement);assert.ok(model.drawCalls<=5);
  const matrix=new THREE.Matrix4();for(const t of [0,.2,.7,1.1]){model.update(t,1,1);for(const mesh of model.group.children)for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,matrix);assert.ok(matrix.elements.every(Number.isFinite));}}
