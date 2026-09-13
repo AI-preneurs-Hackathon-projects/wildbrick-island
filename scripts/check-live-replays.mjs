@@ -13,7 +13,7 @@ for(const [kind,mode] of [['dragon','plane'],['octopus','car'],['teapot','plane'
  assert.ok(model.drawCalls<=5);assert.ok(Math.max(...model.size.toArray())<=8.001);
  const m=new THREE.Matrix4();for(const progress of [0,.25,.75,1])for(const t of [0,.25,.8,1.6]){model.update(t,progress,1);for(const mesh of model.group.children)for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,m);assert.ok(m.elements.every(Number.isFinite));}}
  const start=sim.state.z;assert.equal(sim.buildCustom({blueprint,dimensions:model.size.toArray()}),true);
- for(let i=0;i<120;i++)sim.update(1/60,{z:1,cameraYaw:Math.PI,up:mode==='plane'});assert.ok(sim.state.building);assert.ok(Math.abs(sim.state.z-start)>5);
+ for(let i=0;i<45;i++)sim.update(1/60,{z:1,cameraYaw:Math.PI,up:mode==='plane'});assert.ok(sim.state.building);assert.ok(Math.abs(sim.state.z-start)>5);
  for(let i=0;i<240;i++)sim.update(1/60,{z:1,cameraYaw:Math.PI,up:mode==='plane'});assert.equal(sim.state.mode,mode);assert.equal(sim.state.custom.blueprint.name,blueprint.name);
  if(mode==='plane'){assert.ok(sim.state.y>4);const ring=RINGS[0];Object.assign(sim.state,{x:ring.x,y:ring.y-1.3,z:ring.z,speed:0});sim.update(1/60,{});assert.ok(sim.state.rings.includes(0));}
  else{const gate=GATES[0];Object.assign(sim.state,{x:gate.x,y:0,z:gate.z,speed:0});sim.update(1/60,{});assert.ok(sim.state.gates.includes(0));}

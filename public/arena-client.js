@@ -31,7 +31,9 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
  async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input,frames:frames.slice(),motionEpoch,command:command?{id:command.id,type:command.type,mode:command.mode}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
-  try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;accept(result.snapshot);schedule();}
+  try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
+   if(command?.blueprint){const own=result.snapshot.players.find(p=>p.id===result.snapshot.self),kit=own?.building?.kit||own?.kit;if(kit?.blueprintId)blueprints.set(kit.blueprintId,command.blueprint);}
+   accept(result.snapshot);schedule();}
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);onStatus('expired');onError(e.message,e.status);}else{onStatus('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }

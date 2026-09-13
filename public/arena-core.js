@@ -89,6 +89,6 @@ export function applyInput(room,id,packet,now,kit=null){const p=room.players[id]
  if(command.type==='fire')shoot(room,p,p.input);
  if(command.type==='jump')startJump(p,p.kit.stats.mounted);
  if(command.type==='exit'){dismount(room,p);return;}
- if(command.type==='build'&&kit&&!p.building&&now>=p.buildReadyAt){p.melee=null;p.building={kit,starts:now,ends:now+2800};p.buildReadyAt=now+10000;event(room,'build',{player:p.id,kit:kit.id});}
+ if(command.type==='build'&&kit&&!p.building&&now>=p.buildReadyAt){p.melee=null;p.building={kit,starts:now,ends:now+1200};p.buildReadyAt=now+10000;event(room,'build',{player:p.id,kit:kit.id});}
 }
 export function roomSnapshot(room,self){return {epoch:room.epoch,revision:room.revision,time:room.time,self,players:Object.values(room.players).map(({input,inputAt,lastSeen,...p})=>p),projectiles:room.projectiles,drops:room.drops,destroyed:room.destroyed,damage:room.damage,placed:room.placed,events:room.events,leaderboard:Object.values(room.players).sort((a,b)=>b.kills-a.kills||a.deaths-b.deaths).map(p=>({id:p.id,name:p.name,kills:p.kills,deaths:p.deaths}))};}

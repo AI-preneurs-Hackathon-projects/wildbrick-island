@@ -1,0 +1,94 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "baseline-v11",
+      "httpStatus": 502,
+      "requestMs": 40448.9,
+      "headersMs": 40446.3,
+      "error": "The design didn’t fit together. Try again or simplify your description."
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "baseline-v11",
+      "httpStatus": 200,
+      "requestMs": 28679.5,
+      "headersMs": 28637.7,
+      "generation": {
+        "model": "gpt-5.4",
+        "durationMs": 15478
+      },
+      "validationMs": 3.89,
+      "modelConstructionMs": 10.21,
+      "parts": 44,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "light",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.68,
+          2.95
+        ]
+      },
+      "name": "Red Twin-Gun Roadster",
+      "size": [
+        3.6,
+        1.6119520482763694,
+        5.58
+      ],
+      "seat": [
+        0,
+        1.49,
+        -0.08999999999999994
+      ],
+      "waitingMovementMetres": 207.2,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "baseline-v11",
+      "httpStatus": 200,
+      "requestMs": 53542.7,
+      "headersMs": 53498.8,
+      "generation": {
+        "model": "gpt-5.4",
+        "durationMs": 21271
+      },
+      "validationMs": 0.56,
+      "modelConstructionMs": 2.2,
+      "parts": 49,
+      "joints": 12,
+      "movement": "drive",
+      "traits": {
+        "weapon": "pulse",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          2.55,
+          3.35
+        ]
+      },
+      "name": "Laserwheel Mecha-Octopus",
+      "size": [
+        6.618022247212274,
+        3.95,
+        6.881508451428424
+      ],
+      "seat": [
+        0,
+        3.95,
+        0
+      ],
+      "waitingMovementMetres": 387.1,
+      "live": true
+    }
+  ]
+}

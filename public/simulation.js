@@ -26,7 +26,7 @@ export async function createSimulation(obstacles,onEvent){
  function buildCustom(design){
   if(!s.started||s.paused||s.building)return false;
   const blueprint=validateBlueprint(design.blueprint),custom={blueprint,dimensions:design.dimensions};const mode=customMode(blueprint);
-  s.building={mode,custom,time:0,duration:2.8};emit('build',{mode,custom});return true;
+  s.building={mode,custom,time:0,duration:1.2};emit('build',{mode,custom});return true;
  }
  function jump(){if(s.started&&!s.paused&&startJump(s,['car','plane'].includes(s.mode)))emit('jump');}
  function action(){
