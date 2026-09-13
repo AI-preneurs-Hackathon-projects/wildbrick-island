@@ -88,3 +88,14 @@
 .arena-results{position:absolute;z-index:25;top:50%;left:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));max-height:70vh;overflow:auto;box-sizing:border-box;padding:26px;border-radius:24px;background:#fff8e9;box-shadow:0 12px 90px #183d3577;pointer-events:auto}
 .arena-results h2{margin:8px 0}.arena-results p{font-size:14px;line-height:1.5}.arena-intermission{padding:18px 12px;background:#f8c33f;border-radius:14px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}.arena-results .arena-rank{grid-template-columns:24px 1fr 38px 40px}.arena-results .arena-rank small{font-size:14px}
 @media(max-width:700px){.arena-round-clock{top:92px;font-size:14px;padding:7px 12px}.arena-results{padding:20px;max-height:60vh}}
+
+.arena-results > .secondary{width:100%;min-height:44px;margin-top:8px}
+
+/* Keep speech text out of the main control's layout, with a readable scroll area. */
+.build-dock{width:156px;left:50%;transform:translateX(-50%)}
+.build-dock .dock-row{justify-content:center}
+.build-dock .voice-status{position:absolute;left:50%;bottom:calc(100% + 10px);transform:translateX(-50%);width:max-content;max-width:min(360px,calc(100vw - 32px));max-height:min(150px,22dvh);margin:0;box-sizing:border-box;overflow:auto;overflow-wrap:anywhere;white-space:normal;text-overflow:clip;line-height:1.4;pointer-events:auto;touch-action:pan-y}
+.arena-vitals #arena-creations{position:absolute;top:calc(100% + 8px);left:0;width:100%;min-height:44px;padding:10px 12px;border-radius:12px;background:#fff8e9;box-shadow:0 3px 12px #183d3522;pointer-events:auto;font-size:14px}
+@media(max-width:600px){.build-dock{width:138px}.build-dock .voice-status{bottom:calc(100% + 180px);max-width:min(280px,calc(100vw - 32px));max-height:18dvh}}
+
+@media(max-width:700px){.arena-round-clock{top:66px}.arena-vitals{top:108px}.arena-board{top:109px}}

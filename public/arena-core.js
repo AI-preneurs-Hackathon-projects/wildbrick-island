@@ -47,11 +47,11 @@ function applyFrames(room,p,packet,now){
 }
 export function predictPlayer(p,input,dt,worldState){if(worldState.round?.status==='finished'||p.health<=0)return;const world={...worldState,preview:true,players:{[p.id]:p},events:[],eventId:0,damage:{...worldState.damage},destroyed:{...worldState.destroyed}},controls=cleanInput(input);for(let left=Math.min(.1,dt);left>1e-8;){const step=Math.min(left,1/30);movePlayer(world,p,step,controls);left-=step;world.time+=step*1000;}}
 function rand(room){let n=room.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;room.seed=n>>>0;return room.seed/4294967296;}
-function shoot(room,p,input){const k=p.kit.stats;if(ensureRound(room).status!=='active'||p.health<=0||p.building||!k.damage||room.time<p.nextShot||room.time<p.overheatedUntil||room.time<p.protectedUntil)return;
+function shoot(room,p,input,commandId=null){const k=p.kit.stats;if(ensureRound(room).status!=='active'||p.health<=0||p.building||!k.damage||room.time<p.nextShot||room.time<p.overheatedUntil||room.time<p.protectedUntil)return;
  p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
  let {yaw,pitch}=weaponAim(p,input.weaponPitch);const anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
- if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
+ if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon,commandId});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
 
  yaw+=(rand(room)-.5)*k.spread;pitch+=(rand(room)-.5)*k.spread*.7;
  const from=weaponMuzzle(p,yaw,pitch);
@@ -59,7 +59,7 @@ function shoot(room,p,input){const k=p.kit.stats;if(ensureRound(room).status!=='
 
  // Bound each shooter's outstanding work without deleting another player's shots.
  if(room.projectiles.filter(b=>b.owner===p.id).length>=24||room.projectiles.length>=2048){event(room,'notice',{player:p.id,text:'The arena has a lot of projectiles. Try attacking again shortly.'});return;}
- const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};room.projectiles.push(projectile);event(room,'shot',{player:p.id,weapon:k.weapon,yaw,pitch,...from,projectile:{...projectile}});
+ const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};room.projectiles.push(projectile);event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,...from,projectile:{...projectile}});
 }
 function resolveMelee(room,p){
  const m=p.melee;if(!m||room.time<m.at)return;p.melee=null;
@@ -119,7 +119,7 @@ export function advanceRoom(room,now){ensureRound(room);now=Math.max(room.time,n
  return room;}
 export function applyInput(room,id,packet,now,kit=null){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}const round=ensureRound(room);if(packet.roundId!==undefined&&packet.roundId!==round.id){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}if(round.status==='finished'){const c=packet.command;if(c&&Number.isSafeInteger(c.id)&&c.id>p.lastCommand){p.lastCommand=c.id;}return;}p.input=cleanInput(packet.input);p.aimPitch=weaponAim(p,p.input.weaponPitch).pitch;p.inputAt=now;applyFrames(room,p,packet,now);
  const command=packet.command;if(!command||!Number.isSafeInteger(command.id)||command.id<=p.lastCommand)return;p.lastCommand=command.id;if(p.health<=0)return;
- if(command.type==='fire')shoot(room,p,p.input);
+ if(command.type==='fire')shoot(room,p,p.input,command.id);
  if(command.type==='jump')startJump(p,p.kit.stats.mounted);
  if(command.type==='exit'){dismount(room,p);return;}
  if(command.type==='build'&&kit&&!p.building&&now>=p.buildReadyAt){p.melee=null;p.building={kit,starts:now,ends:now+1200};p.buildReadyAt=now+10000;event(room,'build',{player:p.id,kit:kit.id});}

@@ -1,5 +1,8 @@
 import {WORLD_ENTITIES} from '../public/world-data.js';
 import assert from 'node:assert/strict';
+import {JSDOM} from 'jsdom';
+import * as THREE from '../public/vendor/three.module.js';
+import {createArenaView} from '../public/arena-view.js';
 import fs from 'node:fs';
 import {createArenaClient} from '../public/arena-client.js';
 import {newRoom,addPlayer,advanceRoom,applyInput,roomSnapshot,makeKit,hurt} from '../public/arena-core.js';
@@ -11,7 +14,7 @@ let checks=0;
 async function check(name,fn){await fn();checks++;console.log('PASS '+name);}
 const pose=p=>({x:p.x,y:p.y,z:p.z}),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
 const flush=async()=>{for(let i=0;i<24;i++)await Promise.resolve();};
-function network(latency=250){
+function network(latency=250,onEvent=()=>{}){
  let now=100000,timerId=0,forced=0,failAfterApply=0,lossCommandOnly=false,joins=0;const timers=new Map(),errors=[],statuses=[],packets=[],events=[],room=newRoom(now,'network-test');
  const setTimer=(fn,ms)=>{const id=++timerId;timers.set(id,{fn,at:now+ms});return id;},clearTimer=id=>timers.delete(id);
  const runtime={clock:()=>now,setTimer,clearTimer,fetcher:(path,options)=>new Promise(resolve=>{
@@ -26,7 +29,7 @@ function network(latency=250){
    setTimer(()=>resolve({ok:status===200,status,json:async()=>data}),latency/2);
   },latency/2);
  })};
- const client=createArenaClient({onError:(...e)=>errors.push(e),onStatus:s=>statuses.push(s),onEvent:e=>events.push(e)},runtime);
+ const client=createArenaClient({onError:(...e)=>errors.push(e),onStatus:s=>statuses.push(s),onEvent:e=>{events.push(e);onEvent(e);}},runtime);
  async function advance(ms){const end=now+ms;while(true){let next=null;for(const [id,t]of timers)if(t.at<=end&&(!next||t.at<next.t.at))next={id,t};if(!next)break;now=next.t.at;timers.delete(next.id);next.t.fn();await flush();}now=end;await flush();}
  async function step(input={},dt=MOVE_DT){await advance(dt*1000);return client.tick(dt,input);}
  async function join(){const result=client.join('Tester','TEST');await advance(latency+1);assert.equal(await result,true);return client.self;}
@@ -117,6 +120,19 @@ for(const latency of [250,600])await check(`a one-frame attack survives ${latenc
  assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
  const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);
 });
+const renderDOM=new JSDOM('');globalThis.document=renderDOM.window.document;renderDOM.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
+for(const latency of [250,600,1200])for(const heldMs of [0,300])await check(`one ${heldMs}ms press draws one punch through ${latency}ms latency and a lost acknowledgement`,async()=>{
+ const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),n=network(latency,e=>view.effect(e));await n.join();Object.assign(n.player,{x:0,z:10,yaw:0,protectedUntil:0});const target=addPlayer(n.room,'target','Target',n.now);Object.assign(target,{x:0,z:11.7,protectedUntil:0});
+ for(let i=0;i<200;i++)await n.step();while(n.client.stale)await n.step();
+ const draw=()=>{view.update(n.client.snapshot,n.client.self,n.client.blueprints,MOVE_DT,n.client.serverTime());return scene.getObjectByName('arena-player:'+n.player.id).children[0].children.find(c=>c.position.x===-.68).rotation.x;};draw();n.loseResponse(true);let peaks=0,striking=false;
+ for(let i=0;i<400;i++){await n.step({fire:i===0||i*MOVE_DT*1000<heldMs});const next=draw()<-1;if(next&&!striking)peaks++;striking=next;}
+ assert.equal(peaks,1,'server acknowledgement must not restart the arm animation');assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);const swings=n.events.filter(e=>e.type==='swing');assert.equal(swings.length,1);assert.equal(swings[0].predicted,true);assert.equal(swings[0].commandId,n.events.find(e=>e.type==='attack-preview').commandId);assert.equal(target.health,83.8);assert.equal(n.events.filter(e=>e.type==='hit').length,1);view.clear();n.client.leave();
+});
+await check('deliberate held attacks repeat at the weapon interval without preview/acknowledgement doubles',async()=>{
+ const n=network(250);await n.join();n.player.protectedUntil=0;await n.advance(500);for(let i=0;i<150;i++)await n.step({fire:true});for(let i=0;i<80;i++)await n.step();
+ const swings=n.events.filter(e=>e.type==='swing');assert.ok(swings.length>=3);assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(swings.filter(e=>e.predicted).length,1);for(let i=1;i<swings.length;i++)assert.ok(swings[i].time-swings[i-1].time>=n.player.kit.stats.interval*1000-1);n.client.leave();
+});
+renderDOM.window.close();delete globalThis.document;
 await check('leaving reconnecting or expired Arena stops sync and clears its player immediately',async()=>{
  for(const status of [503,401,410]){const n=network(250);await n.join();n.force(status);await n.advance(1200);const leaving=n.client.leave();assert.equal(n.client.active,false);assert.equal(n.client.self,null);assert.equal(n.client.snapshot,null);await n.advance(1200);await leaving;const count=n.packets.length;await n.advance(3000);assert.equal(n.packets.length,count);assert.equal(n.statuses.at(-1),'offline');}
 });
@@ -137,5 +153,8 @@ await check('local and authoritative firing ignore camera orbit, including immed
 });
 await check('automatic intermission stays joined through lost responses and starts the next round once',async()=>{
  const n=network(100);await n.join();const id=n.client.snapshot.self;n.player.kills=4;n.room.round.endsAt=n.now+100;await n.advance(500);assert.equal(n.client.snapshot.round.status,'finished');assert.equal(n.client.command('fire'),false);assert.equal(n.client.command('restart'),false);n.loseResponse();await n.advance(1800);assert.equal(n.client.snapshot.round.id,1);await n.advance(30000);assert.equal(n.client.snapshot.round.id,2);assert.equal(n.client.snapshot.self,id);assert.equal(n.player.kills,0);assert.equal(n.client.snapshot.round.previousResults,undefined);assert.equal(n.room.events.filter(e=>e.type==='round-started').length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/join')).length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/leave')).length,0);n.client.leave();
+});
+await check('Exit during intermission clears the session and late sync cannot rejoin at the next round',async()=>{
+ const n=network(600);await n.join();const id=n.player.id;n.room.round.endsAt=n.now+100;await n.advance(1300);assert.equal(n.client.snapshot.round.status,'finished');await n.advance(150);const leaving=n.client.leave();assert.equal(n.client.active,false);assert.equal(n.client.snapshot,null);await n.advance(32000);await leaving;assert.equal(n.room.players[id],undefined);assert.equal(n.client.active,false);assert.equal(n.client.snapshot,null);assert.equal(n.packets.filter(p=>p.path.endsWith('/join')).length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/leave')).length,1);
 });
 console.log(`\n${checks} direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.`);

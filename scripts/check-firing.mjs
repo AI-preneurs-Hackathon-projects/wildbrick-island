@@ -59,6 +59,18 @@ await check('anatomical right hand holds one-handed weapons and fires; bow uses 
  for(const weapon of ['pulse','automatic','flame','blade','hammer','knife','bow']){const pilot=character(),kit=makeKit('test',{...fixture,movement:'carry',traits:{...fixture.traits,weapon}});poseWeaponHands(pilot,kit,.2,.8);pilot.group.updateMatrixWorld(true);const primary=weapon==='bow'?pilot.arms[1]:pilot.arms[0];assert.ok(primary.position.x*(weapon==='bow'?1:-1)>0);assert.ok(hand(primary).distanceTo(new THREE.Vector3(...weaponGrip(kit)))<.02);}
  const pilot=character();poseWeaponHands(pilot,makeKit('foot'),0,1);assert.ok(pilot.arms[0].rotation.x<pilot.arms[1].rotation.x);assert.ok(pilot.arms[0].position.z>pilot.arms[1].position.z);
 });
+await check('shared Practice hand posing preserves gait and restores it after a punch',()=>{
+ const pilot=character(),kit=makeKit('foot');
+ for(const swing of [-.4,0,.4]){pilot.arms[0].rotation.x=swing;pilot.arms[1].rotation.x=-swing;poseWeaponHands(pilot,kit,0,0);near(pilot.arms[0].rotation.x,swing);near(pilot.arms[1].rotation.x,-swing);poseWeaponHands(pilot,kit,0,1);assert.ok(pilot.arms[0].position.z>0);pilot.arms[0].rotation.x=swing;pilot.arms[1].rotation.x=-swing;poseWeaponHands(pilot,kit,0,0);near(pilot.arms[0].rotation.x,swing);near(pilot.arms[1].rotation.x,-swing);near(pilot.arms[0].position.z,0);}
+});
+await check('Arena walking and sprinting alternate arms opposite legs, including the free carrying arm',()=>{
+ for(const speed of [7,12])for(const kit of [makeKit('foot'),makeKit('sword')]){
+  const {r,p}=setup(kit);p.speed=speed;const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera());
+  const draw=t=>view.update(roomSnapshot(r,p.id),p,new Map(),1/60,t);draw(r.time);const pilot=scene.getObjectByName('arena-player:p').children[0],arms=[-.68,.68].map(x=>pilot.children.find(c=>c.position.x===x)),leg=pilot.children.find(c=>c.position.x===.24);let first;
+  for(const dt of [0,Math.PI*85]){draw(r.time+dt);const swing=arms[1].rotation.x;assert.ok(Math.abs(swing)>.05);if(first!==undefined)assert.ok(first*swing<0);first=swing;if(kit.id==='foot')assert.ok(arms[0].rotation.x*swing<0);assert.ok(leg);assert.ok(leg.rotation.x*swing<0);}
+  view.effect({type:'attack-preview',player:p.id,weapon:kit.stats.weapon,time:r.time});draw(r.time+Math.PI*85+130);draw(r.time+Math.PI*85+800);assert.ok(arms[1].rotation.x>-.5&&arms[1].rotation.x<.5);near(arms[1].position.z,0);p.speed=0;draw(r.time+1500);near(arms[1].rotation.x,0);assert.equal(r.events.filter(e=>['shot','swing'].includes(e.type)).length,0);view.clear();
+ }
+});
 await check('a shot born and hit between snapshots draws a tracer then a marker at the actual contact',()=>{
  const {r,p}=setup(),scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera());view.update(roomSnapshot(r,p.id),p,new Map(),.016,r.time);
  const b={id:77,x:0,y:3,z:0,vx:0,vy:0,vz:36,range:56,weapon:'bow',color:'#ffcf55'};
