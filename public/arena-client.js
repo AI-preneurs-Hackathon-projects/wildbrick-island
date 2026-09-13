@@ -1,4 +1,4 @@
-import {weaponMuzzle} from './weapon-aim.js';
+import {weaponMuzzle,weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
 import {predictPlayer,cleanInput} from './arena-core.js';
 import {MOVE_DT} from './movement.js';
@@ -32,7 +32,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   onSnapshot(s);onStatus('online');
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
- async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=180},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,command:command?{id:command.id,type:command.type,mode:command.mode}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
+ async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=180},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
   try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
    if(command?.blueprint){const own=result.snapshot.players.find(p=>p.id===result.snapshot.self),kit=own?.building?.kit||own?.kit;if(kit?.blueprintId)blueprints.set(kit.blueprintId,command.blueprint);}
    accept(result.snapshot);schedule();}
@@ -51,13 +51,13 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   }catch(e){if(generation===lifecycle){credentials=null;onStatus('offline');onError(e.message,e.status);}return false;}finally{joining=false;}
  }
  async function leave(){lifecycle++;closed=true;clearTimer(timer);const old=credentials;credentials=null;self=null;snapshot=null;view.reset();commands=[];frames=[];accumulator=0;jumpQueued=false;input={};onStatus('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
- function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;commands.push({id:++commandId,type,mode,blueprint});schedule(0);return true;}
+ function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart'){if(snapshot?.round?.status!=='finished'||commands.some(c=>c.type==='restart'))return false;commands.push({id:++commandId,type,roundId:snapshot.round.id});schedule(0);return true;}if(snapshot?.round?.status==='finished'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;commands.push({id:++commandId,type,mode,blueprint});schedule(0);return true;}
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){
-  const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
-  if(self&&snapshot&&fresh){
+  if(snapshot?.round?.status==='finished')newInput={};const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
+  if(self&&snapshot&&fresh&&snapshot.round?.status!=='finished'){
    const time=serverTime(),k=self.kit.stats;
-   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:k.projectileSpeed===0?self.yaw:input.cameraYaw,pitch:input.aimPitch,origin:weaponMuzzle(view.state||self,input.cameraYaw,input.aimPitch),time},self.id);}
+   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();const pose=view.state||self,aim=weaponAim(pose,input.weaponPitch);onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:aim.yaw,pitch:aim.pitch,origin:weaponMuzzle(pose,aim.yaw,aim.pitch),time},self.id);}
 
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){
@@ -68,7 +68,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const moving=Math.hypot(input.x,input.z)>.06||input.up||input.down;
   // Keep the last displayed pose when offline, and never pull an idle player
   // across the map to hide a network correction. Correct gradually while moving.
-  const pose=self?view.update(self,fresh?dt:0,{correct:!!moving&&!!fresh}):null;if(pose){pose.aimYaw=input.cameraYaw;pose.aimPitch=input.aimPitch;}return pose;
+  const pose=self?view.update(self,fresh?dt:0,{correct:!!moving&&!!fresh}):null;if(pose){pose.aimPitch=weaponAim(pose,input.weaponPitch).pitch;}return pose;
  }
  return {join,leave,tick,command,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return !!credentials;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !credentials||clock()-lastSuccess>1000;},serverTime};
 }

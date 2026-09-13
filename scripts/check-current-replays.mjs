@@ -1,3 +1,4 @@
+import {weaponMuzzle} from '../public/weapon-aim.js';
 // Replays captured live v4 geometry through the actual authoritative arena.
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
@@ -13,7 +14,7 @@ for(const [file,weapon,movement] of [['final-compact-none/dragon','flame','fly']
  const room=newRoom(100000),p=addPlayer(room,'builder','Builder');Object.assign(p,{x:0,z:10,protectedUntil:0});
  const kit=makeKit(file,b);assert.ok(kit.muzzle.every(Number.isFinite));applyInput(room,p.id,{seq:1,input:{x:1,cameraYaw:0},command:{id:1,type:'build'}},room.time,kit);
  for(let i=0;i<6;i++){p.lastSeen=room.time;p.inputAt=room.time;advanceRoom(room,room.time+250);}assert.equal(p.kit.id,file);assert.ok(Math.abs(p.x)>5,'movement continues during assembly');
- Object.assign(p,{x:0,y:9,z:10,input:{}});const victim=addPlayer(room,'target','Target');Object.assign(victim,{x:0,y:9,z:20,protectedUntil:0});
+ Object.assign(p,{x:0,y:9,z:10,yaw:0,input:{}});const victim=addPlayer(room,'target','Target');const from=weaponMuzzle(p);Object.assign(victim,{x:from.x,y:from.y-1,z:from.z+6,protectedUntil:0});
  applyInput(room,p.id,{seq:2,input:{cameraYaw:0},command:{id:2,type:'fire'}},room.time);advanceRoom(room,room.time+500);assert.ok(victim.health<100,'authored emitter launches a working trusted attack');assert.ok(room.events.some(e=>e.type==='hit'&&e.by===p.id));assert.equal(p.y,9,'attack never knocks the shooter away');
  const values=new Map(),storage={getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},saved=createAdventure(storage);saved.remember(b);saved.save(createState());assert.deepEqual(createAdventure(storage).creations[0],b);model.dispose();
  console.log('PASS captured compact '+file+': assembly movement, joints, emitter, damage and saved blueprint');

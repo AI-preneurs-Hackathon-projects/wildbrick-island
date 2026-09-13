@@ -1,6 +1,6 @@
 // Left hand: WASD/Shift and Q/E, R/F camera. Right hand: arrow actions.
 export function createInput({onBuild,onAction,onJump,onPause,onMic,onHotkeys=()=>{},onHome,getState}){
- const keys=new Set(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,drag=null,joyPointer=null,up=false,down=false,fire=false;
+ const keys=new Set(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,weaponPitch=0,drag=null,joyPointer=null,up=false,down=false,fire=false;
  const scene=document.querySelector('#scene'),joy=document.querySelector('#joystick'),knob=document.querySelector('#joy-knob');
  const typing=el=>el instanceof HTMLInputElement||el instanceof HTMLTextAreaElement||el?.isContentEditable;
  const blocked=()=>!getState().started||getState().paused||!!document.querySelector('dialog[open]');
@@ -29,6 +29,7 @@ export function createInput({onBuild,onAction,onJump,onPause,onMic,onHotkeys=()=
  const endJoy=e=>{if(joyPointer!==e.pointerId)return;joyPointer=null;stick.x=stick.z=0;knob.style.transform='translate(0,0)';};joy.addEventListener('pointerup',endJoy);joy.addEventListener('pointercancel',endJoy);joy.addEventListener('lostpointercapture',endJoy);
  for(const [id,which] of [['ascend','up'],['descend','down']]){const el=document.getElementById(id);const set=v=>{if(which==='up')up=v;else down=v;};el.addEventListener('pointerdown',e=>{if(blocked())return;e.preventDefault();el.setPointerCapture(e.pointerId);set(true);});for(const event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,()=>set(false));}
  const attack=document.getElementById('action');attack.addEventListener('pointerdown',e=>{if(blocked()||!getState().arena)return;e.preventDefault();attack.setPointerCapture(e.pointerId);fire=true;});for(const event of ['pointerup','pointercancel','lostpointercapture'])attack.addEventListener(event,()=>fire=false);
- function update(dt){if(blocked())return;const step=Math.min(.1,dt);yaw+=((keys.has('KeyQ')?1:0)-(keys.has('KeyE')?1:0))*1.8*step;pitch=Math.max(.17,Math.min(.92,pitch+((keys.has('KeyF')?1:0)-(keys.has('KeyR')?1:0))*.65*step));}
- return {clear,update,get yaw(){return yaw;},get pitch(){return pitch;},read(){return {x:stick.x+(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),z:stick.z+(keys.has('KeyW')?1:0)-(keys.has('KeyS')?1:0),cameraYaw:yaw,aimPitch:Math.max(-.75,Math.min(.75,(.46-pitch)*(.75/(pitch<.46?.29:.46)))),fire:fire||keys.has('ArrowRight'),up:up||keys.has('ArrowUp')||keys.has('Space'),down:down||keys.has('ArrowDown'),sprint:keys.has('ShiftLeft')||keys.has('ShiftRight')};}};
+ const tilt=document.querySelector('#weapon-tilt');tilt?.addEventListener('input',()=>{if(!blocked())weaponPitch=Number(tilt.value);});
+ function update(dt){if(blocked())return;const step=Math.min(.1,dt);yaw+=((keys.has('KeyQ')?1:0)-(keys.has('KeyE')?1:0))*1.8*step;weaponPitch=Math.max(-.75,Math.min(.75,weaponPitch+((keys.has('KeyR')?1:0)-(keys.has('KeyF')?1:0))*.65*step));if(tilt)tilt.value=String(weaponPitch);}
+ return {clear,update,get yaw(){return yaw;},get pitch(){return pitch;},read(){return {x:stick.x+(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),z:stick.z+(keys.has('KeyW')?1:0)-(keys.has('KeyS')?1:0),cameraYaw:yaw,weaponPitch,fire:fire||keys.has('ArrowRight'),up:up||keys.has('ArrowUp')||keys.has('Space'),down:down||keys.has('ArrowDown'),sprint:keys.has('ShiftLeft')||keys.has('ShiftRight')};}};
 }

@@ -95,7 +95,7 @@ for(const status of [401,410])await check(`HTTP ${status} holds the last positio
  assert.ok(n.errors.some(e=>e[1]===status));n.force(0);await n.join();assert.equal(n.client.connected,true);
 });
 await check('a join response arriving after Leave cannot reactivate or relocate the player',async()=>{
- const n=network(600),joining=n.client.join('Tester','TEST');await n.advance(100);await n.client.leave();await n.advance(1800);assert.equal(await joining,false);assert.equal(n.client.active,false);assert.equal(n.client.self,null);assert.equal(Object.keys(n.room.players).length,0);
+ const n=network(600),joining=n.client.join('Tester','TEST');await n.advance(100);n.client.leave();await n.advance(1800);assert.equal(await joining,false);assert.equal(n.client.active,false);assert.equal(n.client.self,null);assert.equal(Object.keys(n.room.players).length,0);
 });
 await check('only actual arena respawn increments teleport epoch; pre-death frames cannot move it',()=>{
  const room=newRoom(1e5),p=addPlayer(room,'p','Respawn');p.motion=newMotion(room.time);p.protectedUntil=0;p.x=31;p.z=29;hurt(room,p,1000,null);p.respawnAt=room.time+50;advanceRoom(room,room.time+60);assert.equal(p.spawnSerial,1);assert.equal(p.motion.frame,0);const spawn=pose(p);
@@ -130,5 +130,11 @@ await check('late blueprint authentication failure cannot reopen Arena after lea
 await check('non-JSON join failure reports the response problem without promising reconnect retries',async()=>{
  const errors=[];const client=createArenaClient({onError:(...args)=>errors.push(args)},{setTimer:()=>0,clearTimer(){},fetcher:async()=>({ok:false,status:404,json:async()=>{throw Error('Empty');}})});
  assert.equal(await client.join('River','ISLAND'),false);assert.equal(client.connected,false);assert.match(errors[0][0],/invalid response/);assert.doesNotMatch(errors[0][0],/Reconnecting/);assert.equal(errors[0][1],404);
+});
+await check('local and authoritative firing ignore camera orbit, including immediate preview',async()=>{
+ const n=network(120);await n.join();Object.assign(n.player,{kit:makeKit('bow'),protectedUntil:0,yaw:.8});await n.advance(500);await n.step({fire:true,cameraYaw:-2.4,aimPitch:.75,weaponPitch:.3});const preview=n.events.find(e=>e.type==='attack-preview');assert.ok(preview);assert.equal(preview.yaw,.8);assert.equal(preview.pitch,.3);await n.advance(500);const shot=n.room.events.find(e=>e.type==='shot');assert.ok(shot);assert.ok(Math.abs(shot.yaw-.8)<.02);assert.equal(n.player.yaw,.8);n.client.leave();
+});
+await check('client restart stays joined, survives a lost response, and resets the shared round once',async()=>{
+ const n=network(100);await n.join();const id=n.client.snapshot.self;n.player.kills=4;n.room.round.endsAt=n.now+100;await n.advance(500);assert.equal(n.client.snapshot.round.status,'finished');assert.equal(n.client.command('fire'),false);assert.equal(n.client.command('restart'),true);assert.equal(n.client.command('restart'),false);n.loseResponse();await n.advance(1800);assert.equal(n.client.snapshot.round.id,2);assert.equal(n.client.snapshot.self,id);assert.equal(n.player.kills,0);assert.equal(n.client.snapshot.round.previousResults[0].kills,4);assert.equal(n.room.events.filter(e=>e.type==='round-started').length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/join')).length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/leave')).length,0);n.client.leave();
 });
 console.log(`\n${checks} direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.`);

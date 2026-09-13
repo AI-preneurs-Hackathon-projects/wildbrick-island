@@ -15,7 +15,7 @@ export function character(color=C.orange){
  const head=brick(g,0,2.06,0,.77,.68,.69,C.yellow,false);cylinder(g,0,2.43,0,.22,.13,C.yellow);
  box(g,-.18,2.12,.353,.075,.11,.02,C.ink);box(g,.18,2.12,.353,.075,.11,.02,C.ink);box(g,0,1.94,.355,.22,.035,.024,C.ink);box(g,-.12,1.98,.355,.035,.09,.024,C.ink);box(g,.12,1.98,.355,.035,.09,.024,C.ink);
  brick(g,0,2.44,-.03,.87,.14,.77,C.teal,false);brick(g,0,2.44,.43,.87,.12,.24,C.teal,false);
- const arms=[];for(const x of [-.68,.68]){const a=new THREE.Group();a.position.set(x,1.62,0);sleeves.push(box(a,0,-.23,0,.29,.53,.4,color));cylinder(a,0,-.59,.015,.18,.23,C.yellow);g.add(a);arms.push(a);}
+ const arms=[];for(const x of [-.68,.68]){const a=new THREE.Group();a.name=x<0?'right-arm':'left-arm';a.position.set(x,1.62,0);sleeves.push(box(a,0,-.23,0,.29,.53,.4,color));cylinder(a,0,-.59,.015,.18,.23,C.yellow);g.add(a);arms.push(a);}
  brick(g,0,1.3,-.48,.72,.74,.37,C.teal);brick(g,0,1.62,-.72,.46,.24,.19,C.cream,false);
  return {group:g,legs,arms,head,hips,setColor(value){shirt.children[0].material=material(value);sleeves.forEach(m=>m.material=material(value));}};
 }
