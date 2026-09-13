@@ -4,9 +4,10 @@
 import {createUI} from '/ui.js';
 import {createInput} from '/input.js';
 import {createArenaUI} from '/arena-ui.js';
+import {MAP_CYCLE} from '/map-catalog.js';
 import {createState} from '/rules.js';
 import {newRoom,addPlayer,roomSnapshot,advanceRoom,applyInput} from '/arena-core.js';
-const state=createState(),room=newRoom(),player=addPlayer(room,'preview','Builder');
+const state=createState(),room=newRoom();const requestedMap=new URLSearchParams(location.search).get('map');if(MAP_CYCLE.includes(requestedMap))room.round.mapId=requestedMap;const player=addPlayer(room,'preview','Builder');
 let input,arenaUI,ui;
 const actions={state:()=>state,start(){state.started=true;},openArena(){return arenaUI.play();},recent:()=>[{name:'Saved moon rover'}],saved:()=>true,rebuild(){ui.toast('Rebuilt saved model fixture');},build(){},action(){ui.toast('Attack pressed');},jump(){ui.toast('Jump pressed');},voice(){ui.toast('Speak shortcut pressed — voice service is not started in this preview.');},sound(){return false;},auto(){return false;},pause(v){state.paused=v;input?.clear();},respawn(){},cancelDesign(){},exitHome(){actions.leaveArena();state.started=false;ui.showEntry();},leaveArena(){state.arena=false;state.mode='foot';client.active=false;arenaUI.reset();ui.resetPlayUI();ui.update(state);ui.toast('Back in Practice.');},describe(){ui.toast('Typed description received — this preview does not call OpenAI.');}};
 const client={self:player,snapshot:roomSnapshot(room,player.id),active:true,room:'PREVIEW',serverTime:()=>room.time};

@@ -1,3 +1,4 @@
+import {MAP_CYCLE} from './map-catalog.js';
 import {weaponMuzzle,weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
 import {predictPlayer,cleanInput} from './arena-core.js';
@@ -17,11 +18,11 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  function fetchBlueprint(id){if(!id||blueprints.has(id)||loading.has(id))return;loading.add(id);const current=lifecycle;request('/api/arena/blueprint?id='+encodeURIComponent(id)).then(d=>{if(current===lifecycle&&!closed)blueprints.set(id,validateBlueprint(d.blueprint));}).catch(e=>{if(current===lifecycle&&!closed)onError(e.message,e.status);}).finally(()=>loading.delete(id));}
  function accept(s){
   if(!credentials)return;if(epoch!==null&&epoch!==s.epoch)throw Object.assign(Error('This arena has ended. Your position is held; join again to continue.'),{status:410});
-  if(s.revision<=revision)return;
+  if(s.revision<=revision)return;if(s.round?.mapId&&!MAP_CYCLE.includes(s.round.mapId))throw Object.assign(Error('A new Arena map is available. Refresh the Site to continue.'),{status:410});
   const authoritative=structuredClone(s.players.find(p=>p.id===s.self)||null);
   if(!authoritative||authoritative.motion?.version!==1)throw Object.assign(Error('Your arena seat expired. Your position is held; join again to continue.'),{status:410});
   const teleport=!self||motionEpoch!==(authoritative.spawnSerial||0);
-  if(teleport){commands=[];predictedCommands.clear();frames=[];nextFrame=authoritative.motion.frame;accumulator=0;jumpQueued=false;motionEpoch=authoritative.spawnSerial||0;}
+  if(teleport){previewAt=-Infinity;input={};commands=[];predictedCommands.clear();frames=[];nextFrame=authoritative.motion.frame;accumulator=0;jumpQueued=false;motionEpoch=authoritative.spawnSerial||0;}
   else{frames=frames.filter(f=>f[0]>authoritative.motion.frame);nextFrame=Math.max(nextFrame,authoritative.motion.frame);}
   epoch=s.epoch;revision=s.revision;snapshot=s;self=authoritative;
   seq=Math.max(seq,self.lastSeq);commandId=Math.max(commandId,self.lastCommand);commands=commands.filter(c=>c.id>self.lastCommand);lastSuccess=clock();
@@ -30,13 +31,16 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   for(const frame of frames)predictPlayer(self,frameInput(frame),MOVE_DT,{...s,time:s.time,preview:true});
   view.accept(self,{teleport});
   for(const p of s.players){fetchBlueprint(p.kit.blueprintId);fetchBlueprint(p.building?.kit.blueprintId);}for(const p of s.placed||[])fetchBlueprint(p.blueprintId);
+  // Install the authoritative world before playing events from that world.
+  onSnapshot(s);
   if(lastEvent===0)lastEvent=s.eventCursor??Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&predictedCommands.delete(e.commandId)},s.self);lastEvent=e.id;}lastEvent=Math.max(lastEvent,s.eventCursor||0);
-  onSnapshot(s);onStatus('online');
+  onStatus('online');
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
- async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
+ async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,mapVersion:1,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
   try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
-   if(command?.blueprint){const own=result.snapshot.players.find(p=>p.id===result.snapshot.self),kit=own?.building?.kit||own?.kit;if(kit?.blueprintId)blueprints.set(kit.blueprintId,command.blueprint);}
+   // A rejected old-round build must never replace the retained kit's model.
+   // accept() fetches unknown blueprints by their authoritative server IDs.
    accept(result.snapshot);schedule();}
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);onStatus('expired');onError(e.message,e.status);}else{onStatus('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
@@ -45,7 +49,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
   try{
    if(generation!==lifecycle)return false;
-   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1,resume:ticket});
+   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1,mapVersion:1,resume:ticket});
    if(generation!==lifecycle){request('/api/arena/leave',{session:result.session,token:result.token}).catch(()=>{});return false;}
    view.reset();self=null;snapshot=null;commands=[];predictedCommands.clear();previewAt=-Infinity;seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};
    roomCode=result.room;credentials={session:result.session,token:result.token};accept(result.snapshot);schedule();return true;

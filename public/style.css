@@ -99,3 +99,8 @@
 @media(max-width:600px){.build-dock{width:138px}.build-dock .voice-status{bottom:calc(100% + 180px);max-width:min(280px,calc(100vw - 32px));max-height:18dvh}}
 
 @media(max-width:700px){.arena-round-clock{top:66px}.arena-vitals{top:108px}.arena-board{top:109px}}
+
+.arena-map-name{position:absolute;top:64px;left:50%;transform:translateX(-50%);padding:3px 9px;border-radius:8px;background:#fff8e9e8;color:#254139;font-size:12px;font-weight:700;pointer-events:none;white-space:nowrap}
+@media(max-width:700px){.arena-map-name{top:99px;font-size:11px}.arena-vitals{top:131px}.arena-board{top:132px}}
+
+.arena-results .arena-rank{grid-template-columns:24px minmax(0,1fr) 38px 40px}.arena-results .arena-rank>b,.arena-results .arena-rank>small{display:block}

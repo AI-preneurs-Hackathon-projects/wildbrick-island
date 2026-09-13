@@ -1,7 +1,7 @@
 // Swept kinematic blocking only. No forces, penetration recovery, or teleport.
 const SKIN=1e-5,keys=['x','y','z'];
 export function movementShape(stats){const [w,h,d]=stats.collision;const radius=stats.mounted?Math.hypot(w,d)/2:.45;return {radius,height:h,width:w,depth:d,mounted:stats.mounted};}
-export function isMovementBlocker(entity){return entity.blocking!==false;}
+export function isMovementBlocker(entity){return entity.blocking!==false&&entity.kind!=='loose';}
 function footprint(p,shape,b){if(b.yaw===undefined)return {x:p.x-b.x,z:p.z-b.z,hx:shape.radius,hz:shape.radius};const c=Math.cos(b.yaw),s=Math.sin(b.yaw),a=(p.yaw??shape.yaw??0)-b.yaw,ac=Math.abs(Math.cos(a)),as=Math.abs(Math.sin(a)),w=shape.mounted?shape.width/2:shape.radius,d=shape.mounted?shape.depth/2:shape.radius;return {x:(p.x-b.x)*c-(p.z-b.z)*s,z:(p.x-b.x)*s+(p.z-b.z)*c,hx:w*ac+d*as,hz:w*as+d*ac};}
 export function overlapsBody(p,shape,b){const f=footprint(p,shape,b);return Math.abs(f.x)<b.w/2+f.hx-SKIN&&Math.abs(f.z)<b.d/2+f.hz-SKIN&&p.y<b.y+b.h/2-SKIN&&p.y+shape.height>b.y-b.h/2+SKIN;}
 export function canFit(p,shape,boxes){return !boxes.some(b=>overlapsBody(p,shape,b));}
