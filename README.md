@@ -1,5 +1,15 @@
 # Brickwild
 
+## Current arena release (September 13, 2026)
+
+Play joins the shared ISLAND arena directly. The normal journey has no Explore choice or room-code form. A name/sign-in/retry dialog appears only when needed. Site viewer access remains separate and unchanged. Legacy room APIs and Explore simulation remain for compatibility.
+
+There is no eight-player seat limit or automatic room splitting. Same-isolate room mutations are serialized; revision compare-and-swap still protects writes across isolates, with bounded randomized retries. Session, packet and request protections remain. Placed cover is bounded per player rather than by an eight-object room pool.
+
+Run `node scripts/check-capacity.mjs` for synthetic shared-room contention at 10, 20 and 40 players. This is an in-memory SQLite test with optional per-query delay, not a live D1 capacity claim. Results are in `validation/capacity-entry.json`. The shared snapshot remains a scaling bottleneck; a single 40-client burst with simulated 5 ms storage operations reached about 420 ms p95. No small rooms are introduced to conceal this.
+
+Historical sections below describe prior releases; their eight-seat, room-selection and dual-onboarding descriptions are superseded here.
+
 An original 3D toy-brick browser game. Explore Wildbrick Island and assemble usable creations while moving. Free-form speech or typed descriptions request new brick geometry from the connected OpenAI service. The playfield now has only Imagine and Speak creation controls; preset buttons and number-key builds are removed.
 
 ## Controls

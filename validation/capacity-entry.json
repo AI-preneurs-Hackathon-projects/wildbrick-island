@@ -1,0 +1,65 @@
+{
+  "kind": "synthetic SQLite / D1-style per-query delay; no production identity or service used",
+  "rows": [
+    {
+      "clients": 10,
+      "storageDelayMs": 0,
+      "requests": 50,
+      "errors": 0,
+      "p50Ms": 1.6,
+      "p95Ms": 3.9,
+      "maxSnapshotBytes": 9740,
+      "queries": 122
+    },
+    {
+      "clients": 20,
+      "storageDelayMs": 0,
+      "requests": 100,
+      "errors": 0,
+      "p50Ms": 4.6,
+      "p95Ms": 8.5,
+      "maxSnapshotBytes": 19436,
+      "queries": 242
+    },
+    {
+      "clients": 40,
+      "storageDelayMs": 0,
+      "requests": 200,
+      "errors": 0,
+      "p50Ms": 16.7,
+      "p95Ms": 31.8,
+      "maxSnapshotBytes": 38818,
+      "queries": 482
+    },
+    {
+      "clients": 10,
+      "storageDelayMs": 5,
+      "requests": 50,
+      "errors": 0,
+      "p50Ms": 62.5,
+      "p95Ms": 105.5,
+      "maxSnapshotBytes": 9744,
+      "queries": 122
+    },
+    {
+      "clients": 20,
+      "storageDelayMs": 5,
+      "requests": 100,
+      "errors": 0,
+      "p50Ms": 116.7,
+      "p95Ms": 212.7,
+      "maxSnapshotBytes": 19446,
+      "queries": 242
+    },
+    {
+      "clients": 40,
+      "storageDelayMs": 5,
+      "requests": 200,
+      "errors": 0,
+      "p50Ms": 227,
+      "p95Ms": 420.4,
+      "maxSnapshotBytes": 38835,
+      "queries": 482
+    }
+  ]
+}

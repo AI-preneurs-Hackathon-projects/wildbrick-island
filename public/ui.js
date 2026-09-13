@@ -6,7 +6,7 @@ export const icon=(name)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 export function createUI(actions){
  document.querySelector('#ui').innerHTML=`
  <div id="intro" class="intro">
-  <div class="intro-copy"><div class="eyebrow"><span class="brand-block">B</span> A BRICK-BUILT BATTLE ARENA</div><h1>BRICK<span>WILD</span></h1><p class="intro-line">Imagine. Build. Battle.</p><p class="intro-description">Build your advantage.<br>Battle together on Wildbrick Island.</p><button id="start" class="primary">Enter arena ${icon('arrow')}</button><button id="explore-start" class="secondary">Explore solo</button><p class="intro-small">Keyboard or touch · Type or speak to build</p></div>
+  <div class="intro-copy"><div class="eyebrow"><span class="brand-block">B</span> A BRICK-BUILT BATTLE ARENA</div><h1>BRICK<span>WILD</span></h1><p class="intro-line">Imagine. Build. Battle.</p><p class="intro-description">Build your advantage.<br>Battle together on Wildbrick Island.</p><button id="start" class="primary">Play ${icon('arrow')}</button><p class="intro-small">Keyboard or touch · Speak to build</p></div>
   <div class="island-label"><span>01 / WILDBRICK ARENA</span><strong>Welcome to Wildbrick Island</strong><span class="label-line"></span></div>
   <div class="intro-caption">An original toy-brick world</div>
  </div>
@@ -24,7 +24,7 @@ export function createUI(actions){
  <dialog id="menu" class="game-dialog"><button id="close-menu" class="close-button" aria-label="Close menu">${icon('close')}</button><div id="menu-content"></div></dialog>`;
  const $=s=>document.querySelector(s);let started=false,lastMode='',lastObjective='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='',voiceNote='';
  const on=(selector,fn)=>$(selector).addEventListener('click',fn);
- const begin=arena=>{started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');actions.start();if(arena)actions.openArena();else toast('Move with WASD or the joystick. Follow the gold beacon, or describe a creation with Speak or Imagine.',6500);};on('#start',()=>begin(true));on('#explore-start',()=>begin(false));on('#open-arena',()=>actions.openArena());
+ const begin=()=>{started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');actions.start();actions.openArena();};on('#start',begin);on('#open-arena',()=>actions.openArena());
  on('#action',()=>actions.action());on('#jump-equipped',()=>actions.jump());on('#mic',()=>actions.voice());on('#sound',()=>{const muted=actions.sound();$('#sound').innerHTML=icon(muted?'mute':'sound');$('#sound').setAttribute('aria-label',muted?'Unmute sound':'Mute sound');});
  on('#exit-vehicle',()=>actions.build('foot'));
  on('#pause',()=>openMenu('pause'));on('#help',()=>toggleMenu('hotkeys'));on('#objective',()=>openMenu('challenges'));on('#close-menu',closeMenu);
@@ -58,7 +58,8 @@ export function createUI(actions){
  function voiceFallback(message){voiceNote=message||'Voice is unavailable. Type your idea below — no microphone needed.';openMenu('imagine');}
  function connectionState(ready){connected=ready;document.querySelector('.dock-caption').textContent=ready?'Describe anything · your idea becomes bricks':'Starter builds ready · AI setup pending';}
  function connectionVerified(){verified=true;connected=true;document.querySelector('.dock-caption').textContent='Describe anything · your idea becomes bricks';}
- return {update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
+ function showEntry(){started=false;$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');}
+ return {showEntry,update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
 export function createVoice({onCommand,onState,onNotice,onFallback=()=>{}}){
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
