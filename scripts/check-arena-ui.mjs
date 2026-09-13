@@ -11,13 +11,14 @@ import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,makeKit,roomSnapshot} from '../public/arena-core.js';
 import {box} from '../public/models.js';
 const dom=new JSDOM('<div id="scene"></div><div id="ui"></div>',{url:'https://brickwild.test/?arena=TEST'});
-for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement'])globalThis[k]=dom.window[k];
+for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement','localStorage'])globalThis[k]=dom.window[k];
 dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};dom.window.HTMLDialogElement.prototype.close=function(){this.open=false;};dom.window.HTMLElement.prototype.setPointerCapture=function(){};
 // Canvas stand-in validates data binding and scene lifecycle; it is not WebGL QA.
 dom.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
 let checks=0;function check(name,fn){fn();console.log('PASS '+name);checks++;}
 const state=createState();state.started=true;let joins=0,fires=0,jumps=0,mics=0,imagines=0,exits=0;const builds=[];
 const actions={state:()=>state,start(){},openArena(){joins++;},recent:()=>[],saved:()=>true,build(){},action(){fires++;},jump(){jumps++;},voice(){},sound(){},auto(){},pause(v){state.paused=v;input.clear();},respawn(){},cancelDesign(){},leaveArena(){}};
+localStorage.setItem('brickwild-tour-v1','seen');
 const ui=createUI(actions),arenaUI=createArenaUI({join:async()=>true,leave(){},toast(){}}),input=createInput({onBuild:mode=>{builds.push(mode);if(mode==='foot')exits++;},onAction:actions.action,onJump:actions.jump,onPause(){ui.toggleMenu('pause');},onMic(){mics++;},onImagine(){imagines++;ui.openMenu('imagine');},onHotkeys(){ui.toggleMenu('hotkeys');},onHome(){},getState:()=>state});
 const key=(type,code,extra={})=>window.dispatchEvent(new window.KeyboardEvent(type,{code,bubbles:true,...extra}));
 check('arena entry and health/leaderboard UI bind the joined room and escape names',()=>{document.querySelector('#start').click();assert.equal(joins,1);const r=newRoom(),p=addPlayer(r,'a','<img src=x>');p.health=44;p.kit=makeKit('car');p.mountHealth=100;const client={self:p,snapshot:roomSnapshot(r,p.id),active:true,room:'REAL',serverTime:()=>r.time};ui.update(state);arenaUI.update(client);assert.equal(document.querySelector('#arena-room'),null);assert.equal(document.querySelector('#explore-start'),null);arenaUI.update(client);assert.match(document.querySelector('#objective-title').textContent,/Wildbrick Island/);assert.equal(document.querySelector('#arena-health').textContent,'44');assert.equal(document.querySelector('#arena-ranks img'),null);assert.equal(document.querySelector('#action').classList.contains('hidden'),true);p.kit=makeKit();p.health=0;p.respawnAt=r.time+12000;arenaUI.update(client);assert.match(document.querySelector('#arena-respawn').textContent,/12/);arenaUI.error('Sign in',401);assert.equal(document.querySelector('#arena-sign-in').classList.contains('hidden'),false);assert.equal(document.querySelector('#arena-sign-in').target,'_top');document.querySelector('#arena-lobby').close();});
@@ -33,11 +34,11 @@ check('arrow actions combine movement, attack and speech without moving the came
  const beforeJump=jumps;key('keydown','ArrowUp');assert.equal(jumps,beforeJump+1);
  input.clear();state.mode='plane';key('keydown','ArrowUp');assert.equal(input.read().up,true);assert.equal(jumps,beforeJump+1);key('keyup','ArrowUp');key('keydown','ArrowDown');assert.equal(input.read().down,true);
  input.clear();const yaw=input.yaw;key('keydown','KeyE');input.update(.1);assert.ok(input.yaw<yaw);assert.equal(exits,0);key('keyup','KeyE');key('keydown','Backspace');assert.equal(exits,1);
- key('keydown','Enter');assert.equal(imagines,1);assert.equal(document.activeElement,document.querySelector('#creation-description'));ui.closeMenu();input.clear();const currentYaw=input.yaw;key('keydown','ArrowRight');input.update(.1);assert.equal(input.yaw,currentYaw);input.clear();key('keydown','KeyR');input.update(.1);assert.equal(input.read().fire,false);input.clear();
- assert.equal(document.querySelector('#mic kbd').textContent,'←');assert.equal(document.querySelector('#imagine kbd').textContent,'↵');assert.equal(document.querySelector('#arena-crosshair'),null);
+ key('keydown','Enter');assert.equal(imagines,0);assert.equal(document.querySelector('#menu').open,false);key('keyup','Enter');input.clear();const currentYaw=input.yaw;key('keydown','ArrowRight');input.update(.1);assert.equal(input.yaw,currentYaw);input.clear();key('keydown','KeyR');input.update(.1);assert.equal(input.read().fire,false);input.clear();
+ assert.equal(document.querySelector('#mic kbd').textContent,'←');assert.equal(document.querySelector('#imagine'),null);assert.equal(document.querySelector('#arena-crosshair'),null);
 });
 check('Hotkeys opens and closes by button, H and Escape; presets are absent',()=>{
- input.clear();assert.equal(document.querySelectorAll('[data-build]').length,0);assert.equal(document.querySelector('#help span').textContent,'Hotkeys');
+ input.clear();assert.equal(document.querySelectorAll('[data-build]').length,0);assert.equal(document.querySelector('#help span').textContent,'Help');
  const before=builds.length;for(const code of ['Digit1','Digit2','Digit3','Digit4']){key('keydown',code);key('keyup',code);}assert.equal(builds.length,before);
  document.querySelector('#help').click();const menu=document.querySelector('#menu');assert.ok(menu.open);assert.ok(state.paused);assert.equal(menu.querySelectorAll('.arrow-hotkeys kbd').length,4);assert.match(menu.textContent,/Backspace/);
  key('keydown','KeyH');assert.equal(menu.open,false);assert.equal(state.paused,false);key('keydown','KeyH');assert.ok(menu.open);key('keydown','Escape');assert.equal(menu.open,false);
@@ -59,6 +60,12 @@ check('empty-handed punching animates arms; a confirmed hit flashes and flinches
  p.kit=makeKit('sword');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+170);view.effect({type:'swing',player:p.id,weapon:'blade',yaw:0});view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+300);assert.ok(actor.getObjectByName('creation').rotation.x<-.5);
  p.kit=makeKit('bow');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+700);scene.updateMatrixWorld(true);assert.ok(new THREE.Box3().setFromObject(actor.getObjectByName('creation')).min.y>=p.y);view.clear();
 });
+check('first play shows three illustrated cards; Skip saves once and Help reopens them',()=>{
+ localStorage.removeItem('brickwild-tour-v1');ui.showEntry();const before=joins;document.querySelector('#start').click();const tour=document.querySelector('#tutorial');assert.ok(tour.open);assert.equal(joins,before);assert.match(tour.textContent,/Move and look/);assert.match(tour.querySelector('img').src,/move.png/);
+ document.querySelector('#tour-next').click();assert.match(tour.textContent,/Speak it/);document.querySelector('#tour-next').click();assert.match(tour.textContent,/Refuel/);document.querySelector('#tour-next').click();assert.equal(joins,before+1);assert.equal(tour.open,false);assert.equal(localStorage.getItem('brickwild-tour-v1'),'seen');
+ ui.showEntry();document.querySelector('#start').click();assert.equal(joins,before+2);assert.equal(tour.open,false);ui.openMenu('hotkeys');document.querySelector('#tour-again').click();assert.ok(tour.open);document.querySelector('#tour-skip').click();assert.equal(tour.open,false);globalThis.matchMedia=()=>({matches:true});ui.openTour();assert.match(tour.textContent,/left joystick/);assert.doesNotMatch(tour.textContent,/WASD/);document.querySelector('#tour-skip').click();delete globalThis.matchMedia;assert.equal(state.paused,false);
+ ui.openMenu('hotkeys');document.querySelector('#type-fallback').click();assert.equal(document.activeElement,document.querySelector('#creation-description'));ui.closeMenu();
+});
 check('expired arena keeps vitals, exposes Rejoin, and retains a touch Lower control after dismount',()=>{
  const r=newRoom(),p=addPlayer(r,'p','Held');Object.assign(p,{x:21,y:8,z:19,health:76});const client={self:p,snapshot:roomSnapshot(r,p.id),active:true,room:'HOLD',serverTime:()=>r.time};
  arenaUI.setStatus('expired');arenaUI.error('Your position is held. Join again.',410);assert.equal(document.querySelector('#arena-lobby').open,true);document.querySelector('#arena-lobby').close();arenaUI.update(client);
@@ -66,5 +73,5 @@ check('expired arena keeps vitals, exposes Rejoin, and retains a touch Lower con
  assert.equal(document.querySelector('#flight-controls').classList.contains('hidden'),false);assert.equal(document.querySelector('#ascend').classList.contains('hidden'),true);assert.equal(document.querySelector('#autorun'),null);
  const down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:12});document.querySelector('#descend').dispatchEvent(down);assert.equal(input.read().down,true);document.querySelector('#descend').dispatchEvent(new window.Event('pointerup'));assert.equal(input.read().down,false);
 });
-dom.window.close();for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement'])delete globalThis[k];
+dom.window.close();for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement','localStorage'])delete globalThis[k];
 console.log(`\n${checks} arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.`);

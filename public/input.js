@@ -1,5 +1,5 @@
 // Left hand: WASD/Shift and Q/E, R/F camera. Right hand: arrow actions.
-export function createInput({onBuild,onAction,onJump,onPause,onMic,onImagine=()=>{},onHotkeys=()=>{},onHome,getState}){
+export function createInput({onBuild,onAction,onJump,onPause,onMic,onHotkeys=()=>{},onHome,getState}){
  const keys=new Set(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,drag=null,joyPointer=null,up=false,down=false,fire=false;
  const scene=document.querySelector('#scene'),joy=document.querySelector('#joystick'),knob=document.querySelector('#joy-knob');
  const typing=el=>el instanceof HTMLInputElement||el instanceof HTMLTextAreaElement||el?.isContentEditable;
@@ -12,13 +12,12 @@ export function createInput({onBuild,onAction,onJump,onPause,onMic,onImagine=()=
    e.preventDefault();clear();if(code==='KeyH')onHotkeys();else onPause();return;
   }
   if(blocked())return;
-  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Enter','Backspace'].includes(code))e.preventDefault();
+  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Backspace'].includes(code))e.preventDefault();
   if(e.repeat)return;keys.add(code);
   if(code==='ArrowLeft'){onMic();return;}
-  if(code==='Enter'){onImagine();return;}
   if(['ArrowUp','Space'].includes(code)&&getState().mode!=='plane')onJump();
   if(code==='ArrowRight'&&!getState().arena)onAction();
-  if(code==='Backspace')onBuild('foot');if(code==='Home')onHome();
+  if(code==='Backspace')onBuild('foot');
 
  });
  window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();});

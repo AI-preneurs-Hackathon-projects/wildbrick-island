@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'..'),out=path.join(root,'dist');
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(path.join(out,'server'),{recursive:true});fs.mkdirSync(path.join(out,'.openai'),{recursive:true});
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.txt':'text/plain; charset=utf-8'};
 const assets={};function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else{const relative='/'+path.relative(path.join(root,'public'),file).split(path.sep).join('/');assets[relative]={type:mime[path.extname(file)]||'application/octet-stream',data:fs.readFileSync(file).toString('base64')};}}}walk(path.join(root,'public'));
 await build({entryPoints:[path.join(root,'worker/index.js')],outfile:path.join(out,'server/index.js'),bundle:true,format:'esm',platform:'browser',target:'es2022',banner:{js:'const STATIC_ASSETS='+JSON.stringify(assets)+';'}});
 fs.copyFileSync(path.join(root,'.openai/hosting.json'),path.join(out,'.openai/hosting.json'));

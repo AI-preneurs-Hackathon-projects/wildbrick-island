@@ -2,6 +2,8 @@
 
 ## Current arena release (September 13, 2026)
 
+The HUD has one **Speak / Build** control. Enter/Imagine and Home/recovery shortcuts are removed. Help contains the typing fallback, saved creations and a repeatable three-card illustrated tour; first Play shows it once per device with Next and Skip. The cards use actual existing game meshes, rendered offline for illustration. Keyboard arrows are Speak/Attack/Jump or Rise/Lower; WASD, Q/E, R/F and H remain. The controls table in the historical section is superseded.
+
 Play joins the shared ISLAND arena directly. The normal journey has no Explore choice or room-code form. A name/sign-in/retry dialog appears only when needed. Site viewer access remains separate and unchanged. Legacy room APIs and Explore simulation remain for compatibility.
 
 There is no eight-player seat limit or automatic room splitting. Same-isolate room mutations are serialized; revision compare-and-swap still protects writes across isolates, with bounded randomized retries. Session, packet and request protections remain. Placed cover is bounded per player rather than by an eight-object room pool.

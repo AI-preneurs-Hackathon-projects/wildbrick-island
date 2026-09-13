@@ -7,7 +7,8 @@ const root=import.meta.dirname;
 function apiPreview(){return {name:'brickwild-private-api-preview',configureServer(server){
  server.middlewares.use(async(req,res,next)=>{
   // Isolated development-only HUD validation, including when WebGL is unavailable.
-  if(req.url==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
+  if(req.url?.split('?')[0]==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
+  if(req.url==='/__layouts'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/layout-harness.html')));return;}
   if(!req.url?.startsWith('/api/'))return next();
   if(!['/api/generate','/api/generation-status'].includes(req.url)){res.writeHead(404);res.end();return;}
   let config;try{config=JSON.parse(fs.readFileSync(path.join(root,'.sites-runtime/api-preview.json'),'utf8'));}catch{}
