@@ -39,12 +39,12 @@ function applyFrames(room,p,packet,now){
 export function predictPlayer(p,input,dt,worldState){if(p.health<=0)return;const world={...worldState,preview:true,players:{[p.id]:p},events:[],eventId:0,damage:{...worldState.damage},destroyed:{...worldState.destroyed}},controls=cleanInput(input);for(let left=Math.min(.1,dt);left>1e-8;){const step=Math.min(left,1/30);movePlayer(world,p,step,controls);left-=step;world.time+=step*1000;}}
 function rand(room){let n=room.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;room.seed=n>>>0;return room.seed/4294967296;}
 function shoot(room,p,input){const k=p.kit.stats;if(p.health<=0||p.building||!k.damage||room.time<p.nextShot||room.time<p.overheatedUntil||room.time<p.protectedUntil)return;
- p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=input.cameraYaw??p.yaw;
+ p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=k.weapon==='punch'?p.yaw:input.cameraYaw??p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
- let yaw=input.cameraYaw??p.yaw,pitch=input.aimPitch||0;const dir={x:Math.sin(yaw)*Math.cos(pitch),y:Math.sin(pitch),z:Math.cos(yaw)*Math.cos(pitch)},anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
+ let yaw=p.actionYaw,pitch=input.aimPitch||0;const dir={x:Math.sin(yaw)*Math.cos(pitch),y:Math.sin(pitch),z:Math.cos(yaw)*Math.cos(pitch)},anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
  // Gentle assisted aiming includes airborne opponents, with world cover still traced.
  let target=null,best=.94;for(const enemy of Object.values(room.players)){if(enemy.id===p.id||enemy.health<=0)continue;const v={x:enemy.x-anchor.x,y:enemy.y+enemy.kit.stats.collision[1]*.5-anchor.y,z:enemy.z-anchor.z},d=Math.hypot(v.x,v.y,v.z),dot=(v.x*dir.x+v.y*dir.y+v.z*dir.z)/d;if(d<k.range&&dot>best){best=dot;target={v,d};}}
- if(target){yaw=Math.atan2(target.v.x,target.v.z);pitch=Math.asin(target.v.y/target.d);}
+ if(target&&k.weapon!=='punch'){yaw=Math.atan2(target.v.x,target.v.z);pitch=Math.asin(target.v.y/target.d);}
  if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
 
  yaw+=(rand(room)-.5)*k.spread;pitch+=(rand(room)-.5)*k.spread*.7;

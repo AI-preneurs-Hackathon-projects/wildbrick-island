@@ -104,10 +104,10 @@ await check('only actual arena respawn increments teleport epoch; pre-death fram
 });
 
 for(const latency of [250,600])await check(`a one-frame attack survives ${latency}ms latency and a lost response without duplicate damage or effects`,async()=>{
- const n=network(latency);await n.join();Object.assign(n.player,{x:0,z:10,y:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
+ const n=network(latency);await n.join();Object.assign(n.player,{x:0,z:10,y:0,yaw:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
  // Let the normal snapshot acknowledge the fixture positions before input.
- for(let i=0;i<65;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:0});
- assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(q.health,100,'prediction never causes damage');
+ for(let i=0;i<65;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:Math.PI});
+ assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(n.events.find(e=>e.type==='attack-preview').yaw,0);assert.equal(q.health,100,'prediction never causes damage');
  for(let i=0;i<240;i++)await n.step({cameraYaw:0});
  assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
  const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);

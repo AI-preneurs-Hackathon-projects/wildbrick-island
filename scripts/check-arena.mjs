@@ -24,6 +24,12 @@ await check('punches wind up, hit once, miss at range, and retries cannot repeat
  applyInput(r,'a',packet,r.time);run(r,240);assert.equal(q.health,health);assert.equal(r.events.filter(e=>e.type==='hit').length,1);for(const k of ['x','y','z'])assert.equal(q[k],before[k]);
  q.z=4;run(r,700,{a:{fire:true,cameraYaw:0}});assert.equal(q.health,health);assert.ok(r.events.filter(e=>e.type==='swing').length>=2);
 });
+await check('punches follow the current body facing at every angle even when the camera faces away',()=>{
+ for(const yaw of [0,Math.PI/2,Math.PI,-Math.PI/2,.73]){const [r,p]=room(),front=addPlayer(r,'front','Front'),back=addPlayer(r,'back','Back');Object.assign(p,{x:0,z:0,yaw});
+  Object.assign(front,{x:Math.sin(yaw)*1.7,z:Math.cos(yaw)*1.7,protectedUntil:0});Object.assign(back,{x:-Math.sin(yaw)*1.7,z:-Math.cos(yaw)*1.7,protectedUntil:0});
+  applyInput(r,p.id,{seq:1,input:{cameraYaw:yaw+Math.PI},command:{id:1,type:'fire'}},r.time);assert.equal(r.events.find(e=>e.type==='swing').yaw,yaw);run(r,200);assert.equal(front.health,83.8);assert.equal(back.health,100);assert.equal(p.yaw,yaw);
+ }
+});
 await check('projectile contact produces one confirmed hit event at its contact point',()=>{
  const [r,p]=room(),q=addPlayer(r,'b','Rival');Object.assign(p,{kit:makeKit('bow'),x:0,z:0,yaw:0});Object.assign(q,{x:0,z:5,protectedUntil:0});applyInput(r,'a',{seq:1,input:{cameraYaw:0},command:{id:1,type:'fire'}},r.time);run(r,400);assert.equal(r.events.filter(e=>e.type==='hit').length,1);assert.equal(r.events.filter(e=>e.type==='impact').length,0);const hit=r.events.find(e=>e.type==='hit');assert.ok(hit.z>4&&hit.z<5);assert.equal(typeof hit.attack,'number');
 });

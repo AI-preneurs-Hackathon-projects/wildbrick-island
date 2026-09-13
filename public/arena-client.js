@@ -55,7 +55,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
   if(self&&snapshot&&fresh){
    const time=serverTime(),k=self.kit.stats;
-   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}
+   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:k.weapon==='punch'?self.yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}
 
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){

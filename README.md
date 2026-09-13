@@ -7,7 +7,7 @@ Yerzhan’s existing 3D toy-brick game, now centered on a shared fighting arena:
 
 ## Playing
 
-Play joins the shared **ISLAND** arena. There is no normal mode selector, room-code form, eight-player seat limit or automatic room splitting. Site sign-in and viewer access still apply. The existing custom audience is preserved; the owner must invite additional viewers through Share.
+Play, or Enter / Return on the home screen, joins the shared **ISLAND** arena. There is no normal mode selector, room-code form, eight-player seat limit or automatic room splitting. Site sign-in and viewer access still apply. The existing custom audience is preserved; the owner must invite additional viewers through Share.
 
 First Play offers three short illustrated cards with Next and Skip. They appear once per device and can be reopened through Help. The illustrations use the game’s actual procedural meshes and an existing generated dragon, rendered offline. Help also contains saved creations, sound settings and a discreet typing fallback. Microphone denial or unsupported speech opens that fallback automatically. Speech recognition uses the browser’s service; the game sends the recognized description, not a recording, to its generation API.
 
@@ -23,11 +23,11 @@ First Play offers three short illustrated cards with Next and Skip. They appear 
 | Help | H | Help |
 | Menu / close dialog | P / Escape | Pause / close / Back to play |
 
-Text entry, browser modifiers, focus loss and dialogs suppress gameplay shortcuts. The multiplayer match continues while a menu is open. Enter/Imagine, Home/recovery, preset-build shortcuts and the old Explore/Arena entry choice are superseded. Legacy Explore, room API support and original procedural models remain in source for compatibility and regression checks.
+Text entry, browser modifiers, focus loss and dialogs suppress gameplay shortcuts. The multiplayer match continues while a menu is open. Leave arena lives in the Escape/Pause menu. The leaderboard starts expanded, has a translucent background and can be collapsed. Enter-to-Imagine, Home/recovery, preset-build shortcuts and the old Explore/Arena entry choice are superseded. Legacy Explore, room API support and original procedural models remain in source for compatibility and regression checks.
 
 ## Combat and movement
 
-Empty-handed builders visibly punch: 18 base damage before armor, 2.2 m range, 0.5 s cooldown and 0.13 s authoritative windup. A strike resolves once, requires facing and clear short-range contact, and cannot repeat damage on a retried command. Shields retain protection and punching. Unarmed vehicles do not shoot.
+Empty-handed builders visibly punch: 18 base damage before armor, 2.2 m range, 0.5 s cooldown and 0.13 s authoritative windup. Punches keep the builder’s current facing even when the camera looks elsewhere. A strike resolves once, requires facing and clear short-range contact, and cannot repeat damage on a retried command. Shields retain protection and punching. Unarmed vehicles do not shoot.
 
 Trusted weapon families provide visible sword swings, arrows, automatic tracers/muzzle flashes, and flame emitted from a generated dragon’s authored mouth position. Immediate local attack animation is separate from confirmed impact events. Confirmed hits flash and flinch the target, change health and play nearby sound. Creation destruction, defeat, blocked hits and 12-second respawn have distinct feedback. Armor, creation health, weapon trade-offs, pickups, KOs and spawn protection remain bounded server rules. Model-generated code is never executed.
 
