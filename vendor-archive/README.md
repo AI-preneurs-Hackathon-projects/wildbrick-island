@@ -1,0 +1,1 @@
+Rapier 0.19.0 is archived here for source recovery only. Brickwild no longer imports, initializes, or ships this physics engine. The original license is preserved in public/vendor/RAPIER-LICENSE.txt. Movement is direct; cover uses pure geometry queries.

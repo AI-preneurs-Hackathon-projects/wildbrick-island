@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-12T13:58:04.297Z",
+  "generation": {
+    "name": "Emerald Firewing Dragon",
+    "parts": 55,
+    "traits": {
+      "weapon": "flame",
+      "armor": "medium",
+      "mass": "heavy",
+      "emitter": [
+        0,
+        3.25,
+        4.85
+      ]
+    },
+    "model": "gpt-5.4",
+    "durationMs": 19033,
+    "reusedActualResponse": true,
+    "localMovingAssembly": true,
+    "localMountedFlight": true,
+    "localFlameUse": true
+  },
+  "arena": {
+    "blocked": true,
+    "status": 401,
+    "error": "Sign in with ChatGPT to join the arena."
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `arena_sessions` ADD `build_at` integer DEFAULT 0 NOT NULL;

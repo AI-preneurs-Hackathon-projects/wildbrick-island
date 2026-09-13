@@ -1,0 +1,3 @@
+// Pure geometry queries for weapon hits and placement; no physics engine.
+export function segmentBox(a,b,box,expand=[0,0,0]){let lo=0,hi=1,axis=0,normal=0;for(const [i,key,size] of [[0,'x','w'],[1,'y','h'],[2,'z','d']]){const delta=b[key]-a[key],mn=box[key]-box[size]/2-expand[i],mx=box[key]+box[size]/2+expand[i];if(Math.abs(delta)<1e-9){if(a[key]<mn||a[key]>mx)return null;continue;}let t1=(mn-a[key])/delta,t2=(mx-a[key])/delta,n=-Math.sign(delta);if(t1>t2)[t1,t2]=[t2,t1];if(t1>lo){lo=t1;axis=i;normal=n;}hi=Math.min(hi,t2);if(lo>hi)return null;}return lo>=0&&lo<=1?{t:lo,axis,normal}:null;}
+export function boxesOverlap(a,b){return Math.abs(a.x-b.x)<(a.w+b.w)/2&&Math.abs(a.y-b.y)<(a.h+b.h)/2&&Math.abs(a.z-b.z)<(a.d+b.d)/2;}

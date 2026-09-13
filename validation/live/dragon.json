@@ -1,0 +1,1247 @@
+{
+  "blueprint": {
+    "version": 2,
+    "name": "Emerald Wing Saddle Dragon",
+    "description": "Rideable emerald dragon with a sturdy saddle, golden flapping wings, four striding legs and a swaying tail. It soars and can pulse bright dragon breath.",
+    "movement": "fly",
+    "ability": "pulse",
+    "palette": [
+      "#1FA34A",
+      "#D4AF37",
+      "#F2E7C9",
+      "#1E1B18",
+      "#C83B3B"
+    ],
+    "seat": [
+      0,
+      3.24,
+      -0.1
+    ],
+    "joints": [
+      {
+        "parent": -1,
+        "pivot": [
+          1.2,
+          2.95,
+          0.4
+        ],
+        "axis": "z",
+        "motion": "flap",
+        "amplitude": 25,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -1.2,
+          2.95,
+          0.4
+        ],
+        "axis": "z",
+        "motion": "flap",
+        "amplitude": -25,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          0.95,
+          1.4,
+          1
+        ],
+        "axis": "x",
+        "motion": "stride",
+        "amplitude": 18,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -0.95,
+          1.4,
+          1
+        ],
+        "axis": "x",
+        "motion": "stride",
+        "amplitude": -18,
+        "phase": 0
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          0.95,
+          1.4,
+          -1
+        ],
+        "axis": "x",
+        "motion": "stride",
+        "amplitude": -18,
+        "phase": 180
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          -0.95,
+          1.4,
+          -1
+        ],
+        "axis": "x",
+        "motion": "stride",
+        "amplitude": 18,
+        "phase": 180
+      },
+      {
+        "parent": -1,
+        "pivot": [
+          0,
+          2,
+          -1.5
+        ],
+        "axis": "y",
+        "motion": "sway",
+        "amplitude": 20,
+        "phase": 0
+      }
+    ],
+    "parts": [
+      {
+        "shape": "box",
+        "position": [
+          0,
+          2.2,
+          0
+        ],
+        "size": [
+          2.4,
+          1.6,
+          3
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          0,
+          2.35,
+          1.75
+        ],
+        "size": [
+          2,
+          1.1,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          1.6,
+          0.1
+        ],
+        "size": [
+          1.8,
+          0.5,
+          2
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          2.85,
+          1.75
+        ],
+        "size": [
+          1,
+          0.8,
+          0.9
+        ],
+        "rotation": [
+          -20,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          3.35,
+          2.35
+        ],
+        "size": [
+          0.8,
+          0.7,
+          0.8
+        ],
+        "rotation": [
+          -20,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          3.6,
+          3
+        ],
+        "size": [
+          1,
+          0.7,
+          1
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          0,
+          3.45,
+          3.75
+        ],
+        "size": [
+          0.8,
+          0.5,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          3.22,
+          3.45
+        ],
+        "size": [
+          0.7,
+          0.22,
+          0.7
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          1.95,
+          -1.95
+        ],
+        "size": [
+          0.8,
+          0.6,
+          1.1
+        ],
+        "rotation": [
+          8,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 6,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          0,
+          1.8,
+          -2.9
+        ],
+        "size": [
+          0.6,
+          0.45,
+          1.1
+        ],
+        "rotation": [
+          8,
+          180,
+          0
+        ],
+        "color": 0,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0,
+          1.68,
+          -3.75
+        ],
+        "size": [
+          0.35,
+          0.8,
+          0.35
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": 6,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          3.12,
+          -0.1
+        ],
+        "size": [
+          0.9,
+          0.24,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          0,
+          3.28,
+          -0.45
+        ],
+        "size": [
+          0.9,
+          0.32,
+          0.22
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": true
+      },
+      {
+        "shape": "box",
+        "position": [
+          1.8,
+          2.95,
+          0.45
+        ],
+        "size": [
+          1.2,
+          0.2,
+          0.9
+        ],
+        "rotation": [
+          0,
+          10,
+          -6
+        ],
+        "color": 1,
+        "joint": 0,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          3.05,
+          2.86,
+          0.68
+        ],
+        "size": [
+          1.5,
+          0.18,
+          1.15
+        ],
+        "rotation": [
+          0,
+          0,
+          -4
+        ],
+        "color": 1,
+        "joint": 0,
+        "studs": false
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          4.42,
+          2.77,
+          0.9
+        ],
+        "size": [
+          1.35,
+          0.14,
+          1.05
+        ],
+        "rotation": [
+          0,
+          0,
+          -2
+        ],
+        "color": 1,
+        "joint": 0,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          3,
+          2.56,
+          -0.02
+        ],
+        "size": [
+          2.8,
+          0.08,
+          1.45
+        ],
+        "rotation": [
+          0,
+          0,
+          -8
+        ],
+        "color": 2,
+        "joint": 0,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -1.8,
+          2.95,
+          0.45
+        ],
+        "size": [
+          1.2,
+          0.2,
+          0.9
+        ],
+        "rotation": [
+          0,
+          -10,
+          6
+        ],
+        "color": 1,
+        "joint": 1,
+        "studs": true
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          -3.05,
+          2.86,
+          0.68
+        ],
+        "size": [
+          1.5,
+          0.18,
+          1.15
+        ],
+        "rotation": [
+          0,
+          0,
+          4
+        ],
+        "color": 1,
+        "joint": 1,
+        "studs": false
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          -4.42,
+          2.77,
+          0.9
+        ],
+        "size": [
+          1.35,
+          0.14,
+          1.05
+        ],
+        "rotation": [
+          0,
+          0,
+          2
+        ],
+        "color": 1,
+        "joint": 1,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -3,
+          2.56,
+          -0.02
+        ],
+        "size": [
+          2.8,
+          0.08,
+          1.45
+        ],
+        "rotation": [
+          0,
+          0,
+          8
+        ],
+        "color": 2,
+        "joint": 1,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0.95,
+          0.95,
+          1
+        ],
+        "size": [
+          0.45,
+          0.9,
+          0.45
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0.95,
+          0.45,
+          1
+        ],
+        "size": [
+          0.36,
+          0.9,
+          0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0.95,
+          0.15,
+          1.1
+        ],
+        "size": [
+          0.5,
+          0.3,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -0.95,
+          0.95,
+          1
+        ],
+        "size": [
+          0.45,
+          0.9,
+          0.45
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -0.95,
+          0.45,
+          1
+        ],
+        "size": [
+          0.36,
+          0.9,
+          0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -0.95,
+          0.15,
+          1.1
+        ],
+        "size": [
+          0.5,
+          0.3,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0.95,
+          0.95,
+          -1
+        ],
+        "size": [
+          0.45,
+          0.9,
+          0.45
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0.95,
+          0.45,
+          -1
+        ],
+        "size": [
+          0.36,
+          0.9,
+          0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          0.95,
+          0.15,
+          -0.9
+        ],
+        "size": [
+          0.5,
+          0.3,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -0.95,
+          0.95,
+          -1
+        ],
+        "size": [
+          0.45,
+          0.9,
+          0.45
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -0.95,
+          0.45,
+          -1
+        ],
+        "size": [
+          0.36,
+          0.9,
+          0.36
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 0,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "box",
+        "position": [
+          -0.95,
+          0.15,
+          -0.9
+        ],
+        "size": [
+          0.5,
+          0.3,
+          0.9
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0.28,
+          4,
+          2.82
+        ],
+        "size": [
+          0.18,
+          0.45,
+          0.18
+        ],
+        "rotation": [
+          20,
+          0,
+          18
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -0.28,
+          4,
+          2.82
+        ],
+        "size": [
+          0.18,
+          0.45,
+          0.18
+        ],
+        "rotation": [
+          20,
+          0,
+          -18
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          0.24,
+          3.63,
+          3.28
+        ],
+        "size": [
+          0.16,
+          0.16,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          -0.24,
+          3.63,
+          3.28
+        ],
+        "size": [
+          0.16,
+          0.16,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          0.3,
+          3.63,
+          3.38
+        ],
+        "size": [
+          0.07,
+          0.07,
+          0.07
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "sphere",
+        "position": [
+          -0.3,
+          3.63,
+          3.38
+        ],
+        "size": [
+          0.07,
+          0.07,
+          0.07
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          0.14,
+          3.34,
+          4.04
+        ],
+        "size": [
+          0.07,
+          0.07,
+          0.07
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cylinder",
+        "position": [
+          -0.14,
+          3.34,
+          4.04
+        ],
+        "size": [
+          0.07,
+          0.07,
+          0.07
+        ],
+        "rotation": [
+          90,
+          0,
+          0
+        ],
+        "color": 3,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          1.08,
+          0.18,
+          1.46
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0.82,
+          0.18,
+          1.46
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 2,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -0.82,
+          0.18,
+          1.46
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -1.08,
+          0.18,
+          1.46
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 3,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          1.08,
+          0.18,
+          -0.54
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0.82,
+          0.18,
+          -0.54
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 4,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -0.82,
+          0.18,
+          -0.54
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          -1.08,
+          0.18,
+          -0.54
+        ],
+        "size": [
+          0.1,
+          0.22,
+          0.1
+        ],
+        "rotation": [
+          -90,
+          0,
+          0
+        ],
+        "color": 2,
+        "joint": 5,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0,
+          3.7,
+          2.15
+        ],
+        "size": [
+          0.16,
+          0.36,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0,
+          3.45,
+          1.2
+        ],
+        "size": [
+          0.16,
+          0.34,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "cone",
+        "position": [
+          0,
+          3.2,
+          0.15
+        ],
+        "size": [
+          0.16,
+          0.32,
+          0.16
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          0.52,
+          3.55,
+          2.9
+        ],
+        "size": [
+          0.26,
+          0.18,
+          0.34
+        ],
+        "rotation": [
+          0,
+          90,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      },
+      {
+        "shape": "wedge",
+        "position": [
+          -0.52,
+          3.55,
+          2.9
+        ],
+        "size": [
+          0.26,
+          0.18,
+          0.34
+        ],
+        "rotation": [
+          0,
+          -90,
+          0
+        ],
+        "color": 1,
+        "joint": -1,
+        "studs": false
+      }
+    ]
+  },
+  "generation": {
+    "model": "gpt-5.4",
+    "durationMs": 38386
+  }
+}

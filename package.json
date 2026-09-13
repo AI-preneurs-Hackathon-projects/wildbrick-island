@@ -1,0 +1,19 @@
+{
+  "name": "brickwild",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A voice-built 3D multiplayer toy-brick arena and exploration game",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-generations.mjs && node scripts/check-adventure.mjs && node scripts/check-live-replays.mjs && node scripts/check-arena.mjs && node scripts/check-arena-ui.mjs && node scripts/check-movement.mjs && node scripts/check-network-movement.mjs",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
+    "esbuild": "^0.28.2",
+    "jsdom": "^30.0.1",
+    "vite": "8.0.13"
+  }
+}

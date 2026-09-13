@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-12",
+  "source": "Actual authenticated POST /api/generate on existing owner-private Brickwild production Site",
+  "model": "gpt-5.4",
+  "generatorCommit": "691c6511239f28a68aea46aeba059d0996865dac",
+  "generatedForValidationOnly": true,
+  "servedAsPreset": false,
+  "requests": [
+    {
+      "file": "dragon.json",
+      "prompt": "An emerald green dragon with golden wings, four legs, a long tail and a saddle. I want to ride it and fly.",
+      "httpStatus": 200,
+      "totalMs": 51661
+    },
+    {
+      "file": "octopus.json",
+      "prompt": "A purple mechanical octopus on wheels with eight articulated tentacles, copper details and a seat I can ride.",
+      "httpStatus": 200,
+      "totalMs": 32674
+    },
+    {
+      "file": "teapot.json",
+      "prompt": "A flying turquoise teapot with a curved spout, open handle, golden lid, tiny wings and a seat I can ride.",
+      "httpStatus": 200,
+      "totalMs": 47104,
+      "actualLiveLoop": {
+        "waitingDistance": 334.06032,
+        "assemblyDistance": 19.72461,
+        "automaticMode": "plane",
+        "flightHeight": 12.2121,
+        "runtime": "Node: actual creation-service, generic Three matrices and Rapier; no browser rendering"
+      }
+    }
+  ],
+  "runtimeEnvironmentRevision": 3
+}

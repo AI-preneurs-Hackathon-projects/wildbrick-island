@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Brickwild controls preview</title><link rel="stylesheet" href="/style.css"></head><body><div id="game"><div id="scene" aria-label="Controls preview; no 3D renderer"></div><div id="ui"></div></div><script type="module">
+// Development-only control surface. Real UI/input modules; no WebGL or network.
+import {createUI} from '/ui.js';
+import {createInput} from '/input.js';
+import {createArenaUI} from '/arena-ui.js';
+import {createState} from '/rules.js';
+import {newRoom,addPlayer,roomSnapshot} from '/arena-core.js';
+const state=createState(),room=newRoom(),player=addPlayer(room,'preview','Builder');
+let input,arenaUI,ui;
+const actions={state:()=>state,start(){state.started=true;},openArena(){state.arena=true;arenaUI.update(client);},recent:()=>[],saved:()=>true,build(){},action(){ui.toast('Attack pressed');},jump(){ui.toast('Jump pressed');},voice(){ui.toast('Speak shortcut pressed — voice service is not started in this preview.');},sound(){return false;},auto(){return false;},pause(v){state.paused=v;input?.clear();},respawn(){},cancelDesign(){},leaveArena(){},describe(){ui.toast('Typed description received — this preview does not call OpenAI.');}};
+const client={self:player,snapshot:roomSnapshot(room,player.id),active:true,room:'PREVIEW',serverTime:()=>room.time};
+ui=createUI(actions);arenaUI=createArenaUI({join:async()=>true,leave(){},toast:ui.toast});
+input=createInput({onBuild:actions.build,onAction:actions.action,onJump:actions.jump,onPause:()=>ui.toggleMenu('pause'),onMic:actions.voice,onImagine:()=>ui.openMenu('imagine'),onHotkeys:()=>ui.toggleMenu('hotkeys'),onHome:actions.respawn,getState:()=>state});
+function frame(){ui.update(state);if(state.arena)arenaUI.update(client);requestAnimationFrame(frame);}frame();
+</script></body></html>
