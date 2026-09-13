@@ -8,10 +8,10 @@ import {SUPPLY_BLUEPRINTS} from './supply-catalog.js';
 export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
  let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
- let previewAt=0,fireHeldAt=0;
+ let previewAt=0,fireHeldAt=0,joinTicket=null;
  let frames=[],nextFrame=0,motionEpoch=0,accumulator=0,jumpQueued=false;
  const blueprints=new Map(SUPPLY_BLUEPRINTS),loading=new Set(),view=createMotionView();
- async function request(path,body){const abort=new AbortController(),timeout=setTimer(()=>abort.abort(),12000);try{const r=await fetcher(path,{keepalive:path.endsWith('/leave'),method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:abort.signal,cache:'no-store'});let d;try{d=await r.json();}catch{throw Object.assign(Error('The Arena server returned an invalid response. Try joining again.'),{status:r.status});}if(!r.ok){const e=Error(d.error||'The arena could not connect.');e.status=r.status;throw e;}return d;}finally{clearTimer(timeout);}}
+ async function request(path,body){const abort=new AbortController(),timeout=setTimer(()=>abort.abort(new DOMException('Arena request timed out','TimeoutError')),12000);try{const r=await fetcher(path,{keepalive:path.endsWith('/leave'),method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:abort.signal,cache:'no-store'});let d;try{d=await r.json();}catch{throw Object.assign(Error('The Arena server returned an invalid response. Try joining again.'),{status:r.status});}if(!r.ok){const e=Error(d.error||'The arena could not connect.');e.status=r.status;throw e;}return d;}catch(e){if(abort.signal.aborted)throw Object.assign(Error('The Arena connection timed out. Please try Join Arena again; your retry will reuse the same player.'),{code:'timeout'});if(e.name==='AbortError')throw Object.assign(Error('The Arena connection was interrupted. Please try Join Arena again.'),{code:'canceled'});throw e;}finally{clearTimer(timeout);}}
  function fetchBlueprint(id){if(!id||blueprints.has(id)||loading.has(id))return;loading.add(id);const current=lifecycle;request('/api/arena/blueprint?id='+encodeURIComponent(id)).then(d=>{if(current===lifecycle&&!closed)blueprints.set(id,validateBlueprint(d.blueprint));}).catch(e=>{if(current===lifecycle&&!closed)onError(e.message,e.status);}).finally(()=>loading.delete(id));}
  function accept(s){
   if(!credentials)return;if(epoch!==null&&epoch!==s.epoch)throw Object.assign(Error('This arena has ended. Your position is held; join again to continue.'),{status:410});
@@ -40,17 +40,16 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
  async function join(name,room,avatarColor){
-  if(joining)return false;joining=true;const generation=++lifecycle,old=credentials;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
+  if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
   try{
-   if(old)try{await request('/api/arena/leave',old);}catch{}
    if(generation!==lifecycle)return false;
-   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1});
+   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1,resume:ticket});
    if(generation!==lifecycle){request('/api/arena/leave',{session:result.session,token:result.token}).catch(()=>{});return false;}
    view.reset();self=null;snapshot=null;commands=[];seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};
    roomCode=result.room;credentials={session:result.session,token:result.token};accept(result.snapshot);schedule();return true;
-  }catch(e){if(generation===lifecycle){credentials=null;onStatus('offline');onError(e.message,e.status);}return false;}finally{joining=false;}
+  }catch(e){if(generation===lifecycle){credentials=null;onStatus('offline');onError(e.message,e.status);}return false;}finally{if(generation===lifecycle)joining=false;}
  }
- async function leave(){lifecycle++;closed=true;clearTimer(timer);const old=credentials;credentials=null;self=null;snapshot=null;view.reset();commands=[];frames=[];accumulator=0;jumpQueued=false;input={};onStatus('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
+ async function leave(){lifecycle++;joining=false;closed=true;clearTimer(timer);const old=credentials||joinTicket;joinTicket=null;credentials=null;self=null;snapshot=null;view.reset();commands=[];frames=[];accumulator=0;jumpQueued=false;input={};onStatus('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
  function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status==='finished'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;commands.push({id:++commandId,type,mode,blueprint});schedule(0);return true;}
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){

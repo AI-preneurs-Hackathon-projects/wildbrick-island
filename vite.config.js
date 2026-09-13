@@ -8,7 +8,9 @@ function apiPreview(){return {name:'brickwild-private-api-preview',configureServ
  server.middlewares.use(async(req,res,next)=>{
   // Isolated development-only HUD validation, including when WebGL is unavailable.
   if(req.url?.split('?')[0]==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
+  if(req.url==='/__rings'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ring-harness.html')));return;}
   if(req.url==='/__support'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/support-harness.html')));return;}
+  if(req.url==='/__hammer-fixture.js'){res.writeHead(200,{'Content-Type':'text/javascript'});res.end(fs.readFileSync(path.join(root,'validation/hammer-fixture.js')));return;}
   if(req.url==='/__combat'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/combat-harness.html')));return;}
   if(req.url==='/__layouts'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/layout-harness.html')));return;}
   if(!req.url?.startsWith('/api/'))return next();

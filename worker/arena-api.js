@@ -16,13 +16,16 @@ export async function handleArenaAPI(request,env,ctx={}){try{
  const packet=await readPacket(request,url.pathname==='/api/arena/build'?100000:url.pathname==='/api/arena/sync'?16384:4096);
  if(url.pathname==='/api/arena/join'){
   const roomId=String(packet.room||'ISLAND').trim().toUpperCase();if(!/^[A-Z0-9]{4,8}$/.test(roomId))throw new ArenaError('Use a room code with 4–8 letters or numbers.');
-  const name=String(packet.name||'Builder').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,20)||'Builder',id=crypto.randomUUID(),token=nonce(),playerId=crypto.randomUUID(),now=Date.now();
-  // Session creation has a durable per-principal cap, separate from room seats.
-  await store.saveSession({id,tokenHash:await hash(token),principal,roomId,playerId});
-  try{const {room}=await store.mutate(roomId,(r,t)=>{const p=addPlayer(r,playerId,name,t);p.avatarColor=avatarColor(packet.avatarColor);if(packet.motionVersion===1)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
+  const resume=packet.resume;if(resume&&(!/^[a-f0-9-]{36}$/.test(resume.session||'')||!/^[a-f0-9]{64}$/.test(resume.token||'')))throw new ArenaError('Invalid join attempt. Exit to home and try again.');
+  const name=String(packet.name||'Builder').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,20)||'Builder',id=resume?.session||crypto.randomUUID(),token=resume?.token||nonce();
+  // A retry proves possession of the same random token and reuses one seat.
+  // Reserve durably before the room write, so a lost response is recoverable.
+  const saved=await store.saveSession({id,tokenHash:await hash(token),principal,roomId,playerId:crypto.randomUUID()}),playerId=saved.player_id;
+  try{const {room}=await store.mutate(roomId,async(r,t)=>{if(!await env.DB.prepare('SELECT id FROM arena_sessions WHERE id = ?').bind(id).first())throw new ArenaError('This join was canceled. Join again to continue.',410);const p=r.players[playerId]||addPlayer(r,playerId,name,t);p.lastSeen=t;p.name=name;p.avatarColor=avatarColor(packet.avatarColor);if(packet.motionVersion===1&&!p.motion)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){if(!resume)await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
+
  }
  const session=await store.session(request,packet);
- if(url.pathname==='/api/arena/leave'){await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();return response({left:true});}
+ if(url.pathname==='/api/arena/leave'){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));return response({left:true});}
  if(!['/api/arena/sync','/api/arena/build'].includes(url.pathname))return response({error:'Not found.'},404);
  if(!Number.isSafeInteger(packet.seq)||packet.seq<1||packet.seq>1e12)throw new ArenaError('Invalid input sequence.');
  if(packet.frames!==undefined&&(!validFrames(packet.frames)||!Number.isSafeInteger(packet.motionEpoch)||packet.motionEpoch<0))throw new ArenaError('Invalid movement frames.');

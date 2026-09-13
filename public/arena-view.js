@@ -3,7 +3,7 @@ import {weaponGrip,weaponAim} from './weapon-aim.js';
 import {createShotPlayback} from './shot-playback.js';
 import {solidBoxes} from './arena-core.js';
 import {avatarColor} from './avatar-colors.js';
-import {combatPose} from './combat-pose.js';
+import {combatPose,meleeAngle} from './combat-pose.js';
 import {SUPPLY_BLUEPRINTS,SUPPORT_DROPS} from './supply-catalog.js';
 import {segmentBox} from './geometry.js';
 import * as THREE from './vendor/three.module.js';
@@ -22,7 +22,7 @@ export function createArenaView(scene,camera){
  function renderKit(a,p,cache,time){
   const {yaw:aimYaw,pitch:aimPitch}=weaponAim(p);const action=attacks.get(p.id),elapsed=action?(time-action.time)/1000:100,pose=combatPose(p.kit.stats.weapon,elapsed),strike=pose.strike;
 if(a.modelId!==p.kit.id||(!a.model&&p.kit.blueprintId&&cache.has(p.kit.blueprintId))){a.model?.dispose();a.model=kitModel(p.kit,cache);a.modelId=p.kit.id;if(a.model){a.model.group.name='creation';a.g.add(a.model.group);}}
-  const model=a.model;if(model){model.update?.(time/1000,1,p.speed/12);model.wheels?.forEach(w=>w.rotation.x=time/1000*p.speed);if(model.prop)model.prop.rotation.z=time/65;const carry=!p.kit.stats.mounted;if(carry&&p.kit.blueprintId){if(p.kit.stats.projectileSpeed>0)model.group.rotation.set(-aimPitch,aimYaw-p.yaw,0,'YXZ');else model.group.rotation.set(0,0,strike*1.45);model.group.position.set(...weaponGrip(p.kit)).sub(model.grip.clone().applyQuaternion(model.group.quaternion));}else if(p.kit.mode==='bow'&&p.kit.id!=='foot'){model.group.position.set(...weaponGrip(p.kit));model.group.rotation.set(-aimPitch,aimYaw-p.yaw,0,'YXZ');}else if(p.kit.mode==='sword'){model.group.position.set(-.81,1.06,.37);model.group.rotation.set(-strike*1.6,0,.15+strike*1.3);}}
+  const model=a.model;if(model){model.update?.(time/1000,1,p.speed/12);model.wheels?.forEach(w=>w.rotation.x=time/1000*p.speed);if(model.prop)model.prop.rotation.z=time/65;const carry=!p.kit.stats.mounted;if(carry&&p.kit.blueprintId){if(p.kit.stats.projectileSpeed>0)model.group.rotation.set(-aimPitch,aimYaw-p.yaw,0,'YXZ');else model.group.rotation.set(meleeAngle(strike),0,0);model.group.position.set(...weaponGrip(p.kit)).sub(model.grip.clone().applyQuaternion(model.group.quaternion));}else if(p.kit.mode==='bow'&&p.kit.id!=='foot'){model.group.position.set(...weaponGrip(p.kit));model.group.rotation.set(-aimPitch,aimYaw-p.yaw,0,'YXZ');}else if(p.kit.mode==='sword'){model.group.position.set(-.81,1.06,.37);model.group.rotation.set(-strike*1.6,0,.15+strike*1.3);}}
   a.pilot.group.scale.setScalar(p.kit.stats.mounted?.7:1);if(p.kit.stats.mounted){const seat=model?.seat||new THREE.Vector3(0,p.kit.mode==='plane'?1.55:1.33,-.5);a.pilot.group.position.copy(seat);a.pilot.group.position.y-=.48;a.pilot.legs.forEach(l=>l.rotation.x=-1.45);}else{a.pilot.group.position.set(0,0,0);a.pilot.legs.forEach((l,i)=>l.rotation.x=Math.sin(time/85+i*Math.PI)*Math.min(.65,p.speed/12));}a.pilot.arms.forEach((arm,i)=>arm.rotation.x=p.building?-1.3+Math.sin(time/50+i)*.4:Math.sin(time/85+i*Math.PI)*Math.min(.4,p.speed/14));
   if(!p.building&&pose.active){a.pilot.arms.forEach((arm,i)=>{arm.rotation.x=p.kit.stats.weapon==='punch'?(i===0?-.35-strike*1.65:-.65):-.9-strike*.55;arm.position.z=i===0?strike*.5:0;});}else a.pilot.arms.forEach(arm=>arm.position.z=0);
   if(!p.building)poseWeaponHands(a.pilot,p.kit,aimPitch,strike);

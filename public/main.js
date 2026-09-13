@@ -1,3 +1,4 @@
+import {meleeAngle} from './combat-pose.js';
 import {gameCamera} from './game-camera.js';
 import {createAvatarPreview} from './avatar-preview.js';
 import {followCamera} from './follow-camera.js';
@@ -114,7 +115,7 @@ async function bootGame(){
   }
   if(pendingGenerated&&s.building?.custom){if(!s.paused){snapClock+=dt;if(snapClock>.12){sound.play('snap');snapClock=0;}}pendingGenerated.update(s.time,s.building.time/s.building.duration,s.speed/10);pilot.arms[0].rotation.x=-1.3+Math.sin(s.time*20)*.5;pilot.arms[1].rotation.x=-1.3-Math.sin(s.time*20)*.5;}
   if(!poseKit||poseBlueprint!==s.custom?.blueprint||poseMode!==s.mode){poseBlueprint=s.custom?.blueprint;poseMode=s.mode;poseKit=makeKit(s.custom?'generated':s.mode,poseBlueprint);}const aim=input.read(),heldKit=poseKit;if(!s.building)poseWeaponHands(pilot,heldKit,aim.weaponPitch,Math.sin(s.actionTime/.4*Math.PI));if(s.mode==='bow'&&!s.custom)equipment.bow.group.rotation.set(-aim.weaponPitch,0,0,'YXZ');
-  if(activeGenerated){activeGenerated.update(s.time,1,s.speed/10,s.actionTime);if(s.custom?.blueprint.movement==='carry'){if(s.custom.blueprint.ability==='pulse')activeGenerated.group.rotation.set(-aim.weaponPitch,0,0,'YXZ');else activeGenerated.group.rotation.z=Math.sin(s.actionTime/.4*Math.PI)*1.2;gripOffset.copy(activeGenerated.grip).applyQuaternion(activeGenerated.group.quaternion);activeGenerated.group.position.set(...weaponGrip(heldKit)).sub(gripOffset);}}
+  if(activeGenerated){activeGenerated.update(s.time,1,s.speed/10,s.actionTime);if(s.custom?.blueprint.movement==='carry'){if(s.custom.blueprint.ability==='pulse')activeGenerated.group.rotation.set(-aim.weaponPitch,0,0,'YXZ');else activeGenerated.group.rotation.set(meleeAngle(Math.sin(s.actionTime/.4*Math.PI)),0,0);gripOffset.copy(activeGenerated.grip).applyQuaternion(activeGenerated.group.quaternion);activeGenerated.group.position.set(...weaponGrip(heldKit)).sub(gripOffset);}}
   if(!s.paused&&!arenaMode)placedModels.forEach(p=>p.model.update(s.time,1,0));
   equipment.car.wheels.forEach(w=>w.rotation.x+=s.mode==='car'&&!s.paused?s.speed*dt*1.8:0);
   if(s.mode==='plane'&&!s.paused){equipment.plane.prop.rotation.z+=dt*(12+s.speed*2);equipment.plane.group.rotation.x=0;equipment.plane.group.rotation.z=0;}

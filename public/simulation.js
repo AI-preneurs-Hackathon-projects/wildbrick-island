@@ -1,3 +1,4 @@
+import {passedRing} from './ring-pass.js';
 import {makeKit} from './arena-core.js';
 import {weaponMuzzle,aimDirection,weaponAim} from './weapon-aim.js';
 import {movementShape,isMovementBlocker,canFit} from './movement-blocking.js';
@@ -46,7 +47,7 @@ export async function createSimulation(obstacles,onEvent){
    const target=String(nearest?.id).startsWith('target:')?Number(nearest.id.slice(7)):null;
    emit('shoot',{target,from,to,yaw,pitch,impact:!!nearest,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
   }
-  if(s.mode==='foot')jump();
+  if(s.mode==='foot')emit('swing');
   if(s.mode==='car'&&s.custom?.blueprint.ability!=='swing'){s.boostUntil=s.time+.7;emit('boost');}
   if((s.mode==='sword'&&!s.custom)||s.custom?.blueprint.ability==='swing'){const list=CRATES.map((t,i)=>({...t,id:i})).filter(t=>!s.crates.includes(t.id));const target=nearestTarget(s,list,3.8,-.25);if(target){s.crates.push(target.id);s.bricks+=12;emit('smash',{id:target.id});}else emit('swing');}
  }
@@ -73,7 +74,7 @@ export async function createSimulation(obstacles,onEvent){
   s.distance+=Math.hypot(s.x-previous.x,s.z-previous.z);
   if(Math.abs(s.x)>=53.95||Math.abs(s.z)>=53.95){if(s.time-checkAccumulator>3){checkAccumulator=s.time;emit('notice',{text:'The ocean is the edge of this island. Turn back to explore.'});}}
   if(s.mode==='car')GATES.forEach((p,i)=>{if(s.gates.includes(i)||s.y>2)return;const across=p.axis==='x'?Math.abs(s.x-p.x):Math.abs(s.z-p.z);const forward=p.axis==='x'?Math.abs(s.z-p.z):Math.abs(s.x-p.x);if(across<4.4&&forward<1.65){s.gates.push(i);s.bricks+=15;emit('gate',{id:i});}});
-  if(s.mode==='plane')RINGS.forEach((p,i)=>{if(!s.rings.includes(i)&&Math.hypot(s.x-p.x,s.y+1.3-p.y,s.z-p.z)<3.4){s.rings.push(i);s.bricks+=20;emit('ring',{id:i});}});
+  if(s.mode==='plane')RINGS.forEach((p,i)=>{if(!s.rings.includes(i)&&passedRing(previous,s,i,creationStats(s.custom?.blueprint||s.mode,s.custom?.dimensions).collision[1])){s.rings.push(i);s.bricks+=20;emit('ring',{id:i});}});
   if(!s.won&&completion(s)){s.won=true;emit('win');}
  }
  return {get state(){return s;},build,buildCustom,action,jump,hitTarget,respawn,reset,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};

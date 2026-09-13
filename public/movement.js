@@ -15,6 +15,7 @@ export function moveDirect(p,input,dt,{speed,mounted=false,flying=false,limit=53
  const yaw=input.cameraYaw||0,dx=Math.sin(yaw)*z-Math.cos(yaw)*x,dz=Math.cos(yaw)*z+Math.sin(yaw)*x;
  p.speed=Math.hypot(x,z)*speed;p.vertical=0;
  if(p.speed>0){p.yaw=Math.atan2(dx,dz);p.x=clamp(p.x+dx*speed*dt,-limit,limit);p.z=clamp(p.z+dz*speed*dt,-limit,limit);}
+ shape={...shape,yaw:p.yaw};
  if(flying){
   p.jumpRemaining=0;p.vy=0;p.vertical=((input.up?1:0)-(input.down?1:0))*10;p.y=clamp(p.y+p.vertical*dt,0,height);
   Object.assign(p,slideMove(previous,p,shape,boxes));p.flightAltitude=p.y;p.grounded=false;

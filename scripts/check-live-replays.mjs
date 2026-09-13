@@ -15,7 +15,7 @@ for(const [kind,mode] of [['dragon','plane'],['octopus','car'],['teapot','plane'
  const start=sim.state.z;assert.equal(sim.buildCustom({blueprint,dimensions:model.size.toArray()}),true);
  for(let i=0;i<45;i++)sim.update(1/60,{z:1,cameraYaw:Math.PI,up:mode==='plane'});assert.ok(sim.state.building);assert.ok(Math.abs(sim.state.z-start)>5);
  for(let i=0;i<240;i++)sim.update(1/60,{z:1,cameraYaw:Math.PI,up:mode==='plane'});assert.equal(sim.state.mode,mode);assert.equal(sim.state.custom.blueprint.name,blueprint.name);
- if(mode==='plane'){assert.ok(sim.state.y>4);const ring=RINGS[0];Object.assign(sim.state,{x:ring.x,y:ring.y-1.3,z:ring.z,speed:0});sim.update(1/60,{});assert.ok(sim.state.rings.includes(0));}
+ if(mode==='plane'){assert.ok(sim.state.y>4);const ring=RINGS[0],yaw=Math.atan2(RINGS[1].x-ring.x,RINGS[1].z-ring.z);Object.assign(sim.state,{x:ring.x-Math.sin(yaw)*.1,y:ring.y-model.size.y/2,z:ring.z-Math.cos(yaw)*.1,yaw,speed:0});sim.update(1/60,{z:1,cameraYaw:yaw});assert.ok(sim.state.rings.includes(0));}
  else{const gate=GATES[0];Object.assign(sim.state,{x:gate.x,y:0,z:gate.z,speed:0});sim.update(1/60,{});assert.ok(sim.state.gates.includes(0));}
  if(blueprint.ability==='pulse'){sim.action();assert.ok(events.some(e=>e.type==='shoot'&&e.pulse));}
  const values=new Map(),storage={getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},adventure=createAdventure(storage);adventure.remember(blueprint);adventure.save(sim.state);const saved=createAdventure(storage);assert.deepEqual(saved.creations[0],blueprint);
