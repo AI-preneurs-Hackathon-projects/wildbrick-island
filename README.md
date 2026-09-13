@@ -3,7 +3,7 @@
 Yerzhan’s existing 3D toy-brick game, now centered on a shared fighting arena:
 **Choose Explore or Arena → speak an idea → watch it build → explore or battle.**
 
-[Play Brickwild](https://brickwild-adventure.yerzhan452067.chatgpt.site/) · [GitHub main](https://github.com/AI-preneurs-Hackathon-projects/wildbrick-island/tree/main)
+[Play Brickwild](https://brickwild-island.hadrienroy.chatgpt.site/) · [GitHub main](https://github.com/AI-preneurs-Hackathon-projects/wildbrick-island/tree/main)
 
 ## Playing
 
@@ -47,13 +47,13 @@ Server runtime settings:
 
 | Variable | Purpose |
 | --- | --- |
-| `OPENAI_API_KEY` | Existing server-only secret; configure through secure Sites runtime settings |
+| `OPENAI_API_KEY` | Server-only secret; the new Site needs its own key configured through secure Sites runtime settings |
 | `OPENAI_MODEL` | Selected model; source fallback is `gpt-5.4` |
 | `OPENAI_BLUEPRINT_DETAIL` | `compact` selects v4; other/unset selects legacy detailed v3 |
 | `OPENAI_REASONING_EFFORT` | `none` or `low`; unset source fallback is low |
 | `DB` | Sites-managed D1 binding |
 
-The selected deployment uses GPT-5.4, compact geometry and no reasoning effort. The final three live trials took 9.9–27.1 seconds per request; model work took 9.0–12.5 seconds. See [VALIDATION.md](VALIDATION.md) for comparisons, costs and limits. API model access was verified for GPT-5.4 and GPT-5.4 Mini. Secrets are never needed in browser code or repository files.
+The new Site is configured for GPT-5.4, compact geometry and no reasoning effort; new AI designs remain unavailable until its own OpenAI key is configured. The final three live trials took 9.9–27.1 seconds per request; model work took 9.0–12.5 seconds. See [VALIDATION.md](VALIDATION.md) for comparisons, costs and limits. API model access was verified for GPT-5.4 and GPT-5.4 Mini. Secrets are never needed in browser code or repository files.
 
 D1 admission provides four expiring global generation slots, 30 starts/minute for the Site and eight starts/minute per requester, alongside two upstream requests per isolate and bounded body/output/time limits. These are resource protections, not player limits. A missing/unavailable admission database returns a retryable error. API account spend limits remain the billing boundary; cancellation cannot guarantee an upstream request is unbilled.
 
@@ -102,3 +102,5 @@ Third-party licenses ship under `public/vendor`. Original game geometry and synt
 ## Local preview and synchronization
 
 This revision integrates GitHub main at `693f7ebb1d947884fece174733ef57e1eadcfcfc` before applying the requested home-screen and Arena-exit changes. `npm run dev` serves Explore and the actual UI. It does not host authenticated Arena services; Arena requests now receive an explicit JSON 503 with a Back to Explore instruction. AI generation requires the existing optional private API preview configuration. The production Worker, authentication and runtime secrets are unchanged.
+
+The current hosting manifest targets the new private BrickWild Island Site created for this account. It uses a fresh database; no identity, data, access policy or secret from the original Site was copied.

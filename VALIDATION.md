@@ -2,6 +2,10 @@
 
 This report supersedes the older Rapier, universal pass-through, eight-seat and Imagine-control reports retained in Git history. It separates real OpenAI calls, CPU/SQL simulations and browser UI inspection from unverified rendered multiplayer play.
 
+## New account-owned Site
+
+The user explicitly requested a new ChatGPT Site instead of updating the inaccessible original. The hosting manifest now identifies that new private Site, preserving the logical D1 binding and all migrations. Its generation settings use the documented compact profile, but it needs its own OpenAI API key before newly described models can be generated. The original Site was not changed and its data/secrets were not copied.
+
 ## Home modes and Arena exit after GitHub synchronization
 
 The local checkout was fast-forwarded from `034917f` to GitHub main `693f7ebb1d947884fece174733ef57e1eadcfcfc` (12 commits), verified again against the live remote after implementation. All previous uncommitted work was preserved in a Git stash and separate patch/file archives before pulling. The requested home/name/mode work was deliberately reconciled onto the latest source, retaining the shared Arena, speech-first controls, tutorial, combat, generation, collision and supply/rover systems. No older gameplay files were restored over the newer source.
