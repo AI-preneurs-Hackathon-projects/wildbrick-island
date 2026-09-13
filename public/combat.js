@@ -1,5 +1,6 @@
 // Semantic choices select bounded, trusted game rules. The model never sets damage.
 export const WEAPONS=Object.freeze({
+ punch:{label:'Punch',damage:18,interval:.5,range:2.2,speed:0,spread:0,windup:.13},
  none:{label:'Unarmed',damage:0,interval:.5,range:0,speed:0,spread:0},
  pulse:{label:'Pulse',damage:16,interval:.42,range:42,speed:48,spread:.015},
  flame:{label:'Fire breath',damage:7,interval:.16,range:15,speed:23,spread:.16},
@@ -14,8 +15,8 @@ export function legacyTraits(b){const text=(b.name+' '+b.description).toLowerCas
 export function creationStats(input='foot',dimensions){
  const b=typeof input==='object'?input:null,mode=b?(b.movement==='fly'?'plane':['drive','walk'].includes(b.movement)?'car':b.movement==='carry'?'equipment':'foot'):input;
  const movement=b?.movement||(mode==='plane'?'fly':mode==='car'?'drive':['bow','sword'].includes(mode)?'carry':'walk');
- const mounted=mode==='car'||mode==='plane',t=b?.traits|| (b?legacyTraits(b):{weapon:mode==='bow'?'bow':mode==='sword'?'blade':mode==='foot'?'pulse':'none',armor:'medium',mass:'medium',emitter:[0,1.4,1]});
- const weapon=t.armor==='shield'&&t.weapon==='none'?'pulse':WEAPONS[t.weapon]?t.weapon:'none',heavy=t.mass==='heavy',light=t.mass==='light',shield=t.armor==='shield';
+ const mounted=mode==='car'||mode==='plane',t=b?.traits|| (b?legacyTraits(b):{weapon:mode==='bow'?'bow':mode==='sword'?'blade':mode==='foot'?'punch':'none',armor:'medium',mass:'medium',emitter:[0,1.4,1]});
+ const weapon=t.armor==='shield'&&t.weapon==='none'?'punch':WEAPONS[t.weapon]?t.weapon:'none',heavy=t.mass==='heavy',light=t.mass==='light',shield=t.armor==='shield';
  let speed=mounted?(movement==='fly'?29:movement==='walk'?11:22):7;
  speed*=heavy?.76:light?1.07:1;if(weapon==='automatic'&&!mounted)speed*=.76;if(shield)speed*=.8;
  const bodyArmor=t.armor==='heavy'?.24:shield?.45:t.armor==='medium'?.1:0;

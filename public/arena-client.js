@@ -6,6 +6,7 @@ import {validateBlueprint} from './blueprint.js';
 export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
  let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
+ let previewAt=0;
  let frames=[],nextFrame=0,motionEpoch=0,accumulator=0,jumpQueued=false;
  const blueprints=new Map(),loading=new Set(),view=createMotionView();
  async function request(path,body){const abort=new AbortController(),timeout=setTimer(()=>abort.abort(),12000);try{const r=await fetcher(path,{keepalive:path.endsWith('/leave'),method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined,signal:abort.signal,cache:'no-store'});let d;try{d=await r.json();}catch{throw Error('The arena did not respond. Reconnecting…');}if(!r.ok){const e=Error(d.error||'The arena could not connect.');e.status=r.status;throw e;}return d;}finally{clearTimer(timeout);}}
@@ -25,7 +26,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   for(const frame of frames)predictPlayer(self,frameInput(frame),MOVE_DT,{...s,time:s.time,preview:true});
   view.accept(self,{teleport});
   for(const p of s.players){fetchBlueprint(p.kit.blueprintId);fetchBlueprint(p.building?.kit.blueprintId);}for(const p of s.placed||[])fetchBlueprint(p.blueprintId);
-  if(lastEvent===0)lastEvent=Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent(e,s.self);lastEvent=e.id;}
+  if(lastEvent===0)lastEvent=Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&clock()-previewAt<2000},s.self);lastEvent=e.id;}
   onSnapshot(s);onStatus('online');
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
@@ -51,6 +52,9 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  function tick(dt,newInput){
   input=cleanInput(newInput);const fresh=credentials&&clock()-lastSuccess<1000;
   if(self&&snapshot&&fresh){
+   const time=serverTime(),k=self.kit.stats;
+   if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}
+
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){
     const frame=packFrame(++nextFrame,{...input,jump:jumpQueued});jumpQueued=false;frames.push(frame);predictPlayer(self,frameInput(frame),MOVE_DT,{...snapshot,time:serverTime(),preview:true});accumulator-=MOVE_DT;

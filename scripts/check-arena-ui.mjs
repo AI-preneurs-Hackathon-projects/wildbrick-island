@@ -49,15 +49,15 @@ check('typing, modifiers, menus and focus loss do not trigger gameplay shortcuts
  const menu=document.querySelector('#menu');menu.open=true;key('keydown','ArrowRight');assert.equal(input.read().fire,false);menu.close();
  key('keydown','KeyW');key('keydown','ArrowRight');window.dispatchEvent(new window.Event('blur'));assert.equal(input.read().z,0);assert.equal(input.read().fire,false);
 });
-check('jumping unarmed players carry only a small blaster, with no bow string below their feet',()=>{
- for(const legacy of [false,true]){
-  const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),room=newRoom(),p=addPlayer(room,'jump','Jumper');p.y=1.3;if(legacy)p.kit.mode='bow';
-  view.update(roomSnapshot(room,p.id),p,new Map(),1/60,room.time);scene.updateMatrixWorld(true);
-  const equipment=scene.children[0].children[0].children[3],bounds=new THREE.Box3().setFromObject(equipment);
-  assert.equal(equipment.children.length,2);assert.ok(bounds.min.y>=p.y);assert.ok(bounds.max.y-bounds.min.y<.5);
-  p.kit=makeKit('bow');view.update(roomSnapshot(room,p.id),p,new Map(),1/60,room.time);scene.updateMatrixWorld(true);
-  const bow=scene.children[0].children[0].children[3];assert.ok(bow.children.length>2);assert.ok(new THREE.Box3().setFromObject(bow).min.y>=p.y);view.clear();
- }
+check('empty-handed punching animates arms; a confirmed hit flashes and flinches without displacement',()=>{
+ const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),r=newRoom(),p=addPlayer(r,'p','Puncher');p.y=1.3;
+ view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time);const actor=scene.children[0].children[0],creation=actor.getObjectByName('creation');assert.equal(creation.children.length,0);
+ const arm=actor.children[0].children.find(c=>c.position.x===.68);const rest=arm.rotation.x;
+ view.effect({type:'attack-preview',player:p.id,weapon:'punch',yaw:0,time:r.time});view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+130);assert.ok(arm.rotation.x<rest-1);
+ const position=actor.position.clone();view.effect({type:'hit',player:p.id,x:p.x,y:p.y+1.3,z:p.z,time:r.time+130});view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+160);assert.ok(actor.children[0].rotation.x<0);assert.deepEqual(actor.position,position);
+ let flash=false;actor.children[0].traverse(m=>{if(m.material?.emissiveIntensity>0)flash=true;});assert.ok(flash);
+ p.kit=makeKit('sword');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+170);view.effect({type:'swing',player:p.id,weapon:'blade',yaw:0});view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+300);assert.ok(actor.getObjectByName('creation').rotation.x<-.5);
+ p.kit=makeKit('bow');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+700);scene.updateMatrixWorld(true);assert.ok(new THREE.Box3().setFromObject(actor.getObjectByName('creation')).min.y>=p.y);view.clear();
 });
 check('expired arena keeps vitals, exposes Rejoin, and retains a touch Lower control after dismount',()=>{
  const r=newRoom(),p=addPlayer(r,'p','Held');Object.assign(p,{x:21,y:8,z:19,health:76});const client={self:p,snapshot:roomSnapshot(r,p.id),active:true,room:'HOLD',serverTime:()=>r.time};

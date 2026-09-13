@@ -92,7 +92,7 @@ await check('trees and buildings still shield rivals from projectiles',()=>{
  for(const id of ['house:0','tree:inner:0']){
   const room=newRoom(1e5);for(const e of WORLD_ENTITIES)if(e.id!==id)room.destroyed[e.id]=1e12;
   const box=WORLD_ENTITIES.find(e=>e.id===id).boxes[0],a=addPlayer(room,'a','Shooter'),b=addPlayer(room,'b','Rival');
-  Object.assign(a,{x:box.x,z:box.z-8,protectedUntil:0,yaw:0});Object.assign(b,{x:box.x,z:box.z+8,protectedUntil:0});
+  Object.assign(a,{kit:makeKit('bow'),x:box.x,z:box.z-8,protectedUntil:0,yaw:0});Object.assign(b,{x:box.x,z:box.z+8,protectedUntil:0});a.kit.muzzle=[0,1.4,1]; // Centered fixture ray must cross the narrow trunk.
   applyInput(room,a.id,{seq:1,input:{cameraYaw:0},command:{id:1,type:'fire'}},room.time);
   for(let i=0;i<60;i++){a.lastSeen=b.lastSeen=room.time;advanceRoom(room,room.time+1000/30);}
   assert.equal(b.health,100,id);assert.ok(room.events.some(e=>e.type==='impact'));assert.equal(room.projectiles.length,0);

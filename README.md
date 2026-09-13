@@ -12,6 +12,8 @@ Buildings, major brick rocks and generated placed cover now block movement with 
 
 The existing ring road, central plaza and colored houses remain; four major rocks add deliberate cover without closing the broad lanes. Spawn candidates spread across open ground and are filtered against active blockers. Camera positions still follow directly; obstructing houses and rocks fade locally instead of pulling the camera forward. There is no rigid-body engine, gravity, inertia, ramming, crash damage or physical knockback.
 
+Unarmed builders punch (18 damage, 2.2 m range, 0.5 s interval, 0.13 s windup). Melee hits resolve once on the server after the windup, require facing/height/clear cover, and cannot repeat on a retried command. Shields protect while leaving punching available; unarmed vehicles cannot fire. Visible sword swings, arrow/tracer shots, muzzle flashes and authored flame emitters match trusted weapon families. Immediate local swings/shots are predictive presentation only. Confirmed hit events carry contact positions, health and stable IDs; target flash/flinch, impacts and sounds are synchronized without physical knockback. Destruction, defeat, blocked hits and respawn have distinct effects and sounds.
+
 Historical sections below describe prior releases; their eight-seat, room-selection and dual-onboarding descriptions are superseded here.
 
 An original 3D toy-brick browser game. Explore Wildbrick Island and assemble usable creations while moving. Free-form speech or typed descriptions request new brick geometry from the connected OpenAI service. The playfield now has only Imagine and Speak creation controls; preset buttons and number-key builds are removed.
