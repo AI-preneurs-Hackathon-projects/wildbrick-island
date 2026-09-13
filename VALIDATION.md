@@ -2,6 +2,16 @@
 
 This report supersedes the older Rapier, universal pass-through, eight-seat and Imagine-control reports retained in Git history. It separates real OpenAI calls, CPU/SQL simulations and browser UI inspection from unverified rendered multiplayer play.
 
+## Home modes and Arena exit after GitHub synchronization
+
+The local checkout was fast-forwarded from `034917f` to GitHub main `693f7ebb1d947884fece174733ef57e1eadcfcfc` (12 commits), verified again against the live remote after implementation. All previous uncommitted work was preserved in a Git stash and separate patch/file archives before pulling. The requested home/name/mode work was deliberately reconciled onto the latest source, retaining the shared Arena, speech-first controls, tutorial, combat, generation, collision and supply/rover systems. No older gameplay files were restored over the newer source.
+
+The full suite passes 129 checks on Node 24.19.0. Seven home/exit checks cover names, shared-room transfer, both entry modes and tutorials, storage failure, authentication, all visible exit states and pending join dismissal. Three added network regressions verify immediate departure during reconnect/expiry, ignored late blueprint authentication errors, and useful non-JSON response errors. The Worker build includes 46 assets and the current migrations. `git diff --check` passes.
+
+Browser inspection verified the actual 3D local game with the new home screen, shared-name Arena attempt, explicit local-backend message, and Back to Explore clearing the dialog and restoring solo HUD and controls. A separate development-only UI harness verified the latest Punch/Speak/Build HUD and direct exit on desktop and phone-sized layouts. Health and leaderboard panels no longer overlap on narrow screens. The harness does not establish successful multiplayer; no physical touch device, new paid generation or authenticated production multiplayer was tested.
+
+The Vite preview does not implement Arena APIs and has no private AI preview connection. It now returns a clear JSON 503 instead of an empty 404/reconnecting message. The published Site requires sign-in. Publication was requested, but the selected personal Sites account returns project-not-found for the existing manifest ID and does not list BrickWild among owned/editable Sites. The Site identity and access settings have not been changed; publication must resume using an account with access to that existing Site.
+
 ## Recovery and preservation
 
 Recovered `/workspace/sites/brickwild`, initially clean at Sites/local commit `41c119821227b8f74280a425f7c1716faaba3f39`. Current GitHub `main` initially pointed to `034917f1b4c376037cc896ab80abf5d3c91e7973`. All 82 tracked files had matching blob hashes despite the different histories. Current remote branches and Site state were inspected before editing; no reset or force-push was used. The baseline suite passed 98 checks.

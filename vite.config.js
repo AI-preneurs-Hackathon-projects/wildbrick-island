@@ -10,6 +10,7 @@ function apiPreview(){return {name:'brickwild-private-api-preview',configureServ
   if(req.url?.split('?')[0]==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
   if(req.url==='/__layouts'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/layout-harness.html')));return;}
   if(!req.url?.startsWith('/api/'))return next();
+  if(req.url.startsWith('/api/arena/')){res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({error:'Arena multiplayer is unavailable in this local preview. Choose Back to Explore, or play on the published site after signing in.'}));return;}
   if(!['/api/generate','/api/generation-status'].includes(req.url)){res.writeHead(404);res.end();return;}
   let config;try{config=JSON.parse(fs.readFileSync(path.join(root,'.sites-runtime/api-preview.json'),'utf8'));}catch{}
   if(!config?.origin||!config?.token){res.setHeader('Content-Type','application/json');res.statusCode=req.url.endsWith('generation-status')?200:503;res.end(JSON.stringify(req.url.endsWith('generation-status')?{configured:false}:{error:'The development preview has no private API connection. Use the published game for live designs.'}));return;}

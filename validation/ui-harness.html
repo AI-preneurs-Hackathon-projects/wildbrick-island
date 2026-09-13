@@ -8,10 +8,10 @@ import {createState} from '/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '/arena-core.js';
 const state=createState(),room=newRoom(),player=addPlayer(room,'preview','Builder');
 let input,arenaUI,ui;
-const actions={state:()=>state,start(){state.started=true;},openArena(){client.active=true;state.arena=true;arenaUI.setStatus('online');arenaUI.update(client);},recent:()=>[],saved:()=>true,build(){},action(){ui.toast('Attack pressed');},jump(){ui.toast('Jump pressed');},voice(){ui.toast('Speak shortcut pressed — voice service is not started in this preview.');},sound(){return false;},auto(){return false;},pause(v){state.paused=v;input?.clear();},respawn(){},cancelDesign(){},leaveArena(){state.arena=false;state.started=false;client.active=false;arenaUI.update(client);ui.showEntry();},describe(){ui.toast('Typed description received — this preview does not call OpenAI.');}};
+const actions={state:()=>state,start(){state.started=true;},openArena(){return arenaUI.play();},recent:()=>[],saved:()=>true,build(){},action(){ui.toast('Attack pressed');},jump(){ui.toast('Jump pressed');},voice(){ui.toast('Speak shortcut pressed — voice service is not started in this preview.');},sound(){return false;},auto(){return false;},pause(v){state.paused=v;input?.clear();},respawn(){},cancelDesign(){},leaveArena(){state.arena=false;state.mode='foot';client.active=false;arenaUI.reset();ui.resetPlayUI();ui.update(state);ui.toast('Back in Explore.');},describe(){ui.toast('Typed description received — this preview does not call OpenAI.');}};
 const client={self:player,snapshot:roomSnapshot(room,player.id),active:true,room:'PREVIEW',serverTime:()=>room.time};
-ui=createUI(actions);arenaUI=createArenaUI({join:async()=>true,leave(){},toast:ui.toast});
+ui=createUI(actions);arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name)=>{client.active=true;player.name=name;client.snapshot=roomSnapshot(room,player.id);state.arena=true;arenaUI.setStatus('online');arenaUI.update(client);return true;},leave:actions.leaveArena,toast:ui.toast});
 input=createInput({onBuild:actions.build,onAction:actions.action,onJump:actions.jump,onPause:()=>ui.toggleMenu('pause'),onMic:actions.voice,onHotkeys:()=>ui.toggleMenu('hotkeys'),onHome:actions.respawn,getState:()=>state});
-if(new URLSearchParams(location.search).has('play')){localStorage.setItem('brickwild-tour-v1','seen');document.querySelector('#start').click();}
+if(new URLSearchParams(location.search).has('play')){localStorage.setItem('brickwild-tour-v1','seen');document.querySelector('#player-name').value='Preview';document.querySelector('#start').click();}
 function frame(){ui.update(state);if(state.arena)arenaUI.update(client);requestAnimationFrame(frame);}frame();
 </script></body></html>

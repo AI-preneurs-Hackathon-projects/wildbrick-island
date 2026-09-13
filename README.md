@@ -1,15 +1,15 @@
 # Brickwild / Wildbrick Island
 
 Yerzhan’s existing 3D toy-brick game, now centered on a shared fighting arena:
-**Play → speak an idea → watch it build → fight → collect supplies or respawn.**
+**Choose Explore or Arena → speak an idea → watch it build → explore or battle.**
 
 [Play Brickwild](https://brickwild-adventure.yerzhan452067.chatgpt.site/) · [GitHub main](https://github.com/AI-preneurs-Hackathon-projects/wildbrick-island/tree/main)
 
 ## Playing
 
-Play, or Enter / Return on the home screen, joins the shared **ISLAND** arena. There is no normal mode selector, room-code form, eight-player seat limit or automatic room splitting. Site sign-in and viewer access still apply. The existing custom audience is preserved; the owner must invite additional viewers through Share.
+Enter a builder name on the home screen and choose **Explore** for the existing solo challenges or **Arena** for the shared **ISLAND**. The name is limited to 20 characters and retained for the browser tab through refresh/sign-in when session storage is available. Enter in the name field chooses Explore. Arena preserves the latest speech, combat, supplies and generation systems, without a room-code form, eight-player seat limit or automatic room splitting. Site sign-in and viewer access still apply. Exit Arena is visible in the health panel, with Back to Explore in the join/reconnect dialog; both clear Arena state immediately, even if the network is offline. The pause menu also offers Exit Arena.
 
-First Play offers three short illustrated cards with Next and Skip. They appear once per device and can be reopened through Help. The illustrations use the game’s actual procedural meshes and an existing generated dragon, rendered offline. Help also contains saved creations, sound settings and a discreet typing fallback. Microphone denial or unsupported speech opens that fallback automatically. Speech recognition uses the browser’s service; the game sends the recognized description, not a recording, to its generation API.
+First entry offers three short illustrated cards with Next and Skip, adapted to the chosen mode. They appear once per device and can be reopened through Help. The illustrations use the game’s actual procedural meshes and an existing generated dragon, rendered offline. Help also contains saved creations, sound settings and a discreet typing fallback. Microphone denial or unsupported speech opens that fallback automatically. Speech recognition uses the browser’s service; the game sends the recognized description, not a recording, to its generation API.
 
 | Action | Desktop | Touch |
 | --- | --- | --- |
@@ -98,3 +98,7 @@ The GitHub and historical Sites histories differ because the original verified s
 | Verification | `scripts/check*.mjs`, `benchmark-generation.mjs`, `render-blueprint.mjs`, `validation/` |
 
 Third-party licenses ship under `public/vendor`. Original game geometry and synthesized sounds are preserved. Historical README/VALIDATION descriptions of universal pass-through, Rapier physics, eight seats and Imagine controls are superseded by this document; Git history retains those prior reports.
+
+## Local preview and synchronization
+
+This revision integrates GitHub main at `693f7ebb1d947884fece174733ef57e1eadcfcfc` before applying the requested home-screen and Arena-exit changes. `npm run dev` serves Explore and the actual UI. It does not host authenticated Arena services; Arena requests now receive an explicit JSON 503 with a Back to Explore instruction. AI generation requires the existing optional private API preview configuration. The production Worker, authentication and runtime secrets are unchanged.

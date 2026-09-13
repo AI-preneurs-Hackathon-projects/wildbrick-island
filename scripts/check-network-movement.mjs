@@ -116,4 +116,19 @@ for(const latency of [250,600])await check(`a one-frame attack survives ${latenc
  assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
  const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);
 });
+await check('leaving reconnecting or expired Arena stops sync and clears its player immediately',async()=>{
+ for(const status of [503,401,410]){const n=network(250);await n.join();n.force(status);await n.advance(1200);const leaving=n.client.leave();assert.equal(n.client.active,false);assert.equal(n.client.self,null);assert.equal(n.client.snapshot,null);await n.advance(1200);await leaving;const count=n.packets.length;await n.advance(3000);assert.equal(n.packets.length,count);assert.equal(n.statuses.at(-1),'offline');}
+});
+await check('late blueprint authentication failure cannot reopen Arena after leaving',async()=>{
+ const room=newRoom(),p=addPlayer(room,'p','River');p.motion=newMotion(room.time);p.kit.blueprintId='pending-art';let complete;const errors=[];
+ const client=createArenaClient({onError:(...args)=>errors.push(args)},{setTimer:()=>0,clearTimer(){},fetcher:async path=>{
+  if(path.includes('/blueprint'))return new Promise(resolve=>complete=resolve);
+  return {ok:true,status:200,json:async()=>path.endsWith('/join')?{room:'ISLAND',session:'p',token:'test',snapshot:roomSnapshot(room,p.id)}:{}};
+ }});
+ assert.equal(await client.join('River','ISLAND'),true);await client.leave();complete({ok:false,status:401,json:async()=>({error:'Sign in'})});await flush();assert.deepEqual(errors,[]);assert.equal(client.active,false);
+});
+await check('non-JSON join failure reports the response problem without promising reconnect retries',async()=>{
+ const errors=[];const client=createArenaClient({onError:(...args)=>errors.push(args)},{setTimer:()=>0,clearTimer(){},fetcher:async()=>({ok:false,status:404,json:async()=>{throw Error('Empty');}})});
+ assert.equal(await client.join('River','ISLAND'),false);assert.equal(client.connected,false);assert.match(errors[0][0],/invalid response/);assert.doesNotMatch(errors[0][0],/Reconnecting/);assert.equal(errors[0][1],404);
+});
 console.log(`\n${checks} direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.`);

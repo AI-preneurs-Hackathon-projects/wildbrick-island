@@ -6,8 +6,14 @@ export const icon=(name)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 export function createUI(actions){
  document.querySelector('#ui').innerHTML=`
  <div id="intro" class="intro">
-  <div class="intro-copy"><div class="eyebrow"><span class="brand-block">B</span> A BRICK-BUILT BATTLE ARENA</div><h1>BRICK<span>WILD</span></h1><p class="intro-line">Imagine. Build. Battle.</p><p class="intro-description">Build your advantage.<br>Battle together on Wildbrick Island.</p><button id="start" class="primary" aria-keyshortcuts="Enter">Play ${icon('arrow')}</button><p class="intro-small"><span class="keyboard-only">Press Enter to play · </span>Keyboard or touch · Speak to build</p></div>
-  <div class="island-label"><span>01 / WILDBRICK ARENA</span><strong>Welcome to Wildbrick Island</strong><span class="label-line"></span></div>
+  <div class="intro-copy"><div class="eyebrow"><span class="brand-block">B</span> WELCOME TO WILDBRICK ISLAND</div><h1>BRICK<span>WILD</span></h1><p class="intro-line">Your imagination. Your adventure.</p><p class="intro-description">Build something wild. Find your own way to play.</p>
+   <form id="home-form" class="home-form"><label for="player-name">Your builder name</label><input id="player-name" name="nickname" maxlength="20" required autocomplete="nickname" placeholder="Enter your name" aria-describedby="player-name-note" spellcheck="false"><p id="player-name-note">This is how other builders will see you in Arena.</p>
+    <fieldset class="mode-picker"><legend>Choose your adventure</legend><div class="mode-options">
+     <button id="explore-start" class="mode-choice explore-choice" type="submit" name="mode" value="explore"><span class="mode-heading">${icon('plane')}<strong>Explore</strong>${icon('arrow')}</span><span class="mode-detail">Roam the island, build creations, and discover challenges.</span><span class="mode-meta">SOLO · YOUR OWN PACE</span></button>
+     <button id="start" class="mode-choice arena-choice" type="submit" name="mode" value="arena"><span class="mode-heading">${icon('sword')}<strong>Arena</strong>${icon('arrow')}</span><span class="mode-detail">Build your advantage and battle other builders.</span><span class="mode-meta">MULTIPLAYER · SHARED ISLAND</span></button>
+    </div></fieldset>
+   </form><p class="intro-small">Keyboard or touch · Type or speak to build</p></div>
+  <div class="island-label"><span>01 / WILDBRICK ISLAND</span><strong>A little world. Endless possibilities.</strong><span class="label-line"></span></div>
   <div class="intro-caption">An original toy-brick world</div>
  </div>
  <div id="hud" class="hud hidden">
@@ -24,10 +30,20 @@ export function createUI(actions){
  <dialog id="menu" class="game-dialog"><button id="close-menu" class="close-button" aria-label="Close menu">${icon('close')}</button><div id="menu-content"></div></dialog>`;
  const $=s=>document.querySelector(s);let started=false,lastMode='',lastObjective='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='',voiceNote='';
  const on=(selector,fn)=>$(selector).addEventListener('click',fn);
- const begin=()=>{if(started)return;started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');actions.start();if(tourSeen())actions.openArena();else openTour(()=>actions.openArena());};on('#start',begin);on('#open-arena',()=>actions.openArena());
+ let playerName='',selectedMode='arena';
+ try{$('#player-name').value=(window.sessionStorage.getItem('brickwild-player-name')||window.localStorage.getItem('brickwild-name')||'').slice(0,20);}catch{}
+ $('#player-name').addEventListener('input',()=>$('#player-name').setCustomValidity(''));
+ $('#home-form').addEventListener('submit',e=>{
+  e.preventDefault();if(started)return;
+  const field=$('#player-name');playerName=field.value.replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,20);
+  field.setCustomValidity(playerName?'':'Enter your builder name to choose a mode.');if(!field.reportValidity())return;
+  field.value=playerName;try{window.sessionStorage.setItem('brickwild-player-name',playerName);}catch{}
+  started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');actions.start();
+  selectedMode=e.submitter?.value==='arena'?'arena':'explore';const enter=()=>{if(selectedMode==='arena')actions.openArena();else{$('#help').focus();toast('Explore the island. Follow the gold beacon and Speak / Build to create.',6500);}};if(tourSeen())enter();else openTour(enter);
+ });on('#open-arena',()=>actions.openArena());
  on('#action',()=>actions.action());on('#jump-equipped',()=>actions.jump());on('#mic',()=>actions.voice());on('#sound',()=>{const muted=actions.sound();$('#sound').innerHTML=icon(muted?'mute':'sound');$('#sound').setAttribute('aria-label',muted?'Unmute sound':'Mute sound');});
  on('#exit-vehicle',()=>actions.build('foot'));
- on('#pause',()=>openMenu('pause'));on('#help',()=>toggleMenu('hotkeys'));on('#objective',()=>openMenu('hotkeys'));on('#close-menu',closeMenu);
+ on('#pause',()=>openMenu('pause'));on('#help',()=>toggleMenu('hotkeys'));on('#objective',()=>openMenu(actions.state().arena?'hotkeys':'challenges'));on('#close-menu',closeMenu);
  on('#cancel-design',()=>{actions.cancelDesign();generationError=false;$('#generation').classList.add('hidden');});
  $('#menu').addEventListener('cancel',e=>{e.preventDefault();closeMenu();});
  function closeMenu(){$('#menu').close();actions.pause(false);}
@@ -41,8 +57,8 @@ export function createUI(actions){
   else if(mode==='challenges')content=`<span class="dialog-eyebrow">ISLAND EXPLORER</span><h2>Follow your curiosity.</h2><p>Take the challenges in any order. Your own creations count too: wheeled or walking mounts for gates, flying mounts for rings, pulse for targets, and swing for crates. Look for the gold beacon. Progress saves on this device when browser storage is available.</p><div class="challenges">${[['car','Scenic route','Drive through mint gates',s.gates.length,4],['bow','Right on target','Shoot the striped targets in the northeast garden',s.targets.length,3],['sword','Smash & grab','Break purple crates in the southwest garden',s.crates.length,3],['plane','Sky is the limit','Fly through golden rings above the island',s.rings.length,5]].map(([type,title,detail,count,total])=>`<div class="challenge">${icon(count===total?'check':type)}<span><strong>${title}</strong><small>${detail}</small></span><b>${count}/${total}</b></div>`).join('')}</div>`;
   else if(mode==='win')content=`<span class="dialog-eyebrow">MASTER BUILDER</span><h2>Big imagination.<br>Little bricks.</h2><p>You drove, flew, aimed, and smashed your way around Wildbrick Island. Every challenge is complete!</p><div class="win-score">${icon('spark')} ${s.bricks} <span>bricks collected</span></div>`;
   else content=`<span class="dialog-eyebrow">TAKE A BREATHER</span><h2>The bricks can wait.</h2><p>${s.arena?'The arena keeps running. Your builder can still take damage while this menu is open.':'Your adventure is right where you left it.'}</p>`;
-  $('#menu-content').innerHTML=content+`<div class="help-actions"><button id="tour-again" class="secondary">Quick tour</button><button id="collection" class="secondary">Your creations</button><button id="type-fallback" class="text-fallback">Type an idea</button></div><div class="dialog-actions"><button id="resume" class="primary">Back to play ${icon('play')}</button>${mode==='pause'&&s.arena?'<button id="leave-arena" class="secondary">Leave arena</button>':''}</div>`;
-  $('#resume').onclick=closeMenu;if($('#leave-arena'))$('#leave-arena').onclick=()=>{closeMenu();actions.leaveArena();};$('#tour-again').onclick=()=>{closeMenu();openTour();};$('#collection').onclick=()=>openMenu('collection');$('#type-fallback').onclick=()=>openMenu('imagine');
+  $('#menu-content').innerHTML=content+`<div class="help-actions"><button id="tour-again" class="secondary">Quick tour</button><button id="collection" class="secondary">Your creations</button><button id="type-fallback" class="text-fallback">Type an idea</button></div><div class="dialog-actions"><button id="resume" class="primary">Back to play ${icon('play')}</button>${mode==='pause'&&s.arena?'<button id="leave-arena" class="secondary">Exit Arena</button>':mode==='pause'?'<button id="return-plaza" class="secondary">Return to plaza</button>':''}</div>`;
+  $('#resume').onclick=closeMenu;if($('#return-plaza'))$('#return-plaza').onclick=()=>{actions.respawn();closeMenu();};if($('#leave-arena'))$('#leave-arena').onclick=()=>{closeMenu();actions.leaveArena();};$('#tour-again').onclick=()=>{closeMenu();openTour();};$('#collection').onclick=()=>openMenu('collection');$('#type-fallback').onclick=()=>openMenu('imagine');
   if(mode==='imagine')$('#imagine-form').onsubmit=e=>{e.preventDefault();lastPrompt=$('#creation-description').value.trim();if(lastPrompt.length<2)return;closeMenu();actions.describe(lastPrompt);};
   document.querySelectorAll('[data-recent]').forEach(b=>b.onclick=()=>{closeMenu();actions.rebuild(Number(b.dataset.recent));});
   if(!$('#menu').open)$('#menu').showModal();if(mode==='imagine')$('#creation-description').focus();
@@ -55,7 +71,7 @@ export function createUI(actions){
  function drawTour(){const cards=[
   {image:'move',title:'Move and look.',text:touch()?'Move with the left joystick. Drag the world to look. Tap Jump to hop.':'WASD moves. Q / E looks left and right; R / F aims up and down. ↑ jumps.'},
   {image:'build',title:'Speak it. Build it.',text:touch()?'Tap Speak / Build and describe your idea. Keep moving while the bricks assemble.':'Press ← and describe your idea. Keep moving while the bricks assemble.'},
-  {image:'fight',title:'Fight. Refuel. Return.',text:touch()?'Hold Attack to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.':'Hold → to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.'}
+  selectedMode==='explore'&&!actions.state().arena?{image:'move',title:'Explore at your own pace.',text:'Follow the gold beacon. Drive through mint gates, fly through golden rings, and complete island challenges. Your progress saves on this device.'}:{image:'fight',title:'Fight. Refuel. Return.',text:touch()?'Hold Attack to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.':'Hold → to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.'}
  ];const card=cards[tourIndex];tour.innerHTML=`<div class="tour-top"><span>HOW TO PLAY · ${tourIndex+1} / 3</span><button id="tour-skip" class="text-fallback">Skip</button></div><img class="tour-image" src="/tutorial/${card.image}.png" alt="${['Brickwild builder moving beside a house','A spoken dragon assembling from toy bricks','A builder punching a rival beside a health supply'][tourIndex]}" width="960" height="480"><h2>${card.title}</h2><p>${card.text}</p><button id="tour-next" class="primary" autofocus>${tourIndex===2?'Play':'Next'} ${icon('arrow')}</button>`;
   document.getElementById('tour-skip').onclick=finishTour;document.getElementById('tour-next').onclick=()=>{if(tourIndex===2)finishTour();else{tourIndex++;drawTour();}};if(tour.open)document.getElementById('tour-next').focus();}
  function openTour(done=null){tourIndex=0;tourDone=done;actions.pause(true);drawTour();if(!tour.open)tour.showModal();}
@@ -82,8 +98,9 @@ export function createUI(actions){
  function voiceFallback(message){voiceNote=message||'Voice is unavailable. Type your idea below — no microphone needed.';openMenu('imagine');}
  function connectionState(ready){connected=ready;document.querySelector('.dock-caption').textContent=ready?'Describe anything · your idea becomes bricks':'Saved creations ready · AI setup pending';}
  function connectionVerified(){verified=true;connected=true;document.querySelector('.dock-caption').textContent='Describe anything · your idea becomes bricks';}
+ function resetPlayUI(){lastMode='';lastObjective='';tourDone=null;tour.close();closeMenu();clearTimeout(toastTimer);$('#toast').classList.remove('show');$('#toast').textContent='';}
  function showEntry(){started=false;$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');}
- return {showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
+ return {playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
 export function createVoice({onCommand,onState,onNotice,onFallback=()=>{}}){
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
