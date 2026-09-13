@@ -146,3 +146,10 @@ These are decimal KB, maximum serialized JSON sizes and arithmetic fanout estima
 - Generated geometry remains variable, including loose joins and awkward seating. The final 3/3 success run is encouraging but too small to establish reliability.
 
 Smallest owner action: open the published Site in two signed-in, authorized devices and run a short punch → spoken build → attack → defeat/respawn match. Invite additional testers through Site Share before the ten-player session. No new API key is needed for the current deployment. Use the read-only in-game timing hook during that session to capture actual speech-to-usable time and device behavior.
+
+
+## September 14 — avatar selection and home exit
+
+All 132 checks pass. Coverage includes exit-to-home across online, reconnecting, expired, offline and defeated Arena states; Explore exit and fresh entry with another name; eight persistent avatar choices; independent character materials; and authenticated HTTP clients receiving the chosen color with an invalid-color fallback. Existing movement and generation checks also pass.
+
+The actual local WebGL game was inspected at the default viewport and 390×844. Dragging rotated the avatar, selecting Blue changed its shirt, and the pause-menu Exit to home returned the name screen with focus and the chosen color intact. The game's read-state tool confirmed started=false and no pending generation. Multiplayer color propagation was tested through the HTTP/SQLite harness, not a live multiplayer session or physical touch device.

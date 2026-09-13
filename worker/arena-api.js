@@ -1,3 +1,4 @@
+import {avatarColor} from '../public/avatar-colors.js';
 import {newMotion,validFrames} from '../public/movement-stream.js';
 import {arenaStore,ArenaError,hash,nonce} from './arena-store.js';
 import {addPlayer,removePlayer,applyInput,roomSnapshot,makeKit} from '../public/arena-core.js';
@@ -18,7 +19,7 @@ export async function handleArenaAPI(request,env,ctx={}){try{
   const name=String(packet.name||'Builder').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,20)||'Builder',id=crypto.randomUUID(),token=nonce(),playerId=crypto.randomUUID(),now=Date.now();
   // Session creation has a durable per-principal cap, separate from room seats.
   await store.saveSession({id,tokenHash:await hash(token),principal,roomId,playerId});
-  try{const {room}=await store.mutate(roomId,(r,t)=>{const p=addPlayer(r,playerId,name,t);if(packet.motionVersion===1)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
+  try{const {room}=await store.mutate(roomId,(r,t)=>{const p=addPlayer(r,playerId,name,t);p.avatarColor=avatarColor(packet.avatarColor);if(packet.motionVersion===1)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
  }
  const session=await store.session(request,packet);
  if(url.pathname==='/api/arena/leave'){await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();return response({left:true});}

@@ -8,16 +8,16 @@ export function box(parent,x,y,z,w,h,d,color){const m=new THREE.Mesh(boxGeo,mate
 export function cylinder(parent,x,y,z,r,h,color){const m=new THREE.Mesh(cylinderGeo,material(color));m.position.set(x,y,z);m.scale.set(r,h,r);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
 export function ball(parent,x,y,z,r,color){const m=new THREE.Mesh(sphereGeo,material(color));m.position.set(x,y,z);m.scale.setScalar(r);m.castShadow=true;parent.add(m);return m;}
 export function brick(parent,x,y,z,w,h,d,color,studs=true){const g=new THREE.Group();g.position.set(x,y,z);box(g,0,0,0,w,h,d,color);if(studs){const nx=Math.max(1,Math.round(w/.62)),nz=Math.max(1,Math.round(d/.62));for(let i=0;i<nx;i++)for(let j=0;j<nz;j++)cylinder(g,(i-(nx-1)/2)*w/nx,h/2+.055,(j-(nz-1)/2)*d/nz,Math.min(.19,w/nx*.27,d/nz*.27),.11,color);}parent.add(g);return g;}
-export function character(){
+export function character(color=C.orange){
  const g=new THREE.Group();const hips=brick(g,0,.82,0,.83,.28,.55,C.ink,false);
  const legs=[];for(const x of [-.24,.24]){const leg=new THREE.Group();leg.position.set(x,.78,0);brick(leg,0,-.28,0,.39,.57,.47,0x426e75,false);brick(leg,0,-.59,.10,.42,.18,.69,C.ink,false);g.add(leg);legs.push(leg);}
- brick(g,0,1.32,0,1.03,.80,.59,C.orange,false);box(g,0,1.25,.306,.12,.60,.025,C.cream);box(g,-.29,1.44,.315,.18,.15,.04,C.cream);
+ const shirt=brick(g,0,1.32,0,1.03,.80,.59,color,false);const sleeves=[];box(g,0,1.25,.306,.12,.60,.025,C.cream);box(g,-.29,1.44,.315,.18,.15,.04,C.cream);
  const head=brick(g,0,2.06,0,.77,.68,.69,C.yellow,false);cylinder(g,0,2.43,0,.22,.13,C.yellow);
  box(g,-.18,2.12,.353,.075,.11,.02,C.ink);box(g,.18,2.12,.353,.075,.11,.02,C.ink);box(g,0,1.94,.355,.22,.035,.024,C.ink);box(g,-.12,1.98,.355,.035,.09,.024,C.ink);box(g,.12,1.98,.355,.035,.09,.024,C.ink);
  brick(g,0,2.44,-.03,.87,.14,.77,C.teal,false);brick(g,0,2.44,.43,.87,.12,.24,C.teal,false);
- const arms=[];for(const x of [-.68,.68]){const a=new THREE.Group();a.position.set(x,1.62,0);box(a,0,-.23,0,.29,.53,.4,C.orange);cylinder(a,0,-.59,.015,.18,.23,C.yellow);g.add(a);arms.push(a);}
+ const arms=[];for(const x of [-.68,.68]){const a=new THREE.Group();a.position.set(x,1.62,0);sleeves.push(box(a,0,-.23,0,.29,.53,.4,color));cylinder(a,0,-.59,.015,.18,.23,C.yellow);g.add(a);arms.push(a);}
  brick(g,0,1.3,-.48,.72,.74,.37,C.teal);brick(g,0,1.62,-.72,.46,.24,.19,C.cream,false);
- return {group:g,legs,arms,head,hips};
+ return {group:g,legs,arms,head,hips,setColor(value){shirt.children[0].material=material(value);sleeves.forEach(m=>m.material=material(value));}};
 }
 export function car(){
  const g=new THREE.Group(),wheels=[];

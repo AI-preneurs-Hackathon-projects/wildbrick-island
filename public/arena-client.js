@@ -38,12 +38,12 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);onStatus('expired');onError(e.message,e.status);}else{onStatus('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
- async function join(name,room){
+ async function join(name,room,avatarColor){
   if(joining)return false;joining=true;const generation=++lifecycle,old=credentials;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
   try{
    if(old)try{await request('/api/arena/leave',old);}catch{}
    if(generation!==lifecycle)return false;
-   const result=await request('/api/arena/join',{name,room,motionVersion:1});
+   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1});
    if(generation!==lifecycle){request('/api/arena/leave',{session:result.session,token:result.token}).catch(()=>{});return false;}
    view.reset();self=null;snapshot=null;commands=[];seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};
    roomCode=result.room;credentials={session:result.session,token:result.token};accept(result.snapshot);schedule();return true;

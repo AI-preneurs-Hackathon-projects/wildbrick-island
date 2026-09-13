@@ -18,7 +18,7 @@ dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};dom
 dom.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
 let checks=0;function check(name,fn){fn();console.log('PASS '+name);checks++;}
 const state=createState();state.started=true;let leaves=0,joins=0,fires=0,jumps=0,mics=0,imagines=0,exits=0;const builds=[];
-const actions={state:()=>state,start(){state.started=true;},openArena(){joins++;},recent:()=>[],saved:()=>true,build(){},action(){fires++;},jump(){jumps++;},voice(){},sound(){},auto(){},pause(v){state.paused=v;input.clear();},respawn(){},cancelDesign(){},leaveArena(){leaves++;state.arena=false;arenaUI.reset();ui.resetPlayUI();ui.update(state);}};
+const actions={state:()=>state,start(){state.started=true;},openArena(){joins++;},recent:()=>[],saved:()=>true,build(){},action(){fires++;},jump(){jumps++;},voice(){},sound(){},auto(){},pause(v){state.paused=v;input.clear();},respawn(){},cancelDesign(){},exitHome(){state.started=false;ui.showEntry();leaves++;state.arena=false;arenaUI.reset();ui.resetPlayUI();ui.update(state);}};
 localStorage.setItem('brickwild-tour-v1','seen');
 const ui=createUI(actions),arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async()=>true,leave(){},toast(){}}),input=createInput({onBuild:mode=>{builds.push(mode);if(mode==='foot')exits++;},onAction:actions.action,onJump:actions.jump,onPause(){ui.toggleMenu('pause');},onMic(){mics++;},onImagine(){imagines++;ui.openMenu('imagine');},onHotkeys(){ui.toggleMenu('hotkeys');},onHome(){},getState:()=>state});
 document.querySelector('#player-name').value='Builder';
@@ -86,9 +86,9 @@ check('Enter starts once, advances the tour and resumes; text entry and repeat s
  key('keydown','Enter');assert.equal(joins,before+1);state.arena=true;key('keydown','Escape');assert.ok(document.querySelector('#menu').open);key('keydown','Enter');assert.equal(document.querySelector('#menu').open,false);
  assert.match(document.querySelector('.move-hint').textContent,/R \/ F aim/);
 });
-check('pause menu keeps an Arena exit alongside the new direct exit',()=>{
- ui.openMenu('hotkeys');assert.equal(document.querySelector('#leave-arena'),null);ui.closeMenu();const before=leaves;key('keydown','Escape');assert.ok(document.querySelector('#leave-arena'));document.querySelector('#leave-arena').click();assert.equal(leaves,before+1);assert.equal(document.querySelector('#menu').open,false);assert.equal(document.querySelector('#intro').classList.contains('hidden'),true);
- key('keydown','Enter');assert.equal(document.querySelector('#intro').classList.contains('hidden'),true);state.arena=true;
+check('pause menu exits to home without a standalone Arena exit',()=>{
+ ui.openMenu('hotkeys');assert.equal(document.querySelector('#exit-home'),null);ui.closeMenu();const before=leaves;key('keydown','Escape');assert.ok(document.querySelector('#exit-home'));document.querySelector('#exit-home').click();assert.equal(leaves,before+1);assert.equal(document.querySelector('#menu').open,false);assert.equal(document.querySelector('#intro').classList.contains('hidden'),false);
+ document.querySelector('#start').click();key('keydown','Enter');assert.equal(document.querySelector('#intro').classList.contains('hidden'),true);state.arena=true;
 });
 check('expired arena keeps vitals, exposes Rejoin, and retains a touch Lower control after dismount',()=>{
  const r=newRoom(),p=addPlayer(r,'p','Held');Object.assign(p,{x:21,y:8,z:19,health:76});const client={self:p,snapshot:roomSnapshot(r,p.id),active:true,room:'HOLD',serverTime:()=>r.time};

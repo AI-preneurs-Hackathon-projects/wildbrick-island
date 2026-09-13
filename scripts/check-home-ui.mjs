@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {JSDOM} from 'jsdom';
 import {createUI} from '../public/ui.js';
 import {createArenaUI} from '../public/arena-ui.js';
+import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 let checks=0;
@@ -16,7 +17,7 @@ const $=id=>document.getElementById(id);
 function setup(joinImpl=async()=>true){
  const state=createState(),joins=[];let starts=0,leaves=0,arenaUI,entry;
  const exit=()=>{leaves++;state.arena=false;state.mode='foot';arenaUI.reset();ui.resetPlayUI();ui.update(state);};
- const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,leaveArena:exit});
+ const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome(){exit();state.started=false;ui.showEntry();},leaveArena:exit});
  arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name,room)=>{joins.push({name,room});return joinImpl();},leave:exit,toast(){}});
  return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get entry(){return entry;}};
 }
@@ -36,11 +37,11 @@ await check('failed authentication preserves sign-in and Back to Explore clears 
  assert.equal($('arena-sign-in').classList.contains('hidden'),false);assert.equal($('arena-sign-in').target,'_top');assert.equal(new URL($('arena-sign-in').href).searchParams.get('return_to'),'/');assert.equal(window.sessionStorage.getItem('brickwild-player-name'),'Sky');
  $('arena-explore').click();assert.equal(app.leaves,1);assert.equal($('arena-lobby').open,false);assert.equal($('arena-join-error').textContent,'');assert.equal($('arena-sign-in').classList.contains('hidden'),true);assert.equal($('hud').classList.contains('hidden'),false);
 });
-await check('direct exit works with leaderboard closed in online, reconnecting, expired, offline and dead states',()=>{
+await check('pause exit returns home in online, reconnecting, expired, offline and dead states',()=>{
  const app=setup();name('River');$('explore-start').click();const room=newRoom(),p=addPlayer(room,'p','River');
  for(const status of ['online','reconnecting','expired','offline','dead']){
-  app.state.arena=true;p.health=status==='dead'?0:100;app.ui.update(app.state);app.arenaUI.setStatus(status==='dead'?'online':status);app.arenaUI.update({active:true,self:p,snapshot:roomSnapshot(room,p.id),room:'ISLAND',serverTime:()=>room.time});$('arena-board').open=false;
-  assert.equal($('arena-exit').closest('details'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);$('arena-exit').click();assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Jump');assert.match($('objective-title').textContent,/mint gates/);
+  if(!app.state.started)$('explore-start').click();app.state.arena=true;p.health=status==='dead'?0:100;app.ui.update(app.state);app.arenaUI.setStatus(status==='dead'?'online':status);app.arenaUI.update({active:true,self:p,snapshot:roomSnapshot(room,p.id),room:'ISLAND',serverTime:()=>room.time});$('arena-board').open=false;
+  assert.equal($('arena-exit'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('intro').classList.contains('hidden'),false);assert.equal($('hud').classList.contains('hidden'),true);assert.equal(document.activeElement,$('player-name'));assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Jump');assert.match($('objective-title').textContent,/mint gates/);
  }assert.equal(app.leaves,5);
 });
 await check('leaving during pending join prevents the old completion reopening the lobby',async()=>{
@@ -53,5 +54,14 @@ await check('name survives reload and respects server limits; unavailable storag
 });
 await check('first-play tour respects Explore choice and does not join Arena on completion',()=>{
  localStorage.removeItem('brickwild-tour-v1');const app=setup();name('River');$('explore-start').click();assert.equal($('tutorial').open,true);$('tour-next').click();$('tour-next').click();assert.match($('tutorial').textContent,/Explore at your own pace/);$('tour-next').click();assert.equal(app.joins.length,0);assert.equal(app.state.paused,false);
+});
+await check('avatar recoloring leaves other characters and shared world materials intact',()=>{
+ const first=character(),other=character();first.setColor('#579fe2');const shirts=model=>model.group.children.filter(g=>g.position.y===1.32).map(g=>g.children[0].material.color.getHex());assert.deepEqual(shirts(first),[0x579fe2]);assert.deepEqual(shirts(other),[C.orange]);first.setColor('#ee634e');assert.deepEqual(shirts(other),[C.orange]);
+});
+await check('avatar offers eight persistent colors without starting a game',()=>{
+ const app=setup();const radios=[...document.querySelectorAll('[name="avatar-color"]')];assert.equal(radios.length,8);assert.equal(radios.filter(r=>r.checked).length,1);radios[5].click();assert.equal(app.ui.playerColor(),'#579fe2');assert.equal(app.starts,0);assert.equal(setup().ui.playerColor(),'#579fe2');
+});
+await check('Explore pause exit returns home and permits a different mode and name',async()=>{
+ const app=setup();name('River');$('explore-start').click();app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('menu').open,false);assert.equal($('intro').classList.contains('hidden'),false);name('Sky');$('start').click();await app.entry;assert.equal(app.starts,2);assert.equal(app.joins[0].name,'Sky');
 });
 console.log(`\n${checks} home and Arena exit checks passed.`);

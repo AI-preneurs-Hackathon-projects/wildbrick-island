@@ -1,3 +1,4 @@
+import {AVATAR_COLORS,avatarColor} from './avatar-colors.js';
 import {BUILDS,objective} from './rules.js';
 import {navigationGoal,creationControls} from './guidance.js';
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -13,6 +14,7 @@ export function createUI(actions){
      <button id="start" class="mode-choice arena-choice" type="submit" name="mode" value="arena"><span class="mode-heading">${icon('sword')}<strong>Arena</strong>${icon('arrow')}</span><span class="mode-detail">Build your advantage and battle other builders.</span><span class="mode-meta">MULTIPLAYER · SHARED ISLAND</span></button>
     </div></fieldset>
    </form><p class="intro-small">Keyboard or touch · Type or speak to build</p></div>
+  <section class="builder-avatar" aria-label="Your builder"><div id="avatar-preview" tabindex="0" role="group" aria-label="Rotate your 3D builder" aria-describedby="avatar-hint"></div><p id="avatar-hint">Drag to rotate · ← → keys</p><fieldset class="avatar-colors"><legend>Choose your color</legend>${AVATAR_COLORS.map((c,i)=>`<label title="${c.name}"><input type="radio" name="avatar-color" value="${c.hex}" aria-label="${c.name}" ${i===0?'checked':''}><span style="--swatch:${c.hex}" aria-hidden="true"></span></label>`).join('')}</fieldset></section>
   <div class="island-label"><span>01 / WILDBRICK ISLAND</span><strong>A little world. Endless possibilities.</strong><span class="label-line"></span></div>
   <div class="intro-caption">An original toy-brick world</div>
  </div>
@@ -30,7 +32,9 @@ export function createUI(actions){
  <dialog id="menu" class="game-dialog"><button id="close-menu" class="close-button" aria-label="Close menu">${icon('close')}</button><div id="menu-content"></div></dialog>`;
  const $=s=>document.querySelector(s);let started=false,lastMode='',lastObjective='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='',voiceNote='';
  const on=(selector,fn)=>$(selector).addEventListener('click',fn);
- let playerName='',selectedMode='arena';
+ let playerName='',selectedMode='arena',selectedColor=AVATAR_COLORS[0].hex;
+ try{selectedColor=avatarColor(window.localStorage.getItem('brickwild-avatar-color'));}catch{}
+ for(const radio of document.querySelectorAll('[name="avatar-color"]')){radio.checked=radio.value===selectedColor;radio.addEventListener('change',()=>{selectedColor=radio.value;try{window.localStorage.setItem('brickwild-avatar-color',selectedColor);}catch{}actions.setAvatarColor?.(selectedColor);});}
  try{$('#player-name').value=(window.sessionStorage.getItem('brickwild-player-name')||window.localStorage.getItem('brickwild-name')||'').slice(0,20);}catch{}
  $('#player-name').addEventListener('input',()=>$('#player-name').setCustomValidity(''));
  $('#home-form').addEventListener('submit',e=>{
@@ -57,8 +61,8 @@ export function createUI(actions){
   else if(mode==='challenges')content=`<span class="dialog-eyebrow">ISLAND EXPLORER</span><h2>Follow your curiosity.</h2><p>Take the challenges in any order. Your own creations count too: wheeled or walking mounts for gates, flying mounts for rings, pulse for targets, and swing for crates. Look for the gold beacon. Progress saves on this device when browser storage is available.</p><div class="challenges">${[['car','Scenic route','Drive through mint gates',s.gates.length,4],['bow','Right on target','Shoot the striped targets in the northeast garden',s.targets.length,3],['sword','Smash & grab','Break purple crates in the southwest garden',s.crates.length,3],['plane','Sky is the limit','Fly through golden rings above the island',s.rings.length,5]].map(([type,title,detail,count,total])=>`<div class="challenge">${icon(count===total?'check':type)}<span><strong>${title}</strong><small>${detail}</small></span><b>${count}/${total}</b></div>`).join('')}</div>`;
   else if(mode==='win')content=`<span class="dialog-eyebrow">MASTER BUILDER</span><h2>Big imagination.<br>Little bricks.</h2><p>You drove, flew, aimed, and smashed your way around Wildbrick Island. Every challenge is complete!</p><div class="win-score">${icon('spark')} ${s.bricks} <span>bricks collected</span></div>`;
   else content=`<span class="dialog-eyebrow">TAKE A BREATHER</span><h2>The bricks can wait.</h2><p>${s.arena?'The arena keeps running. Your builder can still take damage while this menu is open.':'Your adventure is right where you left it.'}</p>`;
-  $('#menu-content').innerHTML=content+`<div class="help-actions"><button id="tour-again" class="secondary">Quick tour</button><button id="collection" class="secondary">Your creations</button><button id="type-fallback" class="text-fallback">Type an idea</button></div><div class="dialog-actions"><button id="resume" class="primary">Back to play ${icon('play')}</button>${mode==='pause'&&s.arena?'<button id="leave-arena" class="secondary">Exit Arena</button>':mode==='pause'?'<button id="return-plaza" class="secondary">Return to plaza</button>':''}</div>`;
-  $('#resume').onclick=closeMenu;if($('#return-plaza'))$('#return-plaza').onclick=()=>{actions.respawn();closeMenu();};if($('#leave-arena'))$('#leave-arena').onclick=()=>{closeMenu();actions.leaveArena();};$('#tour-again').onclick=()=>{closeMenu();openTour();};$('#collection').onclick=()=>openMenu('collection');$('#type-fallback').onclick=()=>openMenu('imagine');
+  $('#menu-content').innerHTML=content+`<div class="help-actions"><button id="tour-again" class="secondary">Quick tour</button><button id="collection" class="secondary">Your creations</button><button id="type-fallback" class="text-fallback">Type an idea</button></div><div class="dialog-actions"><button id="resume" class="primary">Back to play ${icon('play')}</button>${mode==='pause'?'<button id="exit-home" class="secondary">Exit to home</button>':''}</div>`;
+  $('#resume').onclick=closeMenu;if($('#exit-home'))$('#exit-home').onclick=()=>actions.exitHome();$('#tour-again').onclick=()=>{closeMenu();openTour();};$('#collection').onclick=()=>openMenu('collection');$('#type-fallback').onclick=()=>openMenu('imagine');
   if(mode==='imagine')$('#imagine-form').onsubmit=e=>{e.preventDefault();lastPrompt=$('#creation-description').value.trim();if(lastPrompt.length<2)return;closeMenu();actions.describe(lastPrompt);};
   document.querySelectorAll('[data-recent]').forEach(b=>b.onclick=()=>{closeMenu();actions.rebuild(Number(b.dataset.recent));});
   if(!$('#menu').open)$('#menu').showModal();if(mode==='imagine')$('#creation-description').focus();
@@ -99,8 +103,8 @@ export function createUI(actions){
  function connectionState(ready){connected=ready;document.querySelector('.dock-caption').textContent=ready?'Describe anything · your idea becomes bricks':'Saved creations ready · AI setup pending';}
  function connectionVerified(){verified=true;connected=true;document.querySelector('.dock-caption').textContent='Describe anything · your idea becomes bricks';}
  function resetPlayUI(){lastMode='';lastObjective='';tourDone=null;tour.close();closeMenu();clearTimeout(toastTimer);$('#toast').classList.remove('show');$('#toast').textContent='';}
- function showEntry(){started=false;$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');}
- return {playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
+ function showEntry(){started=false;$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');$('#player-name').focus();}
+ return {playerColor:()=>selectedColor,playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,voiceState,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
 export function createVoice({onCommand,onState,onNotice,onFallback=()=>{}}){
  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
