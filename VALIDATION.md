@@ -164,3 +164,13 @@ The local WebGL combat harness uses the real Arena simulation and renderer, with
 Sky drops now cycle health, defense and speed only; persisted equipment drops are discarded and legacy equipment is not rendered. Checks confirm support effects, retained equipped creations, and no new weapon/vehicle lifetime. The legacy rover blueprint remains available to existing builds. Room-code work was cancelled before editing; no room-code changes were included.
 
 Character-directed firing and rounds: added camera-independent ranged checks across carry/drive/fly and all ranged weapon families, legacy camera-pitch rejection, right-hand grip and punch checks, separate R/F controls, exact deadline/final-results/restart tests, stale-round frame rejection, and client restart after a lost response. Browser validation uses isolated local core/renderer and HUD harnesses without production sessions or generation calls.
+
+## September 14 — automatic rounds, supported jumping and Practice camera
+
+All 158 automated checks pass. Coverage includes the exact 30-second intermission boundary, frozen final scores filtered to connected round participants, distinct players with identical names, intermission spectators, and automatic transitions through lost responses. A SQLite-backed HTTP test checks concurrent clients receiving the same next round and reset scores. Manual restart is no longer exposed or accepted.
+
+Shared movement checks cover a two-meter on-foot jump, crate landing, standing and walking on tops, falling after walking off or losing support, ceiling contacts, and authoritative/predicted agreement. Every catalogued prebuilt physical collider blocks at its height; elevated travel and gate openings remain possible. Safe spawns and delayed prop restoration are covered. Mounted footprints retain their conservative collision bounds.
+
+Local browser checks used the real WebGL world and character: landing at crate-top height 1.45, walking off and falling to ground, and repeated movement stopping at a tree. The real Practice drag control reached a sky view. Practice and Arena use the same camera helper; weapon aim remains independent. The HUD harness showed a 30-second countdown automatically become Round 2, and two separate same-name players with the disconnected player absent.
+
+These checks do not establish production multiplayer latency, physical-device touch behavior, or live device performance. No new paid generation calls or production multiplayer sessions were used. Earlier acceptance gaps above remain historical context where not explicitly covered by these local checks.

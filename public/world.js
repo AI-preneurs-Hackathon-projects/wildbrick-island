@@ -1,5 +1,5 @@
 import {segmentBox} from './geometry.js';
-import {WORLD_ENTITIES,HOMES,TREES,ROCKS,RING_RADIUS} from './world-data.js';
+import {WORLD_ENTITIES,LOOSE_BRICKS,HOMES,TREES,ROCKS,RING_RADIUS} from './world-data.js';
 import * as THREE from './vendor/three.module.js';
 import {C,box,brick,cylinder,tree,house,batchStatic,material,target,crate} from './models.js';
 import {GATES,RINGS,TARGETS,CRATES} from './rules.js';
@@ -21,7 +21,7 @@ export function createWorld(scene){
  for(const [i,[x,z,c,r]]of HOMES.entries())tag(house(statics,x,z,c,r),'house:'+i);
  for(const t of TREES)tag(tree(statics,t.x,t.z,t.scale,t.kind),t.id);
  // Flowers and scattered loose bricks make paths readable at toy scale.
- for(let i=0;i<65;i++){const x=Math.sin(i*7.1)*49,z=Math.cos(i*3.7)*49;if(Math.abs(Math.abs(x)-29)<6||Math.abs(Math.abs(z)-29)<6||Math.abs(x)<5||Math.abs(z)<5)continue;brick(statics,x,.13,z,.33,.24,.33,[C.cream,C.yellow,C.orange][i%3],false);}
+ for(const b of LOOSE_BRICKS)tag(brick(statics,b.x,.13,b.z,.33,.24,.33,[C.cream,C.yellow,C.orange][b.color],false),b.id);
  // Gate posts surround the road; their openings stay fully traversable.
  const gates=GATES.map((p,i)=>{const g=new THREE.Group();g.position.set(p.x,0,p.z);if(p.axis==='z')g.rotation.y=Math.PI/2;for(const x of [-4.8,4.8]){brick(g,x,1.95,0,.54,3.9,.7,C.teal);brick(g,x,4.0,0,.72,.23,.95,C.cream);}brick(g,0,4.05,0,10.1,.35,.7,C.teal);for(let x=-4;x<=4;x+=1)box(g,x,.1,0,.55,.07,1.1,i%2?C.cream:C.teal);tag(g,'gate:'+i);scene.add(g);return g;});
  const rings=RINGS.map((p,i)=>{const g=new THREE.Group();g.position.set(p.x,p.y,p.z);const next=RINGS[(i+1)%RINGS.length];g.rotation.y=Math.atan2(next.x-p.x,next.z-p.z);const torus=new THREE.Mesh(new THREE.TorusGeometry(RING_RADIUS,.24,6,32),material(C.yellow));g.add(torus);for(let j=0;j<8;j++){const a=j*Math.PI/4;brick(g,Math.sin(a)*RING_RADIUS,Math.cos(a)*RING_RADIUS,0,.43,.44,.44,j%2?C.orange:C.cream,false);}tag(g,'ring:'+i);scene.add(g);return g;});

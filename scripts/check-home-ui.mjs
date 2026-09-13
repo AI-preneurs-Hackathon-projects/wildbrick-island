@@ -53,7 +53,7 @@ await check('name survives reload and respects server limits; unavailable storag
  for(const id of ['explore-start','start']){const next=setup();name('Guest');$(id).click();assert.equal(next.starts,1);assert.equal(next.ui.playerName(),'Guest');assert.equal($('tutorial').open,true);$('tour-skip').click();}
 });
 await check('first-play tour respects Explore choice and does not join Arena on completion',()=>{
- localStorage.removeItem('brickwild-tour-v1');const app=setup();name('River');$('explore-start').click();assert.equal($('tutorial').open,true);$('tour-next').click();$('tour-next').click();assert.match($('tutorial').textContent,/Explore at your own pace/);$('tour-next').click();assert.equal(app.joins.length,0);assert.equal(app.state.paused,false);
+ localStorage.removeItem('brickwild-tour-v1');const app=setup();name('River');$('explore-start').click();assert.equal($('tutorial').open,true);$('tour-next').click();$('tour-next').click();assert.match($('tutorial').textContent,/Practice at your own pace/);$('tour-next').click();assert.equal(app.joins.length,0);assert.equal(app.state.paused,false);
 });
 await check('avatar recoloring leaves other characters and shared world materials intact',()=>{
  const first=character(),other=character();first.setColor('#579fe2');const shirts=model=>model.group.children.filter(g=>g.position.y===1.32).map(g=>g.children[0].material.color.getHex());assert.deepEqual(shirts(first),[0x579fe2]);assert.deepEqual(shirts(other),[C.orange]);first.setColor('#ee634e');assert.deepEqual(shirts(other),[C.orange]);

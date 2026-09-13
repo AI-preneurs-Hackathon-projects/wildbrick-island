@@ -42,11 +42,11 @@ await check('swept blocking slides at walls and corners for foot, car, plane and
  const large=slideMove(start,{x:10,y:0,z:4},{radius:3,height:3},boxes);assert.ok(large.x< -6);
 });
 await check('authoritative and predicted blocking agree; flight clears roofs and lowering stops on them',()=>{
- const r=newRoom(1e5),p=addPlayer(r,'a','Pilot');Object.assign(p,{x:-30,z:-16,y:0,kit:makeKit('plane')});const q=structuredClone(p);
+ const r=newRoom(1e5),p=addPlayer(r,'a','Pilot');for(const e of WORLD_ENTITIES)if(e.id!=='house:0')r.destroyed[e.id]=1e12;Object.assign(p,{x:-30,z:-16,y:0,kit:makeKit('plane')});const q=structuredClone(p);
  for(let i=0;i<100;i++){const input={z:1,cameraYaw:Math.PI/2};predictPlayer(q,input,1/30,r);applyInput(r,'a',{seq:i+1,input},r.time);advanceRoom(r,r.time+1000/30);assert.ok(Math.abs(p.x-q.x)<1e-6);}
  assert.ok(p.x< -24);p.y=9;for(let i=0;i<18;i++)predictPlayer(p,{z:1,cameraYaw:Math.PI/2},1/30,r);assert.ok(p.x> -20);
- p.x=-17;p.z=-16;for(let i=0;i<90;i++)predictPlayer(p,{down:true},1/30,r);assert.ok(Math.abs(p.y-6.3)<.001);
- p.kit=makeKit();const position={x:p.x,y:p.y,z:p.z};predictPlayer(p,{},1/30,r);for(const k of ['x','y','z'])assert.equal(p[k],position[k]);
+ p.x=-17;p.z=-16;for(let i=0;i<90;i++)predictPlayer(p,{down:true},1/30,r);assert.ok(Math.abs(p.y-6.155)<.001);
+ p.kit=makeKit();const position={x:p.x,y:p.y,z:p.z};predictPlayer(p,{},1/30,r);for(const k of ['x','y','z'])assert.ok(Math.abs(p[k]-position[k])<.00002);
 });
 await check('mount assembly beside a building preserves pose and previous equipment',async()=>{
  const notices=[],room=newRoom(1e5),p=addPlayer(room,'a','Builder');Object.assign(p,{x:-21,z:-16,yaw:0});

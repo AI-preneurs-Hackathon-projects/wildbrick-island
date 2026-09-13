@@ -1,3 +1,4 @@
+import {WORLD_ENTITIES} from '../public/world-data.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createArenaClient} from '../public/arena-client.js';
@@ -65,11 +66,11 @@ for(const latency of [50,250,600])await check(`real client/server movement stays
  const leave=n.client.leave();await n.advance(latency+1);await leave;
 });
 await check('moving plane assembly, manual rise, hover and dismount stay controlled over delayed sync',async()=>{
- const n=network(250);await n.join();assert.equal(n.client.command('build','plane'),true);const start=pose(n.client.self);
+ const n=network(250);for(const e of WORLD_ENTITIES)n.room.destroyed[e.id]=1e12;await n.join();assert.equal(n.client.command('build','plane'),true);const start=pose(n.client.self);
  for(let i=0;i<230;i++)await n.step({z:1});assert.equal(n.client.self.kit.id,'plane');assert.ok(distance(n.client.self,start)>10);assert.equal(n.client.self.y,0);
  for(let i=0;i<60;i++)await n.step({up:true});assert.ok(n.client.self.y>8);
  const hover=pose(n.client.self);for(let i=0;i<120;i++)assert.ok(distance(await n.step(),hover)<1e-8);
- n.client.command('exit');for(let i=0;i<90;i++)assert.ok(distance(await n.step(),hover)<1e-8);assert.equal(n.client.self.kit.id,'foot');
+ n.client.command('exit');for(let i=0;i<120;i++)await n.step();assert.ok(n.client.self.y<hover.y);assert.equal(n.client.self.kit.id,'foot');
  for(let i=0;i<120;i++)await n.step({down:true});assert.ok(n.client.self.y<1e-8);
 });
 await check('lost sync response retries acknowledged frames without repeating movement or rolling back',async()=>{
@@ -80,7 +81,7 @@ await check('lost sync response retries acknowledged frames without repeating mo
 await check('jump is replayed once, returns to its start height, and does not bounce again',async()=>{
  const n=network(250);await n.join();assert.equal(n.client.command('jump'),true);let rises=0,oldY=0,wasRising=false,max=0;
  for(let i=0;i<180;i++){const p=await n.step(),rising=p.y>oldY+1e-8;if(rising&&!wasRising)rises++;wasRising=rising;oldY=p.y;max=Math.max(max,p.y);}
- assert.equal(rises,1);assert.ok(max>1.2&&max<=1.25);assert.equal(n.client.self.y,0);assert.equal(n.player.y,0);
+ assert.equal(rises,1);assert.ok(max>1.9&&max<=2.001);assert.equal(n.client.self.y,0);assert.equal(n.player.y,0);
  assert.equal(n.packets.filter(p=>p.path.endsWith('/sync')).flatMap(p=>p.packet.frames).filter(f=>(f[5]&16)&&f[0]===1).length>0,true);
 });
 await check('kit changes and large ordinary corrections cannot teleport an idle display',()=>{
@@ -134,7 +135,7 @@ await check('non-JSON join failure reports the response problem without promisin
 await check('local and authoritative firing ignore camera orbit, including immediate preview',async()=>{
  const n=network(120);await n.join();Object.assign(n.player,{kit:makeKit('bow'),protectedUntil:0,yaw:.8});await n.advance(500);await n.step({fire:true,cameraYaw:-2.4,aimPitch:.75,weaponPitch:.3});const preview=n.events.find(e=>e.type==='attack-preview');assert.ok(preview);assert.equal(preview.yaw,.8);assert.equal(preview.pitch,.3);await n.advance(500);const shot=n.room.events.find(e=>e.type==='shot');assert.ok(shot);assert.ok(Math.abs(shot.yaw-.8)<.02);assert.equal(n.player.yaw,.8);n.client.leave();
 });
-await check('client restart stays joined, survives a lost response, and resets the shared round once',async()=>{
- const n=network(100);await n.join();const id=n.client.snapshot.self;n.player.kills=4;n.room.round.endsAt=n.now+100;await n.advance(500);assert.equal(n.client.snapshot.round.status,'finished');assert.equal(n.client.command('fire'),false);assert.equal(n.client.command('restart'),true);assert.equal(n.client.command('restart'),false);n.loseResponse();await n.advance(1800);assert.equal(n.client.snapshot.round.id,2);assert.equal(n.client.snapshot.self,id);assert.equal(n.player.kills,0);assert.equal(n.client.snapshot.round.previousResults[0].kills,4);assert.equal(n.room.events.filter(e=>e.type==='round-started').length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/join')).length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/leave')).length,0);n.client.leave();
+await check('automatic intermission stays joined through lost responses and starts the next round once',async()=>{
+ const n=network(100);await n.join();const id=n.client.snapshot.self;n.player.kills=4;n.room.round.endsAt=n.now+100;await n.advance(500);assert.equal(n.client.snapshot.round.status,'finished');assert.equal(n.client.command('fire'),false);assert.equal(n.client.command('restart'),false);n.loseResponse();await n.advance(1800);assert.equal(n.client.snapshot.round.id,1);await n.advance(30000);assert.equal(n.client.snapshot.round.id,2);assert.equal(n.client.snapshot.self,id);assert.equal(n.player.kills,0);assert.equal(n.client.snapshot.round.previousResults,undefined);assert.equal(n.room.events.filter(e=>e.type==='round-started').length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/join')).length,1);assert.equal(n.packets.filter(p=>p.path.endsWith('/leave')).length,0);n.client.leave();
 });
 console.log(`\n${checks} direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.`);

@@ -12,7 +12,7 @@ export async function createSimulation(obstacles,onEvent){
  let s=createState();let checkAccumulator=0;
  const movementBoxes=()=>[...scenery.values()].filter(isMovementBlocker).concat([...placements.values()]);
  const placements=new Map();let placementId=0;
- function setMode(mode){s.mode=mode;s.jumpRemaining=0;s.vertical=0;s.flightAltitude=s.y;}
+ function setMode(mode){s.mode=mode;s.jumpRemaining=0;s.vertical=0;s.vy=0;s.grounded=undefined;s.flightAltitude=s.y;}
  function removeEntity(id){for(const [key,o]of scenery)if(o.id===id)scenery.delete(key);s.destroyed||={};s.destroyed[id]=true;}
  function emit(type,data={}){onEvent({type,...data});}
  function rayDistance(from,to,ignore){const distance=Math.hypot(to.x-from.x,to.y-from.y,to.z-from.z);let t=1;for(const o of [...scenery.values(),...placements.values()]){if(ignore&&o.id===ignore)continue;const hit=segmentBox(from,to,o);if(hit)t=Math.min(t,hit.t);}return t<1?Math.max(.2,distance*t-.45):distance;}
@@ -51,7 +51,7 @@ export async function createSimulation(obstacles,onEvent){
   if((s.mode==='sword'&&!s.custom)||s.custom?.blueprint.ability==='swing'){const list=CRATES.map((t,i)=>({...t,id:i})).filter(t=>!s.crates.includes(t.id));const target=nearestTarget(s,list,3.8,-.25);if(target){s.crates.push(target.id);s.bricks+=12;emit('smash',{id:target.id});}else emit('swing');}
  }
  function hitTarget(id){if(Number.isInteger(id)&&id>=0&&id<TARGETS.length&&!s.targets.includes(id)){s.targets.push(id);s.bricks+=10;emit('target',{id});}}
- function respawn(){s.x=0;s.z=17;s.y=0;s.vertical=0;s.jumpRemaining=0;s.flightAltitude=0;s.yaw=Math.PI;s.speed=0;s.autoRun=false;emit('notice',{text:'Back at the plaza. Keep building!'});}
+ function respawn(){s.x=0;s.z=17;s.y=0;s.vertical=0;s.jumpRemaining=0;s.flightAltitude=0;s.yaw=Math.PI;s.speed=0;s.vy=0;s.grounded=true;s.autoRun=false;emit('notice',{text:'Back at the plaza. Keep building!'});}
  function returnToFoot(){s.custom=null;s.building=null;setMode('foot');s.speed=0;s.vertical=0;s.autoRun=false;}
  function reset(){s=createState();setMode('foot');emit('reset');}
  function placeCreation(dimensions){

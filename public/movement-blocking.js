@@ -1,7 +1,7 @@
 // Swept kinematic blocking only. No forces, penetration recovery, or teleport.
 const SKIN=1e-5,keys=['x','y','z'];
 export function movementShape(stats){const [w,h,d]=stats.collision;const radius=stats.mounted?Math.hypot(w,d)/2:.45;return {radius,height:h};}
-export function isMovementBlocker(entity){return entity.blocking===true||['house','rock'].includes(entity.kind)||String(entity.id).startsWith('placed:');}
+export function isMovementBlocker(entity){return entity.blocking!==false;}
 export function overlapsBody(p,shape,b){return Math.abs(p.x-b.x)<b.w/2+shape.radius-SKIN&&Math.abs(p.z-b.z)<b.d/2+shape.radius-SKIN&&p.y<b.y+b.h/2-SKIN&&p.y+shape.height>b.y-b.h/2+SKIN;}
 export function canFit(p,shape,boxes){return !boxes.some(b=>overlapsBody(p,shape,b));}
 function sweep(start,delta,b,shape){
@@ -27,5 +27,8 @@ export function slideMove(p,desired,shape,boxes){
   for(const k of keys){pos[k]+=remaining[k]*travel;remaining[k]*=1-travel;}
   remaining[keys[first.axis]]=0;
  }
- return {x:pos.x,y:Math.max(0,pos.y-shape.height/2),z:pos.z};
+ const result={x:pos.x,y:Math.max(0,pos.y-shape.height/2),z:pos.z};for(const k of keys)if(desired[k]>=0||k!=='y')if(Math.abs(result[k]-desired[k])<1e-9)result[k]=desired[k];return result;
 }
+
+// A foot-sized support patch allows edge landings without hovering beside walls.
+export function supportHeight(p,shape,boxes){let height=0;const radius=shape.radius;for(const b of boxes){const top=b.y+b.h/2;if(top<=p.y+.002&&top>height&&Math.abs(p.x-b.x)<b.w/2+radius&&Math.abs(p.z-b.z)<b.d/2+radius)height=top;}return height;}

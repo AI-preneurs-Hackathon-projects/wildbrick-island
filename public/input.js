@@ -22,7 +22,7 @@ export function createInput({onBuild,onAction,onJump,onPause,onMic,onHotkeys=()=
  });
  window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',clear);document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();});
  scene.addEventListener('pointerdown',e=>{if(drag||blocked())return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};scene.setPointerCapture(e.pointerId);});
- scene.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;yaw-=(e.clientX-drag.x)*.005;pitch=Math.max(.17,Math.min(.92,pitch+(e.clientY-drag.y)*.004));drag.x=e.clientX;drag.y=e.clientY;});
+ scene.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;yaw-=(e.clientX-drag.x)*.005;pitch=Math.max(-.75,Math.min(.92,pitch+(e.clientY-drag.y)*.004));drag.x=e.clientX;drag.y=e.clientY;});
  const endDrag=e=>{if(drag?.id===e.pointerId)drag=null;};scene.addEventListener('pointerup',endDrag);scene.addEventListener('pointercancel',endDrag);scene.addEventListener('lostpointercapture',endDrag);
  function moveJoy(e){const rect=joy.getBoundingClientRect(),radius=rect.width*.33,dx=e.clientX-rect.left-rect.width/2,dy=e.clientY-rect.top-rect.height/2,len=Math.hypot(dx,dy),factor=len>radius?radius/len:1;stick.x=dx*factor/radius;stick.z=-dy*factor/radius;knob.style.transform=`translate(${dx*factor}px,${dy*factor}px)`;}
  joy.addEventListener('pointerdown',e=>{if(joyPointer!==null||blocked())return;e.preventDefault();joyPointer=e.pointerId;joy.setPointerCapture(e.pointerId);moveJoy(e);});joy.addEventListener('pointermove',e=>{if(joyPointer===e.pointerId){e.preventDefault();moveJoy(e);}});
