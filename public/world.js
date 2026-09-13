@@ -1,4 +1,5 @@
-import {WORLD_ENTITIES,HOMES,TREES,RING_RADIUS} from './world-data.js';
+import {segmentBox} from './geometry.js';
+import {WORLD_ENTITIES,HOMES,TREES,ROCKS,RING_RADIUS} from './world-data.js';
 import * as THREE from './vendor/three.module.js';
 import {C,box,brick,cylinder,tree,house,batchStatic,material,target,crate} from './models.js';
 import {GATES,RINGS,TARGETS,CRATES} from './rules.js';
@@ -28,9 +29,13 @@ export function createWorld(scene){
  const crates=CRATES.map((p,i)=>{const g=tag(crate(),'crate:'+i);g.position.set(p.x,0,p.z);scene.add(g);return g;});
  // A runway points toward the first sky ring.
  box(statics,-42,.06,-28,8,.1,24,0x799687);for(let z=-38;z<-17;z+=4)box(statics,-42,.13,z,.27,.025,2,C.cream);
+ // Major landmarks are independently batched so camera occluders can fade.
+ ROCKS.forEach(([x,z,w,h,d],i)=>{const g=new THREE.Group();brick(g,x,h*.25,z,w,h*.5,d,0x8a9ca3);brick(g,x,h*.75,z,w*.7,h*.5,d*.7,0xa6b3b4);statics.add(g);tag(g,'rock:'+i);});
+ const fading=[];for(const e of WORLD_ENTITIES.filter(e=>['house','rock'].includes(e.kind))){const source=entityGroups.get(e.id);source.removeFromParent();const group=batchStatic(source);group.userData.entityId=e.id;group.traverse(m=>{if(m.isMesh)m.material=m.material.clone();});scene.add(group);entityGroups.set(e.id,group);fading.push({group,entity:e,opacity:1});}
  const batched=batchStatic(statics);scene.add(batched);
  const ocean=new THREE.Mesh(new THREE.PlaneGeometry(1600,1600),new THREE.MeshStandardMaterial({color:0x80cbd3,roughness:.27,metalness:.12}));ocean.rotation.x=-Math.PI/2;ocean.position.y=-2.25;ocean.receiveShadow=true;scene.add(ocean);
  const waves=new THREE.Group();for(let i=0;i<100;i++){const x=Math.sin(i*2.13)*(78+i%7*18),z=Math.cos(i*3.79)*(78+i%9*14);if(Math.abs(x)<62&&Math.abs(z)<62)continue;box(waves,x,-2.20,z,1.8+i%5,.025,.14,0xa8e0df);}scene.add(batchStatic(waves));
  const clouds=new THREE.Group();for(let i=0;i<12;i++){const g=new THREE.Group();g.position.set(Math.sin(i*2.4)*120,36+(i%4)*5,Math.cos(i*2.4)*120);for(let j=0;j<3;j++)brick(g,j*3,Math.sin(j*1.5),0,4,2.2,3.5,C.white,false);clouds.add(g);}scene.add(batchStatic(clouds));
- return {obstacles,gates,rings,targets,crates,setDestroyed(ids){const destroyed=new Set(ids);for(const e of WORLD_ENTITIES){const visible=!destroyed.has(e.id);batched.userData.setEntityVisible(e.id,visible);const g=entityGroups.get(e.id);if(g&&g.parent===scene)g.visible=visible;}},entityGroups};
+ function updateCamera(position,focus,dt){for(const f of fading){const obscures=f.entity.boxes.some(b=>segmentBox(focus,position,b,[.4,.4,.4]));const target=obscures?.16:1;f.opacity+=(target-f.opacity)*Math.min(1,dt*12);f.group.traverse(m=>{if(m.isMesh){m.material.transparent=f.opacity<.995;m.material.opacity=f.opacity;m.material.depthWrite=f.opacity>.8;}});}}
+ return {updateCamera,obstacles,gates,rings,targets,crates,setDestroyed(ids){const destroyed=new Set(ids);for(const e of WORLD_ENTITIES){const visible=!destroyed.has(e.id);batched.userData.setEntityVisible(e.id,visible);const g=entityGroups.get(e.id);if(g&&g.parent===scene)g.visible=visible;}},entityGroups};
 }

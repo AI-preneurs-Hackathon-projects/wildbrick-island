@@ -1,3 +1,4 @@
+import {movementShape,isMovementBlocker,canFit,overlapsBody} from './movement-blocking.js';
 import {moveDirect,startJump,MOVE_DT} from './movement.js';
 import {newMotion,frameInput,validFrames,MAX_MOVE_FRAMES} from './movement-stream.js';
 import {segmentBox} from './geometry.js';
@@ -9,11 +10,12 @@ export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750;
 export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];if(!stats.mounted&&blueprint){const grip=metrics.normalize([0,0,0]);muzzle=muzzle.map((v,i)=>v-grip[i]+[.76,1.1,.3][i]);}muzzle=muzzle.map((v,i)=>clamp(v,i===1?.2:-(metrics?.size[i]||stats.collision[i])/2-.8,i===1?(metrics?.size[1]||stats.collision[1])+.8:(metrics?.size[i]||stats.collision[i])/2+.8));return {placementSize:blueprint?.movement==='static'?metrics.size:null,id:mode,name:stats.name,blueprintId:blueprint?mode:null,mode:mode==='foot'&&!blueprint?'foot':stats.mounted?(stats.movement==='fly'?'plane':'car'):stats.weapon==='none'?'foot':['blade','knife','hammer'].includes(stats.weapon)?'sword':'bow',stats,muzzle,color:blueprint?.palette?.[0]||'#ffcf55'};}
 export function newRoom(now=Date.now(),epoch='local'){return {epoch,revision:0,time:now,players:{},projectiles:[],drops:[],damage:{},destroyed:{},placed:[],events:[],eventId:0,nextDrop:now+4000,dropIndex:0,seed:734159};}
 function event(room,type,data={}){const e={id:++room.eventId,type,time:room.time,...data};room.events.push(e);while(room.events.length>512||room.events[0]?.time<room.time-5000)room.events.shift();return e;}
-function safeSpawn(room,id){let best=SPAWNS[0],bestScore=-Infinity;for(const [x,z] of SPAWNS){const score=Math.min(200,...Object.values(room.players).filter(p=>p.id!==id&&p.health>0).map(p=>Math.hypot(p.x-x,p.z-z)));if(score>bestScore){best=[x,z];bestScore=score;}}return best;}
+function safeSpawn(room,id){let best=SPAWNS[0],bestScore=-Infinity;for(const [x,z] of SPAWNS){if(!canFit({x,y:0,z},movementShape(makeKit().stats),movementBoxes(room)))continue;const score=Math.min(200,...Object.values(room.players).filter(p=>p.id!==id&&p.health>0).map(p=>Math.hypot(p.x-x,p.z-z)));if(score>bestScore){best=[x,z];bestScore=score;}}return best;}
 export function addPlayer(room,id,name,now=room.time){const [x,z]=safeSpawn(room,id),kit=makeKit();const p={id,name,x,y:0,z,yaw:Math.PI,speed:0,vertical:0,flightAltitude:12,health:100,mountHealth:0,kit,building:null,kills:0,deaths:0,respawnAt:0,protectedUntil:now+3000,defenseUntil:0,speedUntil:0,lastSeen:now,input:{},inputAt:now,lastSeq:0,lastCommand:0,nextShot:0,heat:0,overheatedUntil:0,buildReadyAt:0,actionAt:0};room.players[id]=p;event(room,'join',{player:id,name});return p;}
 export function removePlayer(room,id){if(room.players[id]){event(room,'leave',{player:id,name:room.players[id].name});delete room.players[id];}}
 export function cleanInput(raw={}){const number=(v,a,b)=>typeof v==='number'&&Number.isFinite(v)?clamp(v,a,b):0;return {x:number(raw.x,-1,1),z:number(raw.z,-1,1),cameraYaw:number(raw.cameraYaw,-10000,10000),aimPitch:number(raw.aimPitch,-.75,.75),up:raw.up===true,down:raw.down===true,sprint:raw.sprint===true,fire:raw.fire===true,jump:raw.jump===true};}
 function bounds(p){const [w,h,d]=p.kit.stats.collision,yaw=p.kit.stats.mounted?p.yaw:0,c=Math.abs(Math.cos(yaw)),s=Math.abs(Math.sin(yaw));return {hx:(w*c+d*s)/2,hy:h/2,hz:(d*c+w*s)/2,h};}
+export function movementBoxes(room){const boxes=[];for(const e of WORLD_ENTITIES)if(isMovementBlocker(e)&&!room.destroyed?.[e.id])boxes.push(...e.boxes);for(const e of room.placed||[])if(!room.destroyed?.[e.id])boxes.push({...e,y:e.h/2});return boxes;}
 export function solidBoxes(room){const list=[];for(const e of WORLD_ENTITIES)if(!room.destroyed[e.id])for(const box of e.boxes)list.push({entity:e,box});for(const e of room.placed||[])if(!room.destroyed[e.id])list.push({entity:e,box:{x:e.x,y:e.h/2,z:e.z,w:e.w,h:e.h,d:e.d}});return list;}
 function destroyCover(room,e,amount,source){if(e.hp<=0)return false;room.damage[e.id]=(room.damage[e.id]||0)+amount;if(room.damage[e.id]<e.hp)return false;room.destroyed[e.id]=room.time+60000;delete room.damage[e.id];event(room,'break',{entity:e.id,by:source,color:e.color||'#ffcf55',x:e.boxes?.[0]?.x??e.x,y:e.boxes?.[0]?.y??e.h/2,z:e.boxes?.[0]?.z??e.z});return true;}
 function dismount(room,p,crashed=false){const old=p.kit.name;p.kit=makeKit();p.mountHealth=0;p.building=null;p.speed=0;p.vertical=0;p.jumpRemaining=0;p.heat=0;event(room,crashed?'crash':'dismount',{player:p.id,name:old,x:p.x,y:p.y+1,z:p.z});}
@@ -25,7 +27,7 @@ export function hurt(room,p,amount,source){if(p.health<=0||room.time<p.protected
 function respawn(room,p){const [x,z]=safeSpawn(room,p.id);Object.assign(p,{x,y:0,z,yaw:Math.PI,speed:0,vertical:0,health:100,mountHealth:0,kit:makeKit(),building:null,respawnAt:0,protectedUntil:room.time+3000,defenseUntil:0,speedUntil:0,heat:0,buildReadyAt:room.time+1500,input:{},inputAt:0});p.spawnSerial=(p.spawnSerial||0)+1;p.jumpRemaining=0;if(p.motion)p.motion=newMotion(room.time);event(room,'respawn',{player:p.id,x,z});}
 function movePlayer(room,p,dt,input){
  const k=p.kit.stats,speed=k.speed*(room.time<p.speedUntil?2:1)*(input.sprint&&!k.mounted?1.35:1);
- moveDirect(p,input,dt,{speed,mounted:k.mounted,flying:k.movement==='fly'&&k.mounted,limit:53,height:36});
+ moveDirect(p,input,dt,{speed,mounted:k.mounted,flying:k.movement==='fly'&&k.mounted,limit:53,height:36,shape:movementShape(k),boxes:movementBoxes(room)});
 }
 function applyFrames(room,p,packet,now){
  if(!p.motion||packet.motionEpoch!==(p.spawnSerial||0)||!validFrames(packet.frames))return;
@@ -54,10 +56,11 @@ function finishBuild(room,p){const kit=p.building.kit;p.building=null;
   if(!spot){event(room,'notice',{player:p.id,text:'Move into open space to place that creation.'});return;}
   const owned=room.placed.filter(e=>e.owner===p.id);if(owned.length>=2)room.placed=room.placed.filter(e=>e.id!==owned[0].id);const id='placed:'+p.id+':'+room.eventId;room.placed.push({...spot,id,owner:p.id,blueprintId:kit.blueprintId,hp:260,color:kit.color});event(room,'built',{player:p.id,kit:kit.id,name:kit.name,placed:true});return;
  }
+ if(!canFit(p,movementShape(kit.stats),movementBoxes(room))){event(room,'notice',{player:p.id,text:'Move into open space, then rebuild your saved creation. Your position is unchanged.'});return;}
  p.kit=kit;p.mountHealth=kit.stats.mountMax;p.vertical=0;p.flightAltitude=p.y;p.jumpRemaining=0;event(room,'built',{player:p.id,kit:kit.id,name:kit.name});
 }
 function step(room,dt){
- for(const [id,until] of Object.entries(room.destroyed))if(until<=room.time){delete room.destroyed[id];event(room,'restore',{entity:id});}
+ for(const [id,until] of Object.entries(room.destroyed))if(until<=room.time){const entity=WORLD_BY_ID.get(id)||room.placed.find(e=>e.id===id);const boxes=entity?.boxes||[entity&&{...entity,y:entity.h/2}].filter(Boolean);if(entity&&isMovementBlocker(entity)&&Object.values(room.players).some(p=>p.health>0&&boxes.some(b=>overlapsBody(p,movementShape(p.kit.stats),b)))){room.destroyed[id]=room.time+1000;continue;}delete room.destroyed[id];event(room,'restore',{entity:id});}
  for(const p of Object.values(room.players)){if(room.time-p.lastSeen>20000){removePlayer(room,p.id);continue;}if(p.health<=0){if(room.time>=p.respawnAt)respawn(room,p);continue;}p.heat=Math.max(0,p.heat-dt*.13);if(p.building&&room.time>=p.building.ends)finishBuild(room,p);const input=room.time-p.inputAt<INPUT_STALE_MS?p.input:{};if(!p.motion)movePlayer(room,p,dt,input);if(input.fire)shoot(room,p,input);}
  const players=Object.values(room.players);
  const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],end={x:b.x+b.vx*dt,y:b.y+b.vy*dt,z:b.z+b.vz*dt};let hit=null;

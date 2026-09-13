@@ -1,3 +1,5 @@
+import {moveDirect} from '../public/movement.js';
+import {movementShape,canFit,slideMove} from '../public/movement-blocking.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createSimulation} from '../public/simulation.js';
@@ -29,36 +31,28 @@ await check('arena walking past actual island edges has no recovery jumps',()=>{
  const room=newRoom(1e5),p=addPlayer(room,'walk','Walker');
  walkPath(input=>{predictPlayer(p,input,1/60,room);room.time+=1000/60;},p);
 });
-await check('all scenery and placements leave foot, vehicle and generated movement unchanged',async()=>{
- const blueprint=JSON.parse(fs.readFileSync(new URL('../validation/live/dragon.json',import.meta.url))).blueprint;
- for(const mode of ['foot','car','plane','dragon']){
-  const a=await createSimulation([...obstacles,{x:0,y:10,z:17,w:15,h:20,d:15}],()=>{}),b=await createSimulation([],()=>{});
-  try{
-   for(const sim of [a,b]){sim.state.started=true;if(mode==='dragon')sim.buildCustom({blueprint,dimensions:[8,6,9]});else if(mode!=='foot')sim.build(mode);for(let i=0;i<180;i++)sim.update(1/60,{});}
-   assert.equal(a.state.mode,b.state.mode);const placed=a.placeCreation([5,5,5]);assert.ok(placed);
-   Object.assign(a.state,{x:placed.x,z:placed.z});Object.assign(b.state,{x:placed.x,z:placed.z});
-   for(let i=0;i<360;i++){
-    const input={z:1,cameraYaw:i<180?Math.PI:Math.PI/2,up:i>240};a.update(1/60,input);b.update(1/60,input);
-    for(const key of ['x','y','z','yaw','speed','vertical','mode'])assert.equal(a.state[key],b.state[key],mode+' '+key);
-   }
-  }finally{a.dispose();b.dispose();}
-  const world=newRoom(1e5),p=addPlayer(world,'a','A'),empty=newRoom(1e5),q=addPlayer(empty,'a','A');
-  for(const e of WORLD_ENTITIES)empty.destroyed[e.id]=1e12;
-  world.placed.push({id:'placed:test',x:-17,z:-16,w:20,h:20,d:20,hp:200});
-  for(const player of [p,q])Object.assign(player,{x:-17,z:-16,kit:makeKit(mode,mode==='dragon'?blueprint:null),mountHealth:200});
-  for(let i=0;i<180;i++){
-   const input={z:1,cameraYaw:i<90?0:Math.PI/2,up:i>120};
-   for(const [r,player] of [[world,p],[empty,q]]){applyInput(r,player.id,{seq:i+1,input},r.time);advanceRoom(r,r.time+1000/30);}
-   for(const key of ['x','y','z','yaw','speed','health','mountHealth'])assert.equal(p[key],q[key],mode+' '+key);
-  }
+await check('swept blocking slides at walls and corners for foot, car, plane and generated mounts',()=>{
+ const b={x:0,y:3,z:0,w:6,h:6,d:6};const blueprint=JSON.parse(fs.readFileSync(new URL('../validation/live/dragon.json',import.meta.url))).blueprint;
+ for(const mode of ['foot','car','plane','dragon']){const stats=makeKit(mode,mode==='dragon'?blueprint:null).stats,shape=movementShape(stats);const p={x:-12,y:0,z:-2,yaw:0};
+  for(let i=0;i<120;i++){const old={...p};moveDirect(p,{x:-.35,z:1,cameraYaw:Math.PI/2},1/60,{speed:22,mounted:stats.mounted,shape,boxes:[b]});assert.ok(Math.hypot(p.x-old.x,p.z-old.z)<=22/60+1e-6);assert.ok(canFit(p,shape,[b]));}assert.ok(p.z< -3-shape.radius); // Slides to the end of the wall.
+  const resting={...p};for(let i=0;i<60;i++)moveDirect(p,{},1/60,{speed:22,shape,boxes:[b]});assert.equal(p.x,resting.x);assert.equal(p.z,resting.z);
+  const fast=slideMove({x:-30,y:0,z:0},{x:30,y:0,z:0},shape,[b]);assert.ok(fast.x< -3-shape.radius);assert.ok(canFit(fast,shape,[b]));
  }
+ const shape={radius:.45,height:2.5},boxes=[b,{x:0,y:3,z:8,w:6,h:6,d:6}];const start={x:-10,y:0,z:4};const end=slideMove(start,{x:10,y:0,z:4},shape,boxes);assert.equal(end.x,10); // Two metre route admits a walker.
+ const large=slideMove(start,{x:10,y:0,z:4},{radius:3,height:3},boxes);assert.ok(large.x< -6);
 });
-await check('mount assembly inside a building succeeds without relocating the builder',async()=>{
- const events=[],sim=await createSimulation([{x:0,y:3,z:17,w:8,h:6,d:8}],e=>events.push(e));sim.state.started=true;
- try{sim.build('plane');for(let i=0;i<125;i++)sim.update(1/60,{});assert.equal(sim.state.mode,'plane');assert.equal(sim.state.x,0);assert.equal(sim.state.z,17);assert.ok(!events.some(e=>e.type==='build-blocked'));}finally{sim.dispose();}
- const room=newRoom(1e5),p=addPlayer(room,'a','Builder');Object.assign(p,{x:-17,z:-16,yaw:0});
+await check('authoritative and predicted blocking agree; flight clears roofs and lowering stops on them',()=>{
+ const r=newRoom(1e5),p=addPlayer(r,'a','Pilot');Object.assign(p,{x:-30,z:-16,y:0,kit:makeKit('plane')});const q=structuredClone(p);
+ for(let i=0;i<100;i++){const input={z:1,cameraYaw:Math.PI/2};predictPlayer(q,input,1/30,r);applyInput(r,'a',{seq:i+1,input},r.time);advanceRoom(r,r.time+1000/30);assert.ok(Math.abs(p.x-q.x)<1e-6);}
+ assert.ok(p.x< -24);p.y=9;for(let i=0;i<18;i++)predictPlayer(p,{z:1,cameraYaw:Math.PI/2},1/30,r);assert.ok(p.x> -20);
+ p.x=-17;p.z=-16;for(let i=0;i<90;i++)predictPlayer(p,{down:true},1/30,r);assert.ok(Math.abs(p.y-6.3)<.001);
+ p.kit=makeKit();const position={x:p.x,y:p.y,z:p.z};predictPlayer(p,{},1/30,r);for(const k of ['x','y','z'])assert.equal(p[k],position[k]);
+});
+await check('mount assembly beside a building preserves pose and previous equipment',async()=>{
+ const notices=[],room=newRoom(1e5),p=addPlayer(room,'a','Builder');Object.assign(p,{x:-21,z:-16,yaw:0});
  p.building={kit:makeKit('plane'),starts:room.time-2800,ends:room.time};advanceRoom(room,room.time+34);
- assert.equal(p.kit.id,'plane');assert.equal(p.x,-17);assert.equal(p.z,-16);
+ assert.equal(p.kit.id,'foot');assert.equal(p.x,-21);assert.equal(p.z,-16);assert.ok(room.events.some(e=>e.type==='notice'));
+ const sim=await createSimulation([{kind:'house',x:0,y:3,z:17,w:8,h:6,d:8}],e=>notices.push(e));sim.state.started=true;sim.build('plane');for(let i=0;i<125;i++)sim.update(1/60,{});assert.equal(sim.state.mode,'foot');assert.equal(sim.state.z,17);assert.ok(notices.some(e=>e.type==='notice'));sim.dispose();
 });
 await check('20 FPS prediction retains elapsed movement time',()=>{
  const room=newRoom(1e5),a=addPlayer(room,'a','Walker'),b=structuredClone(a),input={z:1,cameraYaw:0};

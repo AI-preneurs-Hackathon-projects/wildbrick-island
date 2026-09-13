@@ -1,3 +1,4 @@
+import {movementShape,isMovementBlocker,canFit} from './movement-blocking.js';
 import {creationStats} from './combat.js';
 import {segmentBox,boxesOverlap} from './geometry.js';
 import {moveDirect,startJump} from './movement.js';
@@ -7,6 +8,7 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export async function createSimulation(obstacles,onEvent){
  const scenery=new Map(obstacles.map((o,i)=>[i,{...o,y:o.y??o.h/2}]));
  let s=createState();let checkAccumulator=0;
+ const movementBoxes=()=>[...scenery.values()].filter(isMovementBlocker).concat([...placements.values()]);
  const placements=new Map();let placementId=0;
  function setMode(mode){s.mode=mode;s.jumpRemaining=0;s.vertical=0;s.flightAltitude=s.y;}
  function removeEntity(id){for(const [key,o]of scenery)if(o.id===id)scenery.delete(key);s.destroyed||={};s.destroyed[id]=true;}
@@ -55,11 +57,11 @@ export async function createSimulation(obstacles,onEvent){
  function removePlacement(id){placements.delete(id);}
  function update(dt,input){
   if(!s.started||s.paused)return;dt=Math.min(dt,.1);s.time+=dt;s.actionTime=Math.max(0,s.actionTime-dt);s.cooldown=Math.max(0,s.cooldown-dt);
-  if(s.building){s.building.time+=dt;if(s.building.time>=s.building.duration){const built=s.building;s.custom=built.custom||null;setMode(built.mode);if(!s.built.includes(s.mode))s.built.push(s.mode);s.building=null;s.vertical=0;if(s.custom?.blueprint.movement==='static'){const design=s.custom;s.custom=null;emit('placed',{design});}else emit('mode',{mode:s.mode,custom:s.custom});}}
+  if(s.building){s.building.time+=dt;if(s.building.time>=s.building.duration){const built=s.building;const stats=creationStats(built.custom?.blueprint||built.mode,built.custom?.dimensions);if(!canFit(s,movementShape(stats),movementBoxes())){s.building=null;emit('notice',{text:'Move into open space and rebuild your creation.'});return;}s.custom=built.custom||null;setMode(built.mode);if(!s.built.includes(s.mode))s.built.push(s.mode);s.building=null;s.vertical=0;if(s.custom?.blueprint.movement==='static'){const design=s.custom;s.custom=null;emit('placed',{design});}else emit('mode',{mode:s.mode,custom:s.custom});}}
   const previous={x:s.x,y:s.y,z:s.z},mounted=['car','plane'].includes(s.mode);
   let speed=(s.custom?creationStats(s.custom.blueprint,s.custom.dimensions).speed:BUILDS[s.mode].speed)*(input.sprint&&s.mode!=='plane'?1.4:1);
   if(s.mode==='car'&&s.time<s.boostUntil)speed=Math.max(speed,25);
-  moveDirect(s,input,dt,{speed,mounted,flying:s.mode==='plane',limit:54});
+  moveDirect(s,input,dt,{speed,mounted,flying:s.mode==='plane',limit:54,shape:movementShape(creationStats(s.custom?.blueprint||s.mode,s.custom?.dimensions)),boxes:movementBoxes()});
   s.distance+=Math.hypot(s.x-previous.x,s.z-previous.z);
   if(Math.abs(s.x)>=53.95||Math.abs(s.z)>=53.95){if(s.time-checkAccumulator>3){checkAccumulator=s.time;emit('notice',{text:'The ocean is the edge of this island. Turn back to explore.'});}}
   if(s.mode==='car')GATES.forEach((p,i)=>{if(s.gates.includes(i)||s.y>2)return;const across=p.axis==='x'?Math.abs(s.x-p.x):Math.abs(s.z-p.z);const forward=p.axis==='x'?Math.abs(s.z-p.z):Math.abs(s.x-p.x);if(across<4.4&&forward<1.65){s.gates.push(i);s.bricks+=15;emit('gate',{id:i});}});

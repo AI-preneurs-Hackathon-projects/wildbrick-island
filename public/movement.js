@@ -1,3 +1,4 @@
+import {slideMove} from './movement-blocking.js';
 // Direct controls shared by local play, prediction and the server. No forces,
 // gravity, inertia, automatic takeoff, collision response or bouncing.
 export const MOVE_DT=1/60;
@@ -7,7 +8,8 @@ export function startJump(p,mounted=false){
  if(mounted||p.jumpRemaining>0)return false;
  p.jumpBase=p.y;p.jumpRemaining=JUMP_SECONDS;return true;
 }
-export function moveDirect(p,input,dt,{speed,mounted=false,flying=false,limit=53,height=35}){
+export function moveDirect(p,input,dt,{speed,mounted=false,flying=false,limit=53,height=35,shape={radius:.45,height:2.5},boxes=[]}){
+ const previous={x:p.x,y:p.y,z:p.z};
  let x=input.x||0,z=input.z||0;const length=Math.hypot(x,z);
  if(length<.06){x=0;z=0;}else if(length>1){x/=length;z/=length;}
  const yaw=input.cameraYaw||0,dx=Math.sin(yaw)*z-Math.cos(yaw)*x,dz=Math.cos(yaw)*z+Math.sin(yaw)*x;
@@ -25,5 +27,6 @@ export function moveDirect(p,input,dt,{speed,mounted=false,flying=false,limit=53
    if(p.jumpRemaining<1e-8){p.jumpRemaining=0;p.y=p.jumpBase||0;}
   }
  }
+ if(boxes.length){const limited=slideMove(previous,p,shape,boxes);Object.assign(p,limited);p.speed=Math.hypot(p.x-previous.x,p.z-previous.z)/Math.max(dt,1e-6);}
  p.autoRun=false;
 }

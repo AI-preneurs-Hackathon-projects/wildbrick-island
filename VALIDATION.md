@@ -1,3 +1,5 @@
+Movement stage: swept-wall/corner/tunneling tests pass for foot, car, plane and captured dragon geometry. A two-metre gap admits a walker and blocks a large mount; authoritative/predicted house blocking agrees. Roof overflight, lowering onto roofs, safe failed assembly and airborne dismount retain pose. Seeded 3,600-frame movement has no recovery jumps. All 13 simulated latency/retry/respawn movement checks pass unchanged. DOM/scene checks verify local landmark fading without changing camera position. Supersedes historical universal pass-through assertions; no WebGL render claim.
+
 # Brickwild validation — 2026-09-12
 
 ## Current status
