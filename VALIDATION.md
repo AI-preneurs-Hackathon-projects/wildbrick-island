@@ -19,7 +19,7 @@ The existing Site/project identity, D1 data, server-side OpenAI secret, saved-bl
 
 ## Automated and browser verification
 
-`npm run check`: **111 passing checks**, using committed Three.js and real migrated SQLite SQL. Output: `validation/checks-final.txt`.
+`npm run check`: **119 passing checks**, using committed Three.js and real migrated SQLite SQL. Current output: `validation/checks-followup.txt`; the previous 111-check release remains in `validation/checks-final.txt`.
 
 | Suite | Checks | Evidence |
 | --- | ---: | --- |
@@ -27,10 +27,10 @@ The existing Site/project identity, D1 data, server-side OpenAI secret, saved-bl
 | Generation | 9 | Bounded schema, trusted request construction, cancellation and no preset fallback |
 | Adventure and geometry | 14 | Storage, corrupt data, stale results, speech/error doubles, joints/grips/seats |
 | Historical captured live replay | 4 | Existing genuine outputs; no new API requests |
-| Arena core and isolated HTTP API | 25 | Authoritative combat, destruction, pickups, KO/respawn, cover, authentication and concurrency |
-| DOM / Three.js scene structure | 11 | Punch/sword pose, flash/flinch, no positional displacement, entry, tour, Help and touch text |
+| Arena core and isolated HTTP API | 29 | Authoritative combat, destruction, pickups, KO/respawn, cover, authentication and concurrency |
+| DOM / Three.js scene structure | 14 | Punch/sword pose, flash/flinch, no positional displacement, entry, tour, Help and touch text |
 | Movement regressions | 11 | Swept walls, corners, gaps, large mounts, roof blocking, assembly fit and camera math |
-| Actual client/server with simulated networking | 15 | 50/250/600 ms RTT, lost responses, acknowledged movement/events, expiry, stale joins, pre-death inputs |
+| Actual client/server with simulated networking | 16 | 50/250/600 ms RTT, lost responses, acknowledged movement/events, expiry, stale joins, pre-death inputs |
 | Durable generation/schema checks | 3 | Atomic global/requester budgets, legacy/v4 bounds and restricted indexing repair |
 | Final captured v4 arena replays | 3 | Dragon/car/octopus assembly while moving, joints, emitters, authoritative damage and saved-blueprint persistence |
 
@@ -40,7 +40,21 @@ Seeded movement checks run 3,600 frames each: maximum displayed step 0.1633 m in
 
 The supported cloud browser could not create WebGL: GL_VENDOR and GL_RENDERER reported Disabled. Its graphics-unavailable state was observed; browser flags were not bypassed. Browser inspection therefore used the actual UI/input modules in the development-only harness. Inspected desktop Play/tour/HUD, all three tutorial cards, once-per-device entry and 1024×768 / 768×1024 iframe layouts. Those tablet-size layouts used desktop input. Coarse-pointer instructions and denied/unsupported speech are covered by DOM/recognizer doubles, not physical device tests.
 
-The compiled Worker serves all **45 public assets byte-for-byte** and includes all **three migrations**. Development harnesses, captured responses, source files and preview credentials return 404. Unauthenticated arena entry returns 401. Public asset scans found no API key literal or server secret reference. `scripts/check-package.mjs` and `validation/package-final.json` record this check.
+The compiled Worker serves all **46 public assets byte-for-byte** and includes all **three migrations**. Development harnesses, captured responses, source files and preview credentials return 404. Unauthenticated arena entry returns 401. Public asset scans found no API key literal or server secret reference. `scripts/check-package.mjs` and `validation/package-followup.json` record the current package check; the previous result remains in `validation/package-final.json`.
+
+## Follow-up after owner playtesting
+
+Recovered the finished version 15 source before editing. GitHub main was `ef68b85b610d78a70cd1ff0c7021bae53708e639`, Sites/local source was `4193c05bb68fd77a4fbd518e55f7b80452d01e68`, and both trees matched. All 111 baseline checks passed. The old progress list was stale; the follow-up has its own updated implementation/publishing stages.
+
+- Bottom-left desktop movement hints now include R/F vertical aim beside WASD and Q/E.
+- Punch preview, server contact and character presentation use body facing independently of camera yaw. Five facing angles and a camera facing backward are covered, alongside 250/600 ms lost-response checks with one confirmed hit and no positional change.
+- The leaderboard starts expanded with a translucent background; collapsing it persists through snapshot updates. Leave arena is only in the Esc/Pause menu and returns to entry. Browser checks exercised collapse/expand, Esc, Leave and Enter to rejoin.
+- Enter/Return starts Play, advances Next/Next/Play in the tutorial and resumes from the pause menu. Text fields, focused buttons, modifiers and held-key repeats keep their intended behavior. Real browser inspection found and fixed tutorial focus initially landing on Skip; Next now receives initial and subsequent focus. Touch instructions hide the Enter hint.
+- Every third supply drop is equipment, rotating Star sword, Brick bow and Red Twin-Gun Roadster (about 36 seconds between equipment drops). Violet parachutes show a miniature of the actual weapon/vehicle and a landing/collection label. Geometry and trusted stats are ready locally; no generation request is made to collect loot. The rover is an explicitly curated copy of the genuine previously generated car in `validation/live/final-compact-none/armed-car.json`, now shipped separately in `public/supply-catalog.js`. Spoken requests continue to produce new geometry through OpenAI.
+- Equipment collects only after landing, when a living empty-handed player on the ground walks within 1.6 m. Existing equipment and active assembly are preserved. Full mount clearance is checked at the player's position, with no relocation. Collection is authoritative, once per drop; creation health and attack cooldown are initialized. Supplies still restore health/defense/speed, with bounded lifetimes and at most six active drops. Kit metrics are cached rather than recomputed for every simulation tick.
+- Added checks cover scheduled rotation/landing/expiry, a single eligible collector, assembly/equipment preservation, airborne and obstructed pickup refusal, all three usable attacks, exact rover geometry, render-resource disposal and a delayed pickup without pose changes or blueprint fetches.
+
+Browser verification used the actual UI/input development harness at desktop and tablet dimensions; it did not render 3D or run production multiplayer. Existing WebGL, physical iPad/microphone and two authorized production-client acceptance gaps remain. No new live OpenAI comparison was needed: generation configuration and prompts are unchanged from the measured release below. The additional supply catalog is packaged, while validation files and development harnesses remain excluded. No audience, identity, D1 schema or generation-budget change was made.
 
 ## Live generation comparisons
 

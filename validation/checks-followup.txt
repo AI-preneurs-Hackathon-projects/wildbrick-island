@@ -1,0 +1,146 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> brickwild@3.0.0 check
+> node scripts/check.mjs && node scripts/check-generations.mjs && node scripts/check-adventure.mjs && node scripts/check-live-replays.mjs && node scripts/check-arena.mjs && node scripts/check-arena-ui.mjs && node scripts/check-movement.mjs && node scripts/check-network-movement.mjs && node scripts/check-generation-budget.mjs && node scripts/check-current-replays.mjs
+
+PASS all JavaScript parses and local module references resolve
+PASS entrypoint and vendored engine assets exist
+PASS voice synonyms and safe whole-word matching
+PASS movement is blocked before play and while paused
+PASS camera-relative walking, right strafe and diagonal normalization
+PASS running continues during construction; duplicate requests are rejected
+PASS car crosses scenery freely and reversing remains usable
+PASS gate scoring requires car and never awards twice
+PASS plane rises only on input and holds selected altitude
+PASS all flight rings score once at correct altitude
+PASS dismount holds position; lower and explicit jump remain usable
+PASS bow range, facing, line of sight and rewards
+PASS follow camera ignores scenery
+PASS sword requires proximity and awards each crate once
+PASS all 15 challenges complete exactly once with expected rewards
+PASS respawn restores a recoverable location
+
+16 checks passed.
+PASS blueprint validator rejects unknown code, unbounded geometry and cyclic joints
+PASS generic geometry assembles and animates with finite bounded matrices
+PASS missing connection is explicit and never falls back to a prefab
+PASS server sends full free-form prompt and validates the structured response
+PASS server rejects foreign origins, refusals and malformed generated designs
+PASS custom flying creation builds while moving, flies and fires its ability
+PASS generated scenery gets a query-only cover box in a clear placement
+PASS voice forwards an arbitrary transcript exactly once
+PASS cancelled generation cannot replace a later creation
+
+9 generation checks passed. OpenAI responses in these tests are mocked; no live generation was claimed.
+PASS saved adventures restore exact rewards and deduplicate rebuilds
+PASS tampered saves cannot inject geometry, rewards, duplicate objectives or invalid IDs
+PASS creation-aware guidance advances through suitable activities
+PASS normalized carried geometry keeps the authored grip at the moving hand
+PASS equipment can jump without losing its ability; invalid hits grant nothing
+PASS out-of-order cancelled generation cannot replace the newer result
+PASS timeout abort reasons always produce useful error feedback
+PASS voice joins final segments and ignores callbacks from cancelled sessions
+PASS chunked request bodies are capped before OpenAI is called
+PASS server bounds simultaneous designs and propagates cancellation upstream
+PASS connection verification checks model access without exposing credentials
+PASS denied or unsupported voice leads to typed input without submitting audio text
+PASS root-coordinate blueprints preserve resting parts and rotate about their authored pivot
+PASS mounted rider rests on solid geometry and generated wheels rotate about their axle
+
+14 adventure checks passed. These are automated checks with synthetic fixtures, not browser or live OpenAI tests.
+PASS actual dragon blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+PASS actual octopus blueprint: finite animated geometry, moving assembly, automatic car, objective, saved rebuild
+PASS actual teapot blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+PASS actual arena-dragon blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+
+4 saved live-output replay checks passed. These are Node integration checks, not browser/device tests or new live API calls.
+PASS weapon and armor choices have bounded, distinct tradeoffs
+PASS punches wind up, hit once, miss at range, and retries cannot repeat damage
+PASS punches follow the current body facing at every angle even when the camera faces away
+PASS projectile contact produces one confirmed hit event at its contact point
+PASS server geometry bounds match renderer and muzzle stays on creation
+PASS 40 players share a room and snapshots expose no input/session secrets
+PASS fast vehicles stop at houses without impacts, damage or relocation
+PASS heavy mounts pass trees and safe ground landings do not eject pilots
+PASS all five flight markers admit a correctly aligned plane
+PASS mounts cannot jump; prediction cannot damage or change a loadout
+PASS cover restoration waits for occupants without moving them; time is monotonic
+PASS moving assembly completes a custom mount with shield and trusted flame
+PASS mount health absorbs damage, then the pilot is exposed; one death counts once
+PASS bow reaches distant rivals, projectiles respect cover, melee has no projectile
+PASS melee uses height, facing and line of sight, including placed scenery
+PASS automatic fire overheats and stale inputs stop firing and movement
+PASS one player claims each landed pickup; buffs last ten seconds
+PASS scheduled gear alternates with supplies, lands before collection and expires normally
+PASS gear has one eligible collector, preserves existing equipment and assembly, and refuses blocked mounts
+PASS each airdrop equips a trusted usable attack and the rover keeps its captured geometry
+PASS generated scenery is placed once with shared bounded shot cover
+PASS SQLite compare-and-swap preserves simultaneous room joins and monotonic revisions
+PASS three authenticated HTTP clients see the same room and bound identity
+PASS ten and more clients join the same arena without a seat rejection
+PASS session cap is atomic during concurrent joins
+PASS server ignores forged positions, damage, scores and stale build commands
+PASS creation uploads validate geometry and deduplicate retry without another write
+PASS authenticated HTTP movement stream acknowledges bounded frames and rejects malformed frames
+PASS expired room seats give a terminal rejoin error and leave removes membership
+
+29 arena checks passed: pure simulation and actual SQLite-backed API checks. No browser, device or production-network performance claim.
+PASS arena entry and health/leaderboard UI bind the joined room and escape names
+PASS arena keyboard and held touch attack remain separate from jump and movement
+PASS camera drag reaches the full upward and downward arena aim range
+PASS remote originals and generated creations assemble and dispose without destroying shared world geometry
+PASS weapon and rover parachutes show actual models and release owned render resources
+PASS camera obstruction fades only the landmark without moving the camera
+PASS arrow actions combine movement, attack and speech without moving the camera
+PASS Hotkeys opens and closes by button, H and Escape; presets are absent
+PASS typing, modifiers, menus and focus loss do not trigger gameplay shortcuts
+PASS empty-handed punching animates arms; a confirmed hit flashes and flinches without displacement
+PASS first play shows three illustrated cards; Skip saves once and Help reopens them
+PASS Enter starts once, advances the tour and resumes; text entry and repeat stay safe
+PASS Leave arena is available only in the pause menu and returns to entry
+PASS expired arena keeps vitals, exposes Rejoin, and retains a touch Lower control after dismount
+
+14 arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.
+  3,600 frames; largest step 0.1633 m
+PASS Explore walking through actual island scenery has no recovery jumps
+  3,600 frames; largest step 0.1575 m
+PASS arena walking past actual island edges has no recovery jumps
+PASS swept blocking slides at walls and corners for foot, car, plane and generated mounts
+PASS authoritative and predicted blocking agree; flight clears roofs and lowering stops on them
+PASS mount assembly beside a building preserves pose and previous equipment
+PASS 20 FPS prediction retains elapsed movement time
+PASS contact with another player never pushes, slows or damages either
+PASS delayed network positions blend while damage and respawns apply immediately
+PASS a late jump snapshot cannot draw the pilot below ground on landing
+PASS camera follows smoothly through scenery without obstruction corrections
+PASS trees and buildings still shield rivals from projectiles
+
+11 movement regressions passed. Simulation and presentation math only; no rendered-browser claim.
+PASS all original and generated modes stop immediately and stay still without input
+PASS sequenced movement rejects gaps and retries; frame budget prevents speed cheating
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 50ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 250ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 600ms simulated round trips
+PASS moving plane assembly, manual rise, hover and dismount stay controlled over delayed sync
+PASS lost sync response retries acknowledged frames without repeating movement or rolling back
+PASS jump is replayed once, returns to its start height, and does not bounce again
+PASS kit changes and large ordinary corrections cannot teleport an idle display
+PASS HTTP 401 holds the last position and requires deliberate rejoin
+PASS HTTP 410 holds the last position and requires deliberate rejoin
+PASS a join response arriving after Leave cannot reactivate or relocate the player
+PASS only actual arena respawn increments teleport epoch; pre-death frames cannot move it
+PASS a rover pickup survives delayed snapshots without relocating or fetching a new blueprint
+PASS a one-frame attack survives 250ms latency and a lost response without duplicate damage or effects
+PASS a one-frame attack survives 600ms latency and a lost response without duplicate damage or effects
+
+16 direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.
+PASS durable generation slots, per-requester rate and global minute budget are atomic
+PASS compact version 4 bounds and legacy version limits remain distinct
+PASS fresh uniform one-based references repair without weakening saved or mixed-index validation
+PASS captured compact final-compact-none/dragon: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/armed-car: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/octopus: assembly movement, joints, emitter, damage and saved blueprint
+3 current live-output arena replays passed; no new API calls or rendered gameplay.
