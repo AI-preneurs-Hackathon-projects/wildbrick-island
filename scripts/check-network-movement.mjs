@@ -11,7 +11,7 @@ async function check(name,fn){await fn();checks++;console.log('PASS '+name);}
 const pose=p=>({x:p.x,y:p.y,z:p.z}),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
 const flush=async()=>{for(let i=0;i<24;i++)await Promise.resolve();};
 function network(latency=250){
- let now=100000,timerId=0,forced=0,failAfterApply=0,joins=0;const timers=new Map(),errors=[],statuses=[],packets=[],room=newRoom(now,'network-test');
+ let now=100000,timerId=0,forced=0,failAfterApply=0,lossCommandOnly=false,joins=0;const timers=new Map(),errors=[],statuses=[],packets=[],events=[],room=newRoom(now,'network-test');
  const setTimer=(fn,ms)=>{const id=++timerId;timers.set(id,{fn,at:now+ms});return id;},clearTimer=id=>timers.delete(id);
  const runtime={clock:()=>now,setTimer,clearTimer,fetcher:(path,options)=>new Promise(resolve=>{
   const packet=options.body?JSON.parse(options.body):{};packets.push({path,packet});
@@ -21,15 +21,15 @@ function network(latency=250){
    else if(path.endsWith('/leave'))delete room.players[packet.session];
    else if(forced){status=forced;data={error:'Fixture connection ended'};}
    else if(!room.players[packet.session]){status=410;data={error:'Fixture seat expired'};}
-   else{applyInput(room,packet.session,packet,now,packet.command?.type==='build'?makeKit(packet.command.mode):null);room.revision++;data={snapshot:structuredClone(roomSnapshot(room,packet.session))};if(failAfterApply>0){failAfterApply--;status=503;data={error:'Fixture lost response'};}}
+   else{applyInput(room,packet.session,packet,now,packet.command?.type==='build'?makeKit(packet.command.mode):null);room.revision++;data={snapshot:structuredClone(roomSnapshot(room,packet.session))};if(failAfterApply>0&&(!lossCommandOnly||packet.command?.type==='fire')){failAfterApply--;status=503;data={error:'Fixture lost response'};}}
    setTimer(()=>resolve({ok:status===200,status,json:async()=>data}),latency/2);
   },latency/2);
  })};
- const client=createArenaClient({onError:(...e)=>errors.push(e),onStatus:s=>statuses.push(s)},runtime);
+ const client=createArenaClient({onError:(...e)=>errors.push(e),onStatus:s=>statuses.push(s),onEvent:e=>events.push(e)},runtime);
  async function advance(ms){const end=now+ms;while(true){let next=null;for(const [id,t]of timers)if(t.at<=end&&(!next||t.at<next.t.at))next={id,t};if(!next)break;now=next.t.at;timers.delete(next.id);next.t.fn();await flush();}now=end;await flush();}
  async function step(input={},dt=MOVE_DT){await advance(dt*1000);return client.tick(dt,input);}
  async function join(){const result=client.join('Tester','TEST');await advance(latency+1);assert.equal(await result,true);return client.self;}
- return {client,room,errors,statuses,packets,advance,step,join,get now(){return now;},get player(){return room.players[client.snapshot?.self];},force(status){forced=status;},loseResponse(){failAfterApply++;}};
+ return {client,room,errors,statuses,packets,events,advance,step,join,get now(){return now;},get player(){return room.players[client.snapshot?.self];},force(status){forced=status;},loseResponse(onlyFire=false){lossCommandOnly=onlyFire;failAfterApply++;}};
 }
 await check('all original and generated modes stop immediately and stay still without input',async()=>{
  const dragon=JSON.parse(fs.readFileSync(new URL('../validation/live/dragon.json',import.meta.url))).blueprint;
@@ -101,5 +101,15 @@ await check('only actual arena respawn increments teleport epoch; pre-death fram
  const room=newRoom(1e5),p=addPlayer(room,'p','Respawn');p.motion=newMotion(room.time);p.protectedUntil=0;p.x=31;p.z=29;hurt(room,p,1000,null);p.respawnAt=room.time+50;advanceRoom(room,room.time+60);assert.equal(p.spawnSerial,1);assert.equal(p.motion.frame,0);const spawn=pose(p);
  applyInput(room,p.id,{seq:1,motionEpoch:0,frames:[packFrame(1,{z:1})]},room.time);assert.deepEqual(pose(p),spawn);
  applyInput(room,p.id,{seq:2,motionEpoch:1,frames:[packFrame(1,{z:1})]},room.time);assert.ok(distance(p,spawn)>0);
+});
+
+await check('a one-frame attack survives release and a lost response without duplicate damage or confirmed effects',async()=>{
+ const n=network(250);await n.join();Object.assign(n.player,{x:0,z:10,y:0,protectedUntil:0});const q=addPlayer(n.room,'target','Target',n.now);Object.assign(q,{x:0,z:11.7,y:0,protectedUntil:0});
+ // Let the normal snapshot acknowledge the fixture positions before input.
+ for(let i=0;i<30;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:0});
+ assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(q.health,100,'prediction never causes damage');
+ for(let i=0;i<150;i++)await n.step({cameraYaw:0});
+ assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
+ const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);
 });
 console.log(`\n${checks} direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.`);

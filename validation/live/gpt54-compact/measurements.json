@@ -1,0 +1,106 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "gpt54-compact",
+      "httpStatus": 502,
+      "requestMs": 29708.2,
+      "headersMs": 29706.8,
+      "error": "The design didn’t fit together. Try again or simplify your description."
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "gpt54-compact",
+      "httpStatus": 200,
+      "requestMs": 24762.6,
+      "headersMs": 24721.6,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 11740,
+        "upstreamMs": 11740,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 2023,
+        "reasoningTokens": 192
+      },
+      "validationMs": 2.78,
+      "modelConstructionMs": 6.5,
+      "parts": 29,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.62,
+          2.55
+        ]
+      },
+      "name": "Red Twin-Gun Roadster",
+      "size": [
+        3.82,
+        2.0162186543260407,
+        5.199999999999999
+      ],
+      "seat": [
+        0,
+        1.45,
+        0.2
+      ],
+      "waitingMovementMetres": 179.08,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "gpt54-compact",
+      "httpStatus": 200,
+      "requestMs": 46569,
+      "headersMs": 46566.7,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 32549,
+        "upstreamMs": 32549,
+        "validationMs": 0,
+        "inputTokens": 1592,
+        "outputTokens": 4774,
+        "reasoningTokens": 2495
+      },
+      "validationMs": 0.74,
+      "modelConstructionMs": 2.18,
+      "parts": 32,
+      "joints": 12,
+      "movement": "drive",
+      "traits": {
+        "weapon": "pulse",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.9,
+          2.7
+        ]
+      },
+      "name": "Laser Wheeltopus",
+      "size": [
+        5.371461146792711,
+        3.2,
+        5.389346091169795
+      ],
+      "seat": [
+        0,
+        2.9859591215586714,
+        -0.16532695441510303
+      ],
+      "waitingMovementMetres": 336.58,
+      "live": true
+    }
+  ]
+}

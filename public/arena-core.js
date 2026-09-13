@@ -51,7 +51,9 @@ function shoot(room,p,input){const k=p.kit.stats;if(p.health<=0||p.building||!k.
  const m=p.kit.muzzle||[0,1.4,1],from={x:p.x+Math.cos(yaw)*m[0]+Math.sin(yaw)*m[2],y:p.y+Math.max(.4,m[1]),z:p.z-Math.sin(yaw)*m[0]+Math.cos(yaw)*m[2]};
  let obstruction=1;for(const {box} of solidBoxes(room)){const hit=segmentBox(anchor,from,box);if(hit)obstruction=Math.min(obstruction,Math.max(0,hit.t-.02));}for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*obstruction;
  if(target){const dx=anchor.x+target.v.x-from.x,dy=anchor.y+target.v.y-from.y,dz=anchor.z+target.v.z-from.z;yaw=Math.atan2(dx,dz);pitch=Math.atan2(dy,Math.hypot(dx,dz));}
- const id=++room.eventId;room.projectiles.push({id,owner:p.id,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range});if(room.projectiles.length>160)room.projectiles.shift();event(room,'shot',{player:p.id,weapon:k.weapon,yaw,pitch,...from});
+ // Bound each shooter's outstanding work without deleting another player's shots.
+ if(room.projectiles.filter(b=>b.owner===p.id).length>=24||room.projectiles.length>=2048){event(room,'notice',{player:p.id,text:'The arena has a lot of projectiles. Try attacking again shortly.'});return;}
+ const id=++room.eventId;room.projectiles.push({id,owner:p.id,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range});event(room,'shot',{player:p.id,weapon:k.weapon,yaw,pitch,...from});
 }
 function resolveMelee(room,p){
  const m=p.melee;if(!m||room.time<m.at)return;p.melee=null;
@@ -77,7 +79,7 @@ function step(room,dt){
  const players=Object.values(room.players);
  const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],end={x:b.x+b.vx*dt,y:b.y+b.vy*dt,z:b.z+b.vz*dt};let hit=null;
   for(const {entity,box} of boxes){if(room.destroyed[entity.id])continue;const h=segmentBox(b,end,box);if(h&&(!hit||h.t<hit.t))hit={...h,entity};}
-  for(const p of Object.values(room.players)){if(p.id===b.owner||p.health<=0)continue;const bb=bounds(p),h=segmentBox(b,end,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);if(h&&(!hit||h.t<hit.t))hit={...h,player:p};}
+  for(const p of players){if(p.id===b.owner||p.health<=0)continue;const bb=bounds(p),h=segmentBox(b,end,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);if(h&&(!hit||h.t<hit.t))hit={...h,player:p};}
   if(hit){const point={x:b.x+(end.x-b.x)*hit.t,y:b.y+(end.y-b.y)*hit.t,z:b.z+(end.z-b.z)*hit.t,attack:b.id,color:b.color};if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}else{destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',point);}room.projectiles.splice(i,1);}else if(room.time>=b.expires||end.y<0)room.projectiles.splice(i,1);else Object.assign(b,end);
  }
  if(room.time>=room.nextDrop){const i=room.dropIndex++,[x,z]=DROP_POINTS[i%DROP_POINTS.length];room.drops.push({id:'drop:'+i,type:['health','defense','speed'][i%3],x,z,born:room.time,lands:room.time+5500,expires:room.time+45000});room.nextDrop=room.time+12000;if(room.drops.length>6)room.drops.shift();}

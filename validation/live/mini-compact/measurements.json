@@ -1,0 +1,106 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "mini-compact",
+      "httpStatus": 200,
+      "requestMs": 28055.3,
+      "headersMs": 28052.2,
+      "generation": {
+        "model": "gpt-5.4-mini",
+        "profile": "compact",
+        "durationMs": 13770,
+        "upstreamMs": 13770,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 2453,
+        "reasoningTokens": 245
+      },
+      "validationMs": 1.61,
+      "modelConstructionMs": 7.97,
+      "parts": 33,
+      "joints": 7,
+      "movement": "fly",
+      "traits": {
+        "weapon": "flame",
+        "armor": "medium",
+        "mass": "heavy",
+        "emitter": [
+          0,
+          3.25,
+          6.55
+        ]
+      },
+      "name": "Verdant Gilded Ride Dragon",
+      "size": [
+        7.999999999999999,
+        3.706293706293706,
+        6.013986013986013
+      ],
+      "seat": [
+        0,
+        3.0069930069930075,
+        -0.5734265734265732
+      ],
+      "waitingMovementMetres": 202.88,
+      "live": true
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "mini-compact",
+      "httpStatus": 200,
+      "requestMs": 11111.5,
+      "headersMs": 11068.4,
+      "generation": {
+        "model": "gpt-5.4-mini",
+        "profile": "compact",
+        "durationMs": 10216,
+        "upstreamMs": 10216,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 1808,
+        "reasoningTokens": 198
+      },
+      "validationMs": 0.31,
+      "modelConstructionMs": 2.08,
+      "parts": 24,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          1.95,
+          0.95,
+          2.45
+        ]
+      },
+      "name": "Red Hood-Brawler Car",
+      "size": [
+        5.05,
+        2.18,
+        6.1
+      ],
+      "seat": [
+        0,
+        2.175,
+        -0.3000000000000005
+      ],
+      "waitingMovementMetres": 80.15,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "mini-compact",
+      "httpStatus": 502,
+      "requestMs": 17970.8,
+      "headersMs": 17928.1,
+      "error": "The design didn’t fit together. Try again or simplify your description."
+    }
+  ]
+}

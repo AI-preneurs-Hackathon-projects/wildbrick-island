@@ -52,7 +52,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;commands.push({id:++commandId,type,mode,blueprint});schedule(0);return true;}
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){
-  input=cleanInput(newInput);const fresh=credentials&&clock()-lastSuccess<1000;
+  const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed)command('fire');const fresh=credentials&&clock()-lastSuccess<1000;
   if(self&&snapshot&&fresh){
    const time=serverTime(),k=self.kit.stats;
    if(input.fire&&self.health>0&&!self.building&&k.damage&&time>=self.protectedUntil&&time>=self.overheatedUntil&&clock()-previewAt>=k.interval*1000){previewAt=clock();onEvent({type:'attack-preview',player:self.id,weapon:k.weapon,yaw:input.cameraYaw,pitch:input.aimPitch,time},self.id);}

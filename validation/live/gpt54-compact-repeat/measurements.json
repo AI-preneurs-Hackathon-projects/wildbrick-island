@@ -1,0 +1,106 @@
+{
+  "kind": "live generation; CPU model construction; speech and browser GPU timings unavailable",
+  "rows": [
+    {
+      "id": "dragon",
+      "prompt": "A green dragon I can ride, with broad golden wings, a long tail, and fire breath coming from its mouth.",
+      "label": "gpt54-compact-repeat",
+      "httpStatus": 502,
+      "requestMs": 29368.3,
+      "headersMs": 29366.4,
+      "error": "The design didn’t fit together. Try again or simplify your description."
+    },
+    {
+      "id": "armed-car",
+      "prompt": "A red four-wheeled car I can drive, with a visible seat and two mounted machine guns on the hood.",
+      "label": "gpt54-compact-repeat",
+      "httpStatus": 200,
+      "requestMs": 27876.4,
+      "headersMs": 27834.5,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 13541,
+        "upstreamMs": 13541,
+        "validationMs": 0,
+        "inputTokens": 1591,
+        "outputTokens": 2195,
+        "reasoningTokens": 406
+      },
+      "validationMs": 1.6,
+      "modelConstructionMs": 7.67,
+      "parts": 28,
+      "joints": 4,
+      "movement": "drive",
+      "traits": {
+        "weapon": "automatic",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.52,
+          3.02
+        ]
+      },
+      "name": "Red Twin-Gun Roadster",
+      "size": [
+        3.8200000000000003,
+        1.825,
+        5.789999999999999
+      ],
+      "seat": [
+        0,
+        1.825,
+        -0.4449999999999999
+      ],
+      "waitingMovementMetres": 201.37,
+      "live": true
+    },
+    {
+      "id": "octopus",
+      "prompt": "A purple mechanical octopus on wheels, with eight articulated tentacles, a seat on top, and a forward-facing laser.",
+      "label": "gpt54-compact-repeat",
+      "httpStatus": 200,
+      "requestMs": 45560.7,
+      "headersMs": 45518.1,
+      "generation": {
+        "model": "gpt-5.4",
+        "profile": "compact",
+        "durationMs": 32636,
+        "upstreamMs": 32636,
+        "validationMs": 0,
+        "inputTokens": 1592,
+        "outputTokens": 5274,
+        "reasoningTokens": 2564
+      },
+      "validationMs": 1.19,
+      "modelConstructionMs": 2.8,
+      "parts": 40,
+      "joints": 12,
+      "movement": "drive",
+      "traits": {
+        "weapon": "pulse",
+        "armor": "medium",
+        "mass": "medium",
+        "emitter": [
+          0,
+          1.8,
+          3.1
+        ]
+      },
+      "name": "Laserwheel Octopus",
+      "size": [
+        5.91,
+        3.3000000000000003,
+        6.145532411362412
+      ],
+      "seat": [
+        0,
+        3.2687423301365666,
+        0.10276620568120559
+      ],
+      "waitingMovementMetres": 329.47,
+      "live": true
+    }
+  ]
+}
