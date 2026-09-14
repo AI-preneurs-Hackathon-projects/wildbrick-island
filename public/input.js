@@ -11,6 +11,7 @@ export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{
   if(typing(e.target)||e.isComposing||e.keyCode===229||composing||e.ctrlKey||e.metaKey||e.altKey||!getState().started){clear();return;}
   const code=e.code,action=keyAction(code),menu=document.querySelector('dialog[open]'),slot=ACTION_BINDINGS[action]?.slot;
   if(Number.isInteger(slot)&&!e.repeat&&menu?.id==='menu'&&menu.dataset.mode==='collection'){e.preventDefault();clear();onSlot(slot);return;}
+  if(action==='collection'&&!e.repeat&&menu?.id==='menu'&&menu.dataset.mode==='collection'){e.preventDefault();clear();onCollection();return;}
   if(!e.repeat&&(!menu||menu.id==='menu')&&['KeyH','Escape'].includes(code)){
    e.preventDefault();clear();if(code==='KeyH')onHotkeys();else onPause();return;
   }
