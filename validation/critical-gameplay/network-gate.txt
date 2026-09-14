@@ -1,0 +1,10 @@
+PASS 50ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 50ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 50ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+No production requests, state resets, paid generation, browser pixels or live network measurements.

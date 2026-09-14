@@ -1,0 +1,14 @@
+✔ local held weapon preserves its grip baseline while strafing, advancing and turning (fresh and legacy) (57.696737ms)
+✔ remote cached aim stays attached throughout snapshot interpolation (8.380179ms)
+✔ old command acknowledgement replays its projectile without replacing a newer preview (4.870361ms)
+✔ attached flash and prospective guide move with the gun; the historical projectile does not (2.761087ms)
+✔ kit, round and respawn lifecycles reject an old ACK; matching ACK and duplicate never restart expired hold (10.764418ms)
+✔ Practice reuses the attached pose while retaining the captured shot and legacy grip baseline (9.010851ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.456365

@@ -91,7 +91,7 @@ function shoot(room,p,input,commandId=null,aimSolver=solveWeaponAim){const k=p.k
  p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
  let {yaw,pitch}=weaponAim(p);
- if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon,commandId});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
+ if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon,commandId,kitId:p.kit.id,roundId:room.round.id,spawnSerial:p.spawnSerial||0});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
 
  const solution=aimSolver(room,p),{anchor,muzzle:from}=solution;
  yaw=solution.yaw+(rand(room)-.5)*k.spread;pitch=(rand(room)-.5)*k.spread*.7;
@@ -102,7 +102,7 @@ function shoot(room,p,input,commandId=null,aimSolver=solveWeaponAim){const k=p.k
  // Immediate contact has no live projectile. Replay starts at the body so the
  // visible trace travels toward the contact instead of backwards from the muzzle.
  const visible={...projectile,...(contact?anchor:from)};
- event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,aimYaw:solution.yaw,kitId:p.kit.id,muzzle:{...from},x:visible.x,y:visible.y,z:visible.z,projectile:visible});
+ event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,aimYaw:solution.yaw,aimCorrection:solution.correction,roundId:room.round.id,spawnSerial:p.spawnSerial||0,kitId:p.kit.id,muzzle:{...from},x:visible.x,y:visible.y,z:visible.z,projectile:visible});
  if(contact)resolveProjectileContact(room,projectile,anchor,from,contact);else room.projectiles.push(projectile);
 }
 function resolveMelee(room,p){

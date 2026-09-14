@@ -1,0 +1,13 @@
+PASS every ranged weapon follows the character despite sideways and backward camera orbit
+PASS ground, target and world-cover contacts retain the shot ID and exact position
+PASS legacy pitch inputs cannot tilt a weapon or launch an emitter beneath the ground
+PASS the island target receives impact feedback on its front surface
+PASS short shots remain visible before a single confirmed impact; misses do not invent hits
+PASS rendered ranged attacks keep actors facing and align a carried emitter with its shot origin
+PASS anatomical right hand holds one-handed weapons and fires; bow uses left grip and right draw
+PASS shared Practice hand posing preserves gait and restores it after a punch
+PASS Arena walking and sprinting alternate arms opposite legs, including the free carrying arm
+PASS a shot born and hit between snapshots draws a tracer then a marker at the actual contact
+PASS Practice shots ignore camera orbit and legacy tilt, and stop at actual contacts
+
+11 firing, shot playback and impact checks passed.

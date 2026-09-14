@@ -1,3 +1,5 @@
+import {equippedAim} from './weapon-aim.js';
+import {projectileContact} from './shot-geometry.js';
 import {solveWeaponAim,weaponPath} from './aiming.js';
 import {passedRing} from './ring-pass.js';
 import {makeKit} from './arena-core.js';
@@ -31,9 +33,9 @@ export async function createSimulation(obstacles,onEvent){
   const blueprint=validateBlueprint(design.blueprint),custom={blueprint,dimensions:design.dimensions};const mode=customMode(blueprint);
   s.building={mode,custom,time:0,duration:1.2};emit('build',{mode,custom});return true;
  }
- function aimSolution(kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint)){
+ function aimSolution(kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),correction){
   const key=s.targets.join(',')+':'+placementId+':'+placements.size;if(!aimBoxesCache||key!==aimTargetKey){aimTargetKey=key;const targets=TARGETS.map((t,i)=>({x:t.x,y:1.9,z:t.z,w:1.75,h:1.75,d:.4,id:'target:'+i})).filter((_,i)=>!s.targets.includes(i));aimBoxesCache=[...scenery.values(),...placements.values(),...targets].map((box,i)=>({entity:{id:box.id??'practice:'+i},box}));}
-  const world={players:[],destroyed:{}},p={...s,id:'practice',kit},solution=solveWeaponAim(world,p,{boxes:aimBoxesCache});return {...solution,path:weaponPath(world,p,solution,aimBoxesCache)};
+  const world={players:[],destroyed:{}},p={...s,id:'practice',kit},base=solveWeaponAim(world,p,{boxes:aimBoxesCache}),solution=correction===undefined?base:equippedAim(p,base,correction);if(correction!==undefined)solution.launchContact=projectileContact(world,{owner:p.id,weapon:kit.stats.weapon},solution.anchor,solution.muzzle,aimBoxesCache,p.yaw);return {...solution,path:weaponPath(world,p,solution,aimBoxesCache)};
  }
  function jump(){if(s.started&&!s.paused&&startJump(s,['car','plane'].includes(s.mode)))emit('jump');}
  function action(aim){
@@ -42,7 +44,7 @@ export async function createSimulation(obstacles,onEvent){
   if(s.custom?.blueprint.ability==='pulse'||s.mode==='bow'&&!s.custom){
    const kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),solution=aimSolution(kit),path=solution.path;
    const target=String(path.contact?.entity?.id).startsWith('target:')?Number(path.contact.entity.id.slice(7)):null;
-   emit('shoot',{target,from:path.from,to:path.to,guide:{from:path.from,to:path.to,direction:path.direction,spread:path.spread,launch:path.launch},yaw:solution.yaw,pitch:0,aimYaw:solution.yaw,muzzle:solution.muzzle,impact:!!path.contact,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
+   emit('shoot',{target,from:path.from,to:path.to,guide:{from:path.from,to:path.to,direction:path.direction,spread:path.spread,launch:path.launch},yaw:solution.yaw,pitch:0,aimYaw:solution.yaw,aimCorrection:solution.correction,muzzle:solution.muzzle,impact:!!path.contact,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
   }
   if(s.mode==='foot')emit('swing');
   if(s.mode==='car'&&s.custom?.blueprint.ability!=='swing'){s.boostUntil=s.time+.7;emit('boost');}

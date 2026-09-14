@@ -14,3 +14,11 @@ export function weaponMuzzle(p,aim=null){
  const offset=rotateWeapon(weaponOffset(p.kit),mounted?p.yaw:yaw,mounted?0:pitch);
  return {x:p.x+anchor.x+offset.x,y:p.y+anchor.y+offset.y,z:p.z+anchor.z+offset.z};
 }
+
+// Presentation pose: retain a relative correction, never a historical world origin.
+export function equippedAim(p,solution,correction=solution.correction){
+ const yaw=p.yaw+(correction||0),muzzle=weaponMuzzle(p,{yaw}),anchor={x:p.x,y:p.y+Math.max(1.2,p.kit.stats.collision[1]*.6),z:p.z};
+ const t=muzzle.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-muzzle.y)):1;
+ for(const key of ['x','y','z'])muzzle[key]=anchor[key]+(muzzle[key]-anchor[key])*t;
+ return {...solution,yaw,correction:correction||0,pitch:0,muzzle,anchor,direction:aimDirection(yaw),launchContact:null};
+}

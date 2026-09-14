@@ -1,0 +1,34 @@
+PASS all original and generated modes stop immediately and stay still without input
+PASS sequenced movement rejects gaps and retries; frame budget prevents speed cheating
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 50ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 250ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 600ms simulated round trips
+PASS moving plane assembly, manual rise, hover and dismount stay controlled over delayed sync
+PASS lost sync response retries acknowledged frames without repeating movement or rolling back
+PASS jump is replayed once, returns to its start height, and does not bounce again
+PASS kit changes and large ordinary corrections cannot teleport an idle display
+PASS HTTP 401 holds the last position and requires deliberate rejoin
+PASS HTTP 410 holds the last position and requires deliberate rejoin
+PASS a join response arriving after Leave cannot reactivate or relocate the player
+PASS only actual arena respawn increments teleport epoch; pre-death frames cannot move it
+PASS a rebuilt legacy rover survives delayed snapshots without relocating or fetching a new blueprint
+PASS a one-frame attack survives 250ms latency and a lost response without duplicate damage or effects
+PASS a one-frame attack survives 600ms latency and a lost response without duplicate damage or effects
+PASS one 0ms press draws one punch through 250ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 250ms latency and a lost acknowledgement
+PASS one 0ms press draws one punch through 600ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 600ms latency and a lost acknowledgement
+PASS one 0ms press draws one punch through 1200ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 1200ms latency and a lost acknowledgement
+PASS deliberate held attacks repeat at the weapon interval without preview/acknowledgement doubles
+PASS leaving reconnecting or expired Arena stops sync and clears its player immediately
+PASS late blueprint authentication failure cannot reopen Arena after leaving
+PASS non-JSON join failure reports the response problem without promising reconnect retries
+PASS local and authoritative firing ignore camera orbit, including immediate preview
+PASS automatic intermission stays joined through lost responses and starts the next round once
+PASS Exit during intermission clears the session and late sync cannot rejoin at the next round
+
+29 direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.

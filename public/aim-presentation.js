@@ -1,14 +1,14 @@
-import {weaponOffset} from './weapon-aim.js';
+import {weaponOffset,weaponMuzzle} from './weapon-aim.js';
 import * as THREE from './vendor/three.module.js';
 // Pose the existing model at the solved emitter, including legacy stored offsets.
 // Rebuilding a saved blueprint restores the corrected origin; no kit is mutated.
 export function poseRangedModel(model,p,solution){
  if(!model||p.kit.stats.mounted||p.kit.stats.projectileSpeed<=0)return;
- const parent=model.group.parent;if(!parent)return;parent.updateWorldMatrix(true,false);
- const parentYaw=new THREE.Euler().setFromQuaternion(parent.getWorldQuaternion(new THREE.Quaternion()),'YXZ').y;
- model.group.rotation.set(0,solution.yaw-parentYaw,0,'YXZ');
+ const correction=solution.correction??Math.atan2(Math.sin(solution.yaw-p.yaw),Math.cos(solution.yaw-p.yaw));
+ model.group.rotation.set(0,correction,0,'YXZ');
  const emitter=model.emitter||(model.grip?model.grip.clone().add(new THREE.Vector3(...weaponOffset(p.kit))):new THREE.Vector3(.13,0,.84));
- model.group.position.copy(parent.worldToLocal(new THREE.Vector3(solution.muzzle.x,solution.muzzle.y,solution.muzzle.z))).sub(emitter.clone().applyQuaternion(model.group.quaternion));
+ const muzzle=weaponMuzzle({kit:p.kit,x:0,y:0,z:0,yaw:0},{yaw:correction});
+ model.group.position.set(muzzle.x,muzzle.y,muzzle.z).sub(emitter.clone().applyQuaternion(model.group.quaternion));
 }
 export function createWeaponGuide(parent){
  const root=new THREE.Group();root.name='weapon-path-guide';root.visible=false;root.userData.prediction=true;parent.add(root);
