@@ -151,3 +151,7 @@
 .bottom-right .action-button{width:92px;min-width:92px;height:92px;border-radius:18px}
 @media(max-width:600px){.bottom-right .action-button{width:82px;min-width:82px;height:82px;border-radius:16px}}
 .in-arena #practice-map-name{display:none}
+
+/* Eight builder colors in two even rows of four. */
+.avatar-colors{display:grid;grid-template-columns:repeat(4,44px);justify-content:center}
+.avatar-colors legend{grid-column:1/-1}
