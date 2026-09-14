@@ -54,7 +54,7 @@ export function nearbyItem(room,p){
 }
 function pickupItem(room,p,id){
  const item=(room.items||[]).find(item=>item.id===id);if(!item||nearbyItem({...room,items:[item]},p)!==item)return;
- if(p.kit.id!=='foot'){event(room,'notice',{player:p.id,text:'Press G to drop your current item before picking this one up.'});return;}
+ if(p.kit.id!=='foot'){event(room,'notice',{player:p.id,text:'Press Enter to drop your current item before picking this one up.'});return;}
  const shape=movementShape(item.kit.stats);if(Math.abs(p.x)+shape.radius>53||Math.abs(p.z)+shape.radius>53||!canFit(p,shape,movementBoxes(room))){event(room,'notice',{player:p.id,text:'Move into open space beside the item to pick it up.'});return;}
  p.kit=item.kit;p.mountHealth=item.mountHealth;p.melee=null;p.speed=0;p.vertical=0;p.vy=0;p.jumpRemaining=0;p.grounded=false;p.heat=item.heat||0;p.overheatedUntil=item.overheatedUntil||0;p.nextShot=Math.max(p.nextShot,item.nextShot||0);
  room.items=room.items.filter(d=>d.id!==id);event(room,'item-picked-up',{player:p.id,name:item.kit.name,x:item.x,y:item.y,z:item.z});
