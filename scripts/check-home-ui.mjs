@@ -60,7 +60,7 @@ await check('avatar recoloring leaves other characters and shared world material
  const first=character(),other=character();first.setColor('#579fe2');const shirts=model=>model.group.children.filter(g=>g.position.y===1.32).map(g=>g.children[0].material.color.getHex());assert.deepEqual(shirts(first),[0x579fe2]);assert.deepEqual(shirts(other),[C.orange]);first.setColor('#ee634e');assert.deepEqual(shirts(other),[C.orange]);
 });
 await check('avatar offers eight persistent colors without starting a game',()=>{
- const app=setup();const radios=[...document.querySelectorAll('[name="avatar-color"]')];assert.equal(radios.length,8);assert.equal(radios.filter(r=>r.checked).length,1);radios[5].click();assert.equal(app.ui.playerColor(),'#579fe2');assert.equal(app.starts,0);assert.equal(setup().ui.playerColor(),'#579fe2');
+ const app=setup();const radios=[...document.querySelectorAll('[name="avatar-color"]')];assert.equal(radios.length,8);assert.equal(radios[0].getAttribute('aria-label'),'Orange');assert.equal(radios.at(-1).getAttribute('aria-label'),'Yellow');assert.equal(radios.filter(r=>r.checked).length,1);radios.find(r=>r.value==='#579fe2').click();assert.equal(app.ui.playerColor(),'#579fe2');assert.equal(app.starts,0);assert.equal(setup().ui.playerColor(),'#579fe2');
 });
 await check('Explore pause exit returns home and permits a different mode and name',async()=>{
  const app=setup();name('River');$('explore-start').click();app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('menu').open,false);assert.equal($('intro').classList.contains('hidden'),false);name('Sky');$('start').click();await app.entry;assert.equal(app.starts,2);assert.equal(app.joins[0].name,'Sky');

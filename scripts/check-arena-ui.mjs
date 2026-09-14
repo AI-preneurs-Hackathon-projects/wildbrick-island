@@ -48,8 +48,8 @@ check('arrow actions combine movement, attack and speech without moving the came
  assert.equal(input.read().z,1);assert.equal(input.read().fire,true);assert.equal(mics,1);
  key('keyup','ArrowLeft');key('keydown','ArrowLeft');assert.equal(mics,2);
  const beforeJump=jumps;key('keydown','ArrowUp');assert.equal(jumps,beforeJump+1);
- input.clear();state.mode='plane';key('keydown','ArrowUp');assert.equal(input.read().up,true);assert.equal(jumps,beforeJump+1);key('keyup','ArrowUp');key('keydown','ArrowDown');assert.equal(input.read().down,true);assert.equal(exits,0);key('keydown','KeyG');assert.equal(exits,1);
- input.clear();const yaw=input.yaw;key('keydown','KeyE');input.update(.1);assert.ok(input.yaw<yaw);assert.equal(exits,1);key('keyup','KeyE');key('keydown','Backspace');assert.equal(exits,1);state.mode='bow';key('keydown','KeyG');assert.equal(exits,2);state.mode='foot';
+ input.clear();state.mode='plane';key('keydown','ArrowUp');assert.equal(input.read().up,true);assert.equal(jumps,beforeJump+1);key('keyup','ArrowUp');key('keydown','ArrowDown');assert.equal(input.read().down,true);assert.equal(exits,0);key('keydown','Enter');assert.equal(exits,1);key('keyup','Enter');
+ input.clear();const yaw=input.yaw;key('keydown','KeyE');input.update(.1);assert.ok(input.yaw<yaw);assert.equal(exits,1);key('keyup','KeyE');key('keydown','Backspace');assert.equal(exits,1);state.mode='bow';key('keydown','Enter');assert.equal(exits,2);key('keyup','Enter');state.mode='foot';
  key('keydown','Enter');assert.equal(imagines,0);assert.equal(document.querySelector('#menu').open,false);key('keyup','Enter');input.clear();const currentYaw=input.yaw;key('keydown','ArrowRight');input.update(.1);assert.equal(input.yaw,currentYaw);input.clear();key('keydown','KeyR');input.update(.1);assert.equal(input.read().fire,false);assert.equal(input.read().weaponPitch,0);input.clear();
  assert.equal(document.querySelector('#mic kbd').textContent,'←');assert.equal(document.querySelector('#imagine'),null);assert.equal(document.querySelector('#arena-crosshair'),null);
 });

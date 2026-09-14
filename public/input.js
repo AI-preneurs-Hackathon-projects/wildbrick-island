@@ -16,7 +16,7 @@ export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{
   if(action)e.preventDefault();
   if(e.repeat||keys.has(code))return;keys.add(code);
   if(action==='speak'){onMic();return;}
-  if(action==='drop'||action==='pickup'){if(!getState().building)(action==='drop'?onDrop:onPickup)();return;}
+  if(action==='drop'||action==='pickup'){const state=getState();if(!state.building)(state.carrying??(state.mode!=='foot'||!!state.custom)?onDrop:onPickup)();return;}
   if(action==='rise'&&getState().mode!=='plane')onJump();
   if(action==='attack'){if(getState().arena)fireTap=true;else onAction();}
 

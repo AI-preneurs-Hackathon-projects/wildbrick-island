@@ -126,7 +126,7 @@
 /* Voice choices share the existing build dock; recording leaves movement usable. */
 .voice-options {max-width:min(25rem,calc(100vw - 2rem));padding:.8rem;border-radius:1rem;background:#fff8e9;box-shadow:0 4px 20px #18373225;color:#233b36;pointer-events:auto;text-align:left;}
 .voice-options p {font-size:.875rem;line-height:1.4;margin:0 0 .6rem;}
-.voice-options button,#cancel-voice {font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
+.voice-options button{font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
 .voice-options button:disabled {opacity:.5;cursor:default;}
 #record-voice {background:#254f45;color:#fff8e9;}
 .build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
@@ -136,7 +136,7 @@
 .practice-route.complete{width:auto;padding:0;background:transparent;box-shadow:none;pointer-events:auto}.practice-route.complete header,.practice-route.complete .practice-route-item{display:none}.practice-reset,.practice-creations{align-items:center;gap:8px;min-height:42px;padding:9px 13px;border-radius:11px;background:#fffcf0ed;box-shadow:0 3px 0 #25413917;font-size:13px;font-weight:800}.practice-reset{display:flex;background:var(--yellow);border:2px solid var(--ink);box-shadow:0 3px 0 var(--ink)}.practice-reset svg,.practice-creations svg{width:18px;height:18px}.practice-creations{display:flex;margin-top:9px}.in-arena .practice-creations{display:none}
 
 /* One keycap treatment for every shortcut shown inside gameplay buttons. */
-#ui button kbd{position:static;display:inline-flex;min-width:21px;height:21px;padding:0 4px;border:1px solid #25413930;border-radius:4px;background:#fffcf0;color:var(--ink);box-shadow:0 2px 0 #25413918;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;line-height:1}.build-dock .mic-button{display:flex;flex-direction:row;width:170px;height:68px;gap:8px}.build-dock .mic-button span{white-space:nowrap}.action-button kbd,.exit-button kbd,.flight-controls kbd{font-size:10px;height:21px;min-width:21px;background:#fffcf0;color:var(--ink);border:1px solid #25413930;box-shadow:0 2px 0 #25413918}
+#ui button kbd{position:static;display:inline-flex;min-width:21px;height:21px;padding:0 4px;border:1px solid #25413930;border-radius:4px;background:#fffcf0;color:var(--ink);box-shadow:0 2px 0 #25413918;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:700;line-height:1}.build-dock .mic-button{display:flex;flex-direction:row;width:200px;height:68px;gap:10px;padding-inline:18px}.build-dock .mic-button span{white-space:nowrap}.action-button kbd,.exit-button kbd,.flight-controls kbd{font-size:10px;height:21px;min-width:21px;background:#fffcf0;color:var(--ink);border:1px solid #25413930;box-shadow:0 2px 0 #25413918}
 @media(pointer:coarse){#ui button kbd{display:none}}
 
 /* The favicon's yellow tile and green brick replace the letter logo. */
@@ -146,3 +146,8 @@
 #open-arena{display:none}
 .practice-route{width:min(360px,calc(100vw - 32px));margin-top:17px;padding:12px 14px;border-radius:14px;background:#fffcf2ed;box-shadow:var(--shadow);pointer-events:none}.practice-route header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:7px;border-bottom:1px solid #25413920}.practice-route header strong{font-size:14px}.practice-route header small{font-size:10px;color:#647a6d}.practice-route-item{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #25413912}.practice-route-item:last-child{border-bottom:0}.practice-route-item>svg{width:21px;height:21px}.practice-route-item span{min-width:0}.practice-route-item span strong,.practice-route-item span small{display:block}.practice-route-item span strong{font-size:13px}.practice-route-item span small{margin-top:2px;font-size:10px;color:#5a6e5f}.practice-route-item>b{font-size:12px;font-variant-numeric:tabular-nums}.practice-route-item.complete{color:#287c65}.in-arena .practice-route{display:none}
 @media(max-width:700px){.practice-route{width:min(300px,calc(100vw - 30px));padding:10px 12px}.practice-route header small,.practice-route-item span small{display:none}.practice-route-item{padding:6px 0}.practice-route-item span strong{font-size:12px}}
+
+/* Keep the action label and shortcut inside a compact square control. */
+.bottom-right .action-button{width:92px;min-width:92px;height:92px;border-radius:18px}
+@media(max-width:600px){.bottom-right .action-button{width:82px;min-width:82px;height:82px;border-radius:16px}}
+.in-arena #practice-map-name{display:none}
