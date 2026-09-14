@@ -174,3 +174,6 @@
 .help-key-lines>div{display:grid;grid-template-columns:92px 1fr;align-items:center;gap:10px}
 .help-key-lines dt,.help-key-lines dd{margin:0}
 .help-key-lines dd{font-size:13px;font-weight:700}
+
+.help-notes{margin:20px 0 0;padding-left:21px;display:grid;gap:7px;color:#5a6e5f}
+.help-notes li{font-size:13px;line-height:1.45}
