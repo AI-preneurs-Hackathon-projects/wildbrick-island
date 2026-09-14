@@ -17,7 +17,7 @@ const dragon=validateBlueprint({...sample,version:3,traits:{weapon:'flame',armor
 function clearWorld(r,keep=[]){for(const e of WORLD_ENTITIES)if(!keep.includes(e.id))r.destroyed[e.id]=1e12;}
 function room(keep=[]){const r=newRoom(100000),p=addPlayer(r,'a','Alpha');p.protectedUntil=0;clearWorld(r,keep);return [r,p];}
 function run(r,ms,inputs={}){for(let t=0;t<ms;t+=1000/30){for(const p of Object.values(r.players)){p.lastSeen=r.time;applyInput(r,p.id,{seq:p.lastSeq+1,input:inputs[p.id]||{}},r.time);}advanceRoom(r,r.time+Math.min(1000/30,ms-t));}}
-await check('weapon and armor choices have bounded, distinct tradeoffs',()=>{const auto=creationStats({...dragon,movement:'carry',traits:{...dragon.traits,weapon:'automatic'}}),bow=creationStats('bow'),shield=creationStats({...dragon,movement:'carry',traits:{...dragon.traits,weapon:'none',armor:'shield'}});assert.ok(auto.interval<bow.interval&&auto.offense>bow.offense&&auto.speed<bow.speed);assert.equal(auto.projectileSpeed,68);assert.equal(shield.weapon,'punch');assert.ok(shield.armor>.4&&shield.mountMax===90);for(const weapon of Object.keys(WEAPONS)){const s=creationStats({...dragon,traits:{...dragon.traits,weapon}});assert.ok(s.damage<=55&&s.speed<=32&&s.mountMax<=250);}});
+await check('weapon and armor choices have bounded, distinct tradeoffs',()=>{const auto=creationStats({...dragon,movement:'carry',traits:{...dragon.traits,weapon:'automatic'}}),bow=creationStats('bow'),shield=creationStats({...dragon,movement:'carry',traits:{...dragon.traits,weapon:'none',armor:'shield'}});assert.ok(auto.interval<bow.interval&&auto.offense>bow.offense&&auto.speed<bow.speed);assert.equal(auto.projectileSpeed,68);assert.equal(shield.weapon,'punch');assert.ok(shield.armor>.4&&shield.mountMax===90);for(const weapon of Object.keys(WEAPONS)){const s=creationStats({...dragon,traits:{...dragon.traits,weapon}});assert.ok(s.damage<=60&&s.speed<=32&&s.mountMax<=250);}});
 await check('punches wind up, hit once, miss at range, and retries cannot repeat damage',()=>{
  const [r,p]=room(),q=addPlayer(r,'b','Rival');Object.assign(p,{x:0,z:0,yaw:0});Object.assign(q,{x:0,z:1.8,protectedUntil:0});
  const packet={seq:1,input:{cameraYaw:0},command:{id:1,type:'fire'}};applyInput(r,'a',packet,r.time);assert.equal(p.kit.stats.weapon,'punch');assert.equal(q.health,100);assert.equal(r.projectiles.length,0);
@@ -28,7 +28,7 @@ await check('punches wind up, hit once, miss at range, and retries cannot repeat
 await check('punches follow the current body facing at every angle even when the camera faces away',()=>{
  for(const yaw of [0,Math.PI/2,Math.PI,-Math.PI/2,.73]){const [r,p]=room(),front=addPlayer(r,'front','Front'),back=addPlayer(r,'back','Back');Object.assign(p,{x:0,z:0,yaw});
   Object.assign(front,{x:Math.sin(yaw)*1.7,z:Math.cos(yaw)*1.7,protectedUntil:0});Object.assign(back,{x:-Math.sin(yaw)*1.7,z:-Math.cos(yaw)*1.7,protectedUntil:0});
-  applyInput(r,p.id,{seq:1,input:{cameraYaw:yaw+Math.PI},command:{id:1,type:'fire'}},r.time);assert.equal(r.events.find(e=>e.type==='swing').yaw,yaw);run(r,200);assert.equal(front.health,83.8);assert.equal(back.health,100);assert.equal(p.yaw,yaw);
+  applyInput(r,p.id,{seq:1,input:{cameraYaw:yaw+Math.PI},command:{id:1,type:'fire'}},r.time);assert.equal(r.events.find(e=>e.type==='swing').yaw,yaw);run(r,200);assert.equal(front.health,75.7);assert.equal(back.health,100);assert.equal(p.yaw,yaw);
  }
 });
 await check('projectile contact produces one confirmed hit event at its contact point',()=>{

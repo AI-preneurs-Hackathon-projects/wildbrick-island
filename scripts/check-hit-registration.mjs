@@ -105,7 +105,7 @@ test('spawn protection distinguishes rejected attacks and blocked contacts from 
 });
 test('damage values, armor, defense, mount destruction, KO and respawn remain authoritative',()=>{
  const bow=setup('bow');fire(bow);run(bow);near(bow.q.health,78.4);
- const punch=setup();fire(punch);run(punch);near(punch.q.health,83.8);
+ const punch=setup();fire(punch);run(punch);near(punch.q.health,75.7);
  const defense=setup('bow');defense.q.defenseUntil=defense.r.time+10000;fire(defense);run(defense);near(defense.q.health,90.28);
  const mounted=setup('bow',.9,0,'car');mounted.q.mountHealth=5;mounted.q.health=10;fire(mounted);run(mounted);assert.equal(mounted.q.health,0);assert.equal(mounted.q.kit.id,'foot');assert.equal(mounted.p.kills,1);assert.equal(mounted.q.deaths,1);
  fire(mounted,1);run(mounted,12000);assert.equal(mounted.p.kills,1);assert.equal(mounted.q.health,100);assert.ok(mounted.q.protectedUntil>mounted.r.time);

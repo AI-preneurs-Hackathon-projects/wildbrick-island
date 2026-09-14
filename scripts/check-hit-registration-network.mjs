@@ -54,7 +54,7 @@ for(const rtt of [50,150,300]){
    assert.equal(a.client.command('fire'),true);assert.equal(a.events.filter(e=>e.type==='attack-preview').length,previews+1,'immediate local preview');
    await until(()=>peers.every(p=>p.events.some(e=>e.id>before&&e.type==='hit'&&e.player===target)),'confirmed hit delivered to both');
    const room=read(),hits=room.events.filter(e=>e.id>before&&e.type==='hit');assert.equal(hits.length,1);const hit=hits[0];
-   assert.equal(room.players[target].health,weapon==='bow'?78.4:weapon==='pulse'?85.6:83.8);assert.equal(room.players[shooter].health,100);
+   assert.equal(room.players[target].health,weapon==='bow'?78.4:weapon==='pulse'?85.6:75.7);assert.equal(room.players[shooter].health,100);
    await until(()=>peers.every(p=>p.markers.has('impact:'+hit.attack)),'both scene graphs display contact');
    await wait(500);
    for(const p of peers){assert.equal(p.events.filter(e=>e.id===hit.id).length,1);assert.equal(p.markers.get('impact:'+hit.attack),1);assert.equal(p.client.snapshot.players.find(q=>q.id===target).health,room.players[target].health);}

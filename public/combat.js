@@ -1,14 +1,14 @@
 // Semantic choices select bounded, trusted game rules. The model never sets damage.
 export const WEAPONS=Object.freeze({
- punch:{label:'Punch',damage:18,interval:.5,range:2.2,speed:0,spread:0,windup:.13},
+ punch:{label:'Punch',damage:27,interval:.5,range:2.2,speed:0,spread:0,windup:.13},
  none:{label:'Unarmed',damage:0,interval:.5,range:0,speed:0,spread:0},
  pulse:{label:'Pulse',damage:16,interval:.42,range:42,speed:48,spread:.015},
  flame:{label:'Fire breath',damage:7,interval:.16,range:15,speed:23,spread:.16},
  automatic:{label:'Automatic',damage:14,interval:.18,range:38,speed:68,spread:.045},
  bow:{label:'Archery',damage:24,interval:.85,range:56,speed:36,spread:0},
- blade:{label:'Sword',damage:36,interval:.62,range:3.5,speed:0,spread:0},
- knife:{label:'Knife',damage:17,interval:.32,range:2.3,speed:0,spread:0},
- hammer:{label:'Heavy smash',damage:55,interval:1.15,range:3.4,speed:0,spread:0}
+ blade:{label:'Sword',damage:42,interval:.62,range:3.5,speed:0,spread:0},
+ knife:{label:'Knife',damage:20,interval:.32,range:2.3,speed:0,spread:0},
+ hammer:{label:'Heavy smash',damage:60,interval:1.15,range:3.4,speed:0,spread:0}
 });
 export const TRAIT_SCHEMA={type:'object',additionalProperties:false,required:['weapon','armor','mass','emitter'],properties:{weapon:{type:'string',enum:Object.keys(WEAPONS)},armor:{type:'string',enum:['light','medium','heavy','shield']},mass:{type:'string',enum:['light','medium','heavy']},emitter:{type:'array',minItems:3,maxItems:3,items:{type:'number',minimum:-16,maximum:16}}}};
 export function legacyTraits(b){const text=(b.name+' '+b.description).toLowerCase();return {weapon:b.ability==='none'?'none':b.ability==='swing'?(/knife|dagger/.test(text)?'knife':/hammer|mace/.test(text)?'hammer':'blade'):/fire|flame|dragon/.test(text)?'flame':/machine|automatic|minigun/.test(text)?'automatic':/bow|archery/.test(text)?'bow':'pulse',armor:/shield/.test(text)?'shield':'medium',mass:/heavy|tank/.test(text)?'heavy':'medium',emitter:[0,1,1]};}

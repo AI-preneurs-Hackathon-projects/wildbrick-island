@@ -118,7 +118,7 @@ for(const latency of [250,600])await check(`a one-frame attack survives ${latenc
  for(let i=0;i<65;i++)await n.step();const before=pose(n.client.self);n.loseResponse(true);await n.step({fire:true,cameraYaw:Math.PI});
  assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);assert.equal(n.events.find(e=>e.type==='attack-preview').yaw,0);assert.equal(q.health,100,'prediction never causes damage');
  for(let i=0;i<240;i++)await n.step({cameraYaw:0});
- assert.equal(q.health,83.8);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
+ assert.equal(q.health,75.7);assert.equal(n.room.events.filter(e=>e.type==='hit').length,1);assert.equal(n.events.filter(e=>e.type==='hit').length,1);assert.deepEqual(pose(n.client.self),before);
  const firePackets=n.packets.filter(p=>p.packet.command?.type==='fire');assert.ok(firePackets.length>=2,'lost response retried the command');assert.equal(new Set(firePackets.map(p=>p.packet.command.id)).size,1);
 });
 const renderDOM=new JSDOM('');globalThis.document=renderDOM.window.document;renderDOM.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
@@ -128,7 +128,7 @@ for(const latency of [250,600,1200])for(const heldMs of [0,300])await check(`one
  for(let i=0;i<200;i++)await n.step();while(n.client.stale)await n.step();
  const draw=()=>{view.update(n.client.snapshot,n.client.self,n.client.blueprints,MOVE_DT,n.client.serverTime());return scene.getObjectByName('arena-player:'+n.player.id).children[0].children.find(c=>c.position.x===-.68).rotation.x;};draw();n.loseResponse(true);let peaks=0,striking=false;
  for(let i=0;i<400;i++){await n.step({fire:i===0||i*MOVE_DT*1000<heldMs});const next=draw()<-1;if(next&&!striking)peaks++;striking=next;}
- assert.equal(peaks,1,'server acknowledgement must not restart the arm animation');assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);const swings=n.events.filter(e=>e.type==='swing');assert.equal(swings.length,1);assert.equal(swings[0].predicted,true);assert.equal(swings[0].commandId,n.events.find(e=>e.type==='attack-preview').commandId);assert.equal(target.health,83.8);assert.equal(n.events.filter(e=>e.type==='hit').length,1);view.clear();n.client.leave();
+ assert.equal(peaks,1,'server acknowledgement must not restart the arm animation');assert.equal(n.events.filter(e=>e.type==='attack-preview').length,1);const swings=n.events.filter(e=>e.type==='swing');assert.equal(swings.length,1);assert.equal(swings[0].predicted,true);assert.equal(swings[0].commandId,n.events.find(e=>e.type==='attack-preview').commandId);assert.equal(target.health,75.7);assert.equal(n.events.filter(e=>e.type==='hit').length,1);view.clear();n.client.leave();
 });
 await check('deliberate held attacks repeat at the weapon interval without preview/acknowledgement doubles',async()=>{
  const n=network(250);await n.join();n.player.protectedUntil=0;await n.advance(500);for(let i=0;i<150;i++)await n.step({fire:true});for(let i=0;i<80;i++)await n.step();

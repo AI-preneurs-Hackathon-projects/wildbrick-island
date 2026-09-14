@@ -1,0 +1,1482 @@
+{
+  "baseline": "d87477233aa9d3d614c96b56d461a2a673eea16d",
+  "assumptions": "Stationary body-overlap contact, zero spread, no spawn protection, commands at earliest legal cadence on 10 ms ticks; time starts at first fire and includes windup. Armor/absorption and automatic heat are actual Arena rules. Defense starts with its actual 10 s duration. Mount destruction returns target to default armor. No travel/aim/movement or human reaction cost.",
+  "families": [
+    {
+      "family": "punch",
+      "interval": 0.5,
+      "range": 2.2,
+      "projectileSpeed": 0,
+      "spread": 0,
+      "windup": 0.13,
+      "before": {
+        "damage": 18,
+        "rawDPS": 36,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 3130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 3630,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 14,
+            "elapsedToKOMs": 6630,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 14,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 7630,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 7630,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 23,
+            "elapsedToKOMs": 11130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 23,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 27,
+        "rawDPS": 54,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 2130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 2130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 10,
+            "elapsedToKOMs": 4630,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 10,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 11,
+            "elapsedToKOMs": 5130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 11,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 11,
+            "elapsedToKOMs": 5130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 11,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 15,
+            "elapsedToKOMs": 7130,
+            "firstImpactMs": 130,
+            "acceptedAttacks": 15,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "none",
+      "interval": 0.5,
+      "range": 0,
+      "projectileSpeed": 0,
+      "spread": 0,
+      "windup": 0.18,
+      "before": {
+        "damage": 0,
+        "rawDPS": 0,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 0,
+        "rawDPS": 0,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": null,
+            "elapsedToKOMs": null,
+            "firstImpactMs": null,
+            "acceptedAttacks": 0,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "pulse",
+      "interval": 0.42,
+      "range": 42,
+      "projectileSpeed": 48,
+      "spread": 0.015,
+      "windup": 0,
+      "before": {
+        "damage": 16,
+        "rawDPS": 38.095238095238095,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 2520,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 9,
+            "elapsedToKOMs": 3360,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 9,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 6300,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 7140,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 7140,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 25,
+            "elapsedToKOMs": 10080,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 25,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 16,
+        "rawDPS": 38.095238095238095,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 2520,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 9,
+            "elapsedToKOMs": 3360,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 9,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 6300,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 7140,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 7140,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 25,
+            "elapsedToKOMs": 10080,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 25,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "flame",
+      "interval": 0.16,
+      "range": 15,
+      "projectileSpeed": 23,
+      "spread": 0.16,
+      "windup": 0,
+      "before": {
+        "damage": 7,
+        "rawDPS": 43.75,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 2400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 19,
+            "elapsedToKOMs": 2880,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 19,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 36,
+            "elapsedToKOMs": 5600,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 36,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 40,
+            "elapsedToKOMs": 6240,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 40,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 41,
+            "elapsedToKOMs": 6400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 41,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 57,
+            "elapsedToKOMs": 8960,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 57,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 7,
+        "rawDPS": 43.75,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 16,
+            "elapsedToKOMs": 2400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 16,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 19,
+            "elapsedToKOMs": 2880,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 19,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 36,
+            "elapsedToKOMs": 5600,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 36,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 40,
+            "elapsedToKOMs": 6240,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 40,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 41,
+            "elapsedToKOMs": 6400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 41,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 57,
+            "elapsedToKOMs": 8960,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 57,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "automatic",
+      "interval": 0.18,
+      "range": 38,
+      "projectileSpeed": 68,
+      "spread": 0.045,
+      "windup": 0,
+      "before": {
+        "damage": 14,
+        "rawDPS": 77.77777777777779,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 1260,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 10,
+            "elapsedToKOMs": 1620,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 10,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 9120,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 3,
+            "heatWaitMs": 6060
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 20,
+            "elapsedToKOMs": 9480,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 20,
+            "overheatCycles": 4,
+            "heatWaitMs": 6060
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 21,
+            "elapsedToKOMs": 11680,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 21,
+            "overheatCycles": 4,
+            "heatWaitMs": 8080
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 29,
+            "elapsedToKOMs": 17160,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 29,
+            "overheatCycles": 7,
+            "heatWaitMs": 12120
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 14,
+        "rawDPS": 77.77777777777779,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 1260,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 10,
+            "elapsedToKOMs": 1620,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 10,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 18,
+            "elapsedToKOMs": 9120,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 18,
+            "overheatCycles": 3,
+            "heatWaitMs": 6060
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 20,
+            "elapsedToKOMs": 9480,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 20,
+            "overheatCycles": 4,
+            "heatWaitMs": 6060
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 21,
+            "elapsedToKOMs": 11680,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 21,
+            "overheatCycles": 4,
+            "heatWaitMs": 8080
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 29,
+            "elapsedToKOMs": 17160,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 29,
+            "overheatCycles": 7,
+            "heatWaitMs": 12120
+          }
+        ]
+      }
+    },
+    {
+      "family": "bow",
+      "interval": 0.85,
+      "range": 56,
+      "projectileSpeed": 36,
+      "spread": 0,
+      "windup": 0,
+      "before": {
+        "damage": 24,
+        "rawDPS": 28.235294117647058,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 3400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 4250,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 11,
+            "elapsedToKOMs": 8500,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 11,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 12,
+            "elapsedToKOMs": 9350,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 12,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 12,
+            "elapsedToKOMs": 9350,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 12,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 17,
+            "elapsedToKOMs": 13600,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 17,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 24,
+        "rawDPS": 28.235294117647058,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 3400,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 4250,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 11,
+            "elapsedToKOMs": 8500,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 11,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 12,
+            "elapsedToKOMs": 9350,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 12,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 12,
+            "elapsedToKOMs": 9350,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 12,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 17,
+            "elapsedToKOMs": 13600,
+            "firstImpactMs": 0,
+            "acceptedAttacks": 17,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "blade",
+      "interval": 0.62,
+      "range": 3.5,
+      "projectileSpeed": 0,
+      "spread": 0,
+      "windup": 0.18,
+      "before": {
+        "damage": 36,
+        "rawDPS": 58.064516129032256,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 4,
+            "elapsedToKOMs": 2040,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 4,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 4,
+            "elapsedToKOMs": 2040,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 4,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 3900,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 4520,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 4520,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 12,
+            "elapsedToKOMs": 7000,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 12,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 42,
+        "rawDPS": 67.74193548387098,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 3,
+            "elapsedToKOMs": 1420,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 3,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 4,
+            "elapsedToKOMs": 2040,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 4,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 3280,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 3900,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 3900,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 10,
+            "elapsedToKOMs": 5760,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 10,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "knife",
+      "interval": 0.32,
+      "range": 2.3,
+      "projectileSpeed": 0,
+      "spread": 0,
+      "windup": 0.18,
+      "before": {
+        "damage": 17,
+        "rawDPS": 53.125,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 2100,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 2420,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 15,
+            "elapsedToKOMs": 4660,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 15,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 17,
+            "elapsedToKOMs": 5300,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 17,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 17,
+            "elapsedToKOMs": 5300,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 17,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 24,
+            "elapsedToKOMs": 7540,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 24,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 20,
+        "rawDPS": 62.5,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 1780,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 2100,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 13,
+            "elapsedToKOMs": 4020,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 13,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 15,
+            "elapsedToKOMs": 4660,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 15,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 15,
+            "elapsedToKOMs": 4660,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 15,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 20,
+            "elapsedToKOMs": 6260,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 20,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "family": "hammer",
+      "interval": 1.15,
+      "range": 3.4,
+      "projectileSpeed": 0,
+      "spread": 0,
+      "windup": 0.18,
+      "before": {
+        "damage": 55,
+        "rawDPS": 47.82608695652174,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 3,
+            "elapsedToKOMs": 2480,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 3,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 3,
+            "elapsedToKOMs": 2480,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 3,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 4780,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 5930,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 6,
+            "elapsedToKOMs": 5930,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 6,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 8,
+            "elapsedToKOMs": 8230,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 8,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      },
+      "candidate": {
+        "damage": 60,
+        "rawDPS": 52.173913043478265,
+        "profiles": [
+          {
+            "profile": "default",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 2,
+            "elapsedToKOMs": 1330,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 2,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.24,
+            "hitsToKO": 3,
+            "elapsedToKOMs": 2480,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 3,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "defense-10s",
+            "initialHealth": 100,
+            "initialMount": 0,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 4780,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "shield-90",
+            "initialHealth": 100,
+            "initialMount": 90,
+            "initialArmor": 0.45,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 4780,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "mount-155",
+            "initialHealth": 100,
+            "initialMount": 155,
+            "initialArmor": 0.1,
+            "hitsToKO": 5,
+            "elapsedToKOMs": 4780,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 5,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          },
+          {
+            "profile": "heavy-mount-217",
+            "initialHealth": 100,
+            "initialMount": 217,
+            "initialArmor": 0.24,
+            "hitsToKO": 7,
+            "elapsedToKOMs": 7080,
+            "firstImpactMs": 180,
+            "acceptedAttacks": 7,
+            "overheatCycles": 0,
+            "heatWaitMs": 0
+          }
+        ]
+      }
+    }
+  ]
+}

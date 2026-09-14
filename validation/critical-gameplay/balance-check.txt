@@ -1,0 +1,13 @@
+✔ candidate grants the requested punch and sword advantage while retaining distinct knife and hammer identities (1.405021ms)
+✔ actual legal-cadence contact KOs include windup, default/heavy armor and defense (77.223964ms)
+✔ armor, shield and mount absorption and automatic heat remain real simulation rules (113.938747ms)
+✔ generated traits only select trusted families; saved ranged families stay unchanged (0.973529ms)
+✔ old persisted stats survive reload and retries; normal rebuilding and round reset adopt the candidate (17.145134ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 223.87361

@@ -45,3 +45,37 @@ Six focused control groups pass, including foot/bow/car/plane, empty/equipped/ab
 In `/__combat`, choose a mounted/flying creation, check **Enable keyboard / touch controls**, click the island to leave form focus, then use **Lift shooter to 6 m**. Hold Down and click **Advance 80 ms**: height falls 0.8 m per step while the kit remains equipped. Release Down: the flying mount hovers. Press G or **Drop / dismount G**: kit becomes foot, one recoverable item appears, and the player stays at the same position before falling on subsequent steps. After landing, T or **Pick up T** restores the item. Holding Down cannot perform either operation. The small joystick, **Rise ↑**, **Lower ↓** and **Attack →** use the actual input module; item buttons remain separate. Four harness cases verify descent, drop, fall and pickup in addition to the original/presentation cases. This fixture steps time manually and uses body-frame movement for convenient inspection.
 
 In ordinary local Practice inspect actual HUD layout, Help, G/Down hints and separate touch movement/lower/item controls, including text and menu guards. Recoverable Arena items require the harness or later authorized hosted review; Vite's Arena API remains unavailable. Real multi-touch pixels and hosted two-player checks remain pending.
+
+## Part C and final combined verification
+
+Candidate trusted damage: punch 27, sword 42, knife 20, hammer 60. All other weapon properties and all ranged damage remain unchanged. The full before/candidate family table, six receiver profiles, measured KO timings, heat behavior, persisted-kit behavior and exact comparison controls are in [COMBAT_BALANCE_CANDIDATE.md](COMBAT_BALANCE_CANDIDATE.md). The machine-readable matrix covers 9 families × 6 target profiles × 2 rule sets. No human balance acceptance is claimed.
+
+Final combined `npm run check`, `npm run build` and `node scripts/check-package.mjs` all pass on Node 24.19.0. The combined full suite/build/package sequence ran once after the focused fixes. New groups: 6 attachment/order, 6 control separation, 5 combat balance. Existing 17 aiming, 44 contact and 5 emitter groups pass; all 9 delayed authenticated fixture cases pass, including forced CAS conflict and lost committed responses. The harness passes 28 original, 2 presentation, 4 controls and 8 balance cases (42 total), using a no-op renderer. Package validation: 63 assets, 3 migrations, byte-identical packaged assets, development routes/files excluded, unauthenticated Arena 401 and public-secret scan passed. Logs are in `validation/critical-gameplay/`.
+
+### Changed source by part
+
+- A (`4bb9f3c`): `public/aim-presentation.js`, `public/weapon-aim.js`, `public/arena-view.js`, `public/arena-client.js`, `public/arena-core.js`, `public/main.js`, `public/simulation.js`; new `scripts/check-aim-attachment.mjs`, updates to `scripts/check-handheld-aiming.mjs` and `scripts/check-aiming-harness.mjs`; harness, package check script list, progress/report and Part A evidence.
+- B (`ccbec6d`): new `public/action-bindings.js`, updates to `public/input.js`, `public/main.js`, `public/ui.js`, `public/arena-ui.js`, `public/arena-core.js`, `public/guidance.js`; new `scripts/check-control-separation.mjs`, updates to `scripts/check-arena-ui.mjs`, `scripts/check-round-refinements.mjs`, `scripts/check-aiming-harness.mjs`; harness, package script list, progress/report and control evidence.
+- C (final local commit): `public/combat.js`; new `scripts/check-combat-balance.mjs` and `scripts/measure-combat-balance.mjs`; intentional fresh-punch damage assertions in `scripts/check-arena.mjs`, `scripts/check-hit-registration.mjs`, `scripts/check-hit-registration-network.mjs`, `scripts/check-network-movement.mjs`; balance controls/assertions in the harness and `scripts/check-aiming-harness.mjs`; package script list, balance report, dated progress/release corrections, baseline/matrix and final check evidence.
+
+Neither hosting manifest nor README, lockfile, model configuration, migrations or database schema is changed. The individual commit file lists are available through `git show --stat <commit>`; the exported combined patch contains the complete reviewable diff.
+
+### Portable patch and remaining review
+
+The combined `brickwild-critical-gameplay-review.patch` is based on GitHub **`d87477233aa9d3d614c96b56d461a2a673eea16d`**, requiring its already-included emitter/aiming prototype. Creator base **`c8d5d1f7ccab4e71ddab6492ef4248e4687dc10c`** has equivalent gameplay files. A disposable source copy was verified against GitHub's complete base tree `4f8558c397c003b9c384a9db5c09820e6f8cd5ee`; patch applicability is checked there. Identity files and unrelated work are excluded.
+
+```sh
+git switch -c review/critical-gameplay d87477233aa9d3d614c96b56d461a2a673eea16d
+git apply --check /absolute/path/brickwild-critical-gameplay-review.patch
+git apply /absolute/path/brickwild-critical-gameplay-review.patch
+node --version
+npm ci
+npm run check
+npm run build
+node scripts/check-package.mjs
+npm run dev -- --port 4173
+```
+
+Review http://localhost:4173/__combat using the exact Part A/B controls above and Part C balance-report checklist. Recheck the established pulse convergence, capped/fixed misses, physical cover, protected contact, camera independence and mounted fixed barrels. Inspect attachment before/during/after motion and turning, remote interpolation, old ACK ordering, current guide versus historical tracer/impact, keyboard/touch independence and updated HUD/help labels. Practice at http://localhost:4173/ supplies actual normal UI layout and input guards. Do not equate fixture scene transforms or no-op renderer checks with pixels; this run supplies no new rendered evidence.
+
+After local review and any focused corrections, a later publication decision must target the existing creator Site. Real hosted two-player acceptance then needs two existing authorized signed-in accounts and saved creations, with both screens observed under documented 50/150/300 ms representative RTT, movement/turning, retries, cover/protection, item changes, KO/respawn and round changes. Inspect exactly one damage/impact and no stale animation; compare old stored kits with ordinary free saved-blueprint rebuilds. No access expansion, private-token capture, paid generation or production reset. The current version 18 cannot validate these unpushed changes. Cross-browser speech is the next separate critical batch; the remaining roadmap is not implemented here.
