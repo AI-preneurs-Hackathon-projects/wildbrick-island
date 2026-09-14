@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=37/);assert.match(shell,/main\.js\?v=37/);
+assert.match(shell,/style\.css\?v=37/);assert.match(shell,/main\.js\?v=38/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -17,18 +17,18 @@ async function check(name,run){
 }
 const $=id=>document.getElementById(id);
 function setup(joinImpl=async()=>true){
- const state=createState(),joins=[];let starts=0,leaves=0,resets=0,arenaUI,entry;
+ const state=createState(),joins=[];let starts=0,leaves=0,resets=0,snapshots=0,arenaUI,entry;
  const exit=()=>{leaves++;state.arena=false;state.mode='foot';arenaUI.reset();ui.resetPlayUI();ui.update(state);};
  const exitHome=()=>{exit();state.started=false;ui.showEntry();};
- const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},resetPractice(){resets++;for(const key of ['gates','targets','crates','rings'])state[key]=[];state.bricks=0;state.won=false;ui.update(state);},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome,leaveArena:exit});
+ const ui=createUI({state:()=>state,snapshot(){snapshots++;},start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},resetPractice(){resets++;for(const key of ['gates','targets','crates','rings'])state[key]=[];state.bricks=0;state.won=false;ui.update(state);},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome,leaveArena:exit});
  arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name,room)=>{joins.push({name,room});return joinImpl();},leave:exit,exitHome,toast(){}});
- return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get resets(){return resets;},get entry(){return entry;}};
+ return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get resets(){return resets;},get snapshots(){return snapshots;},get entry(){return entry;}};
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
- const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','help','pause','mode-pill','mic','action','jump-equipped'])assert.equal($(id).closest('#hud'),$('hud'));app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
+ const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','snapshot','help','pause','mode-pill','mic','action','jump-equipped'])assert.equal($(id).closest('#hud'),$('hud'));assert.equal($('snapshot').getAttribute('aria-label'),'Take a snapshot');app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
- name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
+ name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');$('snapshot').click();assert.equal(app.snapshots,1);assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
 });
 await check('Explore keeps newer speech controls and shows the full Practice route without Arena or rewards',async()=>{
  const app=setup();name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('toast').textContent,'Practice on the island.\nFollow the gold beacon and Speak / Build to create.');assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);
