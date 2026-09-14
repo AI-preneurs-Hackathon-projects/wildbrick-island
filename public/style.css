@@ -155,3 +155,8 @@
 /* Eight builder colors in two even rows of four. */
 .avatar-colors{display:grid;grid-template-columns:repeat(4,44px);justify-content:center}
 .avatar-colors legend{grid-column:1/-1}
+
+/* Keep equipped creation names readable instead of truncating them. */
+.mode-pill{max-width:min(420px,calc(100vw - 56px))}
+.mode-pill span{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+.mode-pill{border-radius:11px}
