@@ -1,0 +1,11 @@
+PASS creator lobby stays immobile and diagnostics distinguish waiting from network stalls
+PASS bounded retained window, lifetime maximum, immutable export and sanitized input
+PASS browser observer cleanup cancels RAF, disconnects long tasks and removes listeners
+PASS observation preserves every packet/outcome at 0ms RTT with two active clients
+PASS observation preserves every packet/outcome at 100ms RTT with two active clients
+PASS observation preserves every packet/outcome at 600ms RTT with two active clients
+PASS observation preserves every packet/outcome at 1600ms RTT with two active clients
+PASS throwing diagnostic sink cannot break join, prediction or leave
+PASS transient failures remain recoverable; 401/410 remain terminal and leave drains timers
+PASS request diagnostics classify timeout, canceled and invalid JSON without raw errors
+10 diagnostics checks passed; virtual transport and observer lifecycle, no rendered or hosted acceptance.

@@ -86,6 +86,7 @@
 }
 .arena-round-clock{position:absolute;top:20px;left:50%;transform:translateX(-50%);padding:10px 18px;border-radius:20px;background:#fff8e9;color:#254139;font-weight:800;font-variant-numeric:tabular-nums;box-shadow:0 3px 12px #183d3522;pointer-events:none}
 .arena-results{position:absolute;z-index:25;top:50%;left:50%;transform:translate(-50%,-50%);width:min(460px,calc(100vw - 32px));max-height:70vh;overflow:auto;box-sizing:border-box;padding:26px;border-radius:24px;background:#fff8e9;box-shadow:0 12px 90px #183d3577;pointer-events:auto}
+.arena-waiting{position:absolute;z-index:25;top:50%;left:50%;transform:translate(-50%,-50%);width:min(440px,calc(100vw - 32px));box-sizing:border-box;padding:28px;border:2px solid var(--ink);border-radius:24px;background:#fff8e9;box-shadow:0 12px 90px #183d3577;text-align:center;pointer-events:auto}.arena-waiting h2{margin:8px 0 18px;font-variant-numeric:tabular-nums}.arena-waiting p{font-weight:800;margin:0 0 8px}.arena-waiting-players{display:grid;gap:7px;margin:0 0 16px}.arena-waiting-players div{padding:10px 12px;border-radius:10px;background:#e8efdc;font-weight:800}.arena-waiting-players .is-you{color:#b96120}.arena-waiting small{display:block;line-height:1.5;color:#607268}
 .arena-results h2{margin:8px 0}.arena-results p{font-size:14px;line-height:1.5}.arena-intermission{padding:18px 12px;background:#f8c33f;border-radius:14px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}.arena-results .arena-rank{grid-template-columns:24px 1fr 38px 40px}.arena-results .arena-rank small{font-size:14px}
 @media(max-width:700px){.arena-round-clock{top:92px;font-size:14px;padding:7px 12px}.arena-results{padding:20px;max-height:60vh}}
 
@@ -116,20 +117,23 @@
 
 /* Round and cumulative scores stay beside each other. */
 .arena-results{width:min(820px,calc(100vw - 28px));padding:22px 26px}
-.arena-score-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;text-align:left}
-.arena-score-columns>section{min-width:0}
+.arena-score-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;text-align:left}
+.arena-score-columns>section{min-width:0;padding:14px 16px;border:2px solid #254139;border-radius:14px;background:#fffdf7;box-shadow:0 3px 0 #25413922}
+.arena-score-columns>section+section{background:#e8efdc}
 .arena-score-columns h3{margin:10px 0 4px}
 .arena-score-columns .arena-rank{padding:6px 0;font-size:14px}
+#arena-exit-home{border:2px solid var(--ink);border-radius:12px;padding:12px 18px}
 #arena-buffs,#arena-network{background:#fffaf0ed;border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;font-weight:700;color:#2b708b}
-@media(max-width:600px){.arena-results{padding:18px 12px}.arena-score-columns{gap:12px}.arena-score-columns h3{font-size:16px}.arena-score-columns .arena-rank{grid-template-columns:minmax(0,1fr) 26px 29px;gap:4px;font-size:12px}.arena-score-columns .arena-rank>b{display:none}.arena-score-columns .arena-rank span{font-size:12px}.arena-results h2{font-size:28px}}
+@media(max-width:600px){.arena-results{padding:18px 12px}.arena-score-columns{gap:8px}.arena-score-columns>section{padding:10px 8px}.arena-score-columns h3{font-size:16px}.arena-score-columns .arena-rank{grid-template-columns:minmax(0,1fr) 26px 29px;gap:4px;font-size:12px}.arena-score-columns .arena-rank>b{display:none}.arena-score-columns .arena-rank span{font-size:12px}.arena-results h2{font-size:28px}}
 
-/* Voice choices share the existing build dock; recording leaves movement usable. */
-.voice-options {max-width:min(25rem,calc(100vw - 2rem));padding:.8rem;border-radius:1rem;background:#fff8e9;box-shadow:0 4px 20px #18373225;color:#233b36;pointer-events:auto;text-align:left;}
-.voice-options p {font-size:.875rem;line-height:1.4;margin:0 0 .6rem;}
-.voice-options button{font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
-.voice-options button:disabled {opacity:.5;cursor:default;}
-#record-voice {background:#254f45;color:#fff8e9;}
-.build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
+.arena-waiting .primary{width:100%;margin:2px 0 14px}.arena-waiting #arena-waiting-code{letter-spacing:3px}.arena-code-divider{display:flex;align-items:center;gap:10px;margin:16px 0 4px;color:#607268;font-size:13px;font-weight:800}.arena-code-divider::before,.arena-code-divider::after{content:"";height:1px;flex:1;background:#25413933}.arena-lobby #arena-join{width:100%;margin-top:10px}
+.generation-cancel-hint{display:block;margin-top:5px;color:#607268;font-weight:700}.generation-cancel-hint kbd{background:#fff;color:#254139;border:1px solid #254139;border-radius:5px;padding:1px 5px}
+.build-progress{padding-right:72px}.build-progress>small{display:block;margin:5px 0 0 27px;color:#607268;font-size:11px}.build-progress>#cancel-build{position:absolute;right:10px;top:10px;padding:7px 9px;border-radius:7px;background:#254139;color:#fffaf0;font-size:11px;font-weight:800}.build-progress>.progress-track{margin-right:-56px}
+
+/* Speech fallback is one compact typing action centered above Speak / Build. */
+.voice-options{pointer-events:auto;text-align:center;}
+.voice-options button{font:inherit;font-size:.875rem;font-weight:800;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .8rem;background:#fff8e9;color:#233b36;cursor:pointer;pointer-events:auto;box-shadow:0 3px 12px #18373220;}
+.build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 2rem);z-index:2;}
 .build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}
 
 /* Completed Practice state and its persistent collection shortcut. */

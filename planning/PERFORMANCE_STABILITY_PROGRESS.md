@@ -1,5 +1,17 @@
 # Arena performance and stability checkpoint
 
+## Current working agreement — latest-main merge and owner testing
+
+Yerzhan explicitly authorized merging latest main into this branch after the initial checkpoint. The earlier no-merge constraint below describes that initial session only. Push/deployment remain unauthorized. Before future performance behavior changes, follow `planning/PERFORMANCE_TESTING_WORKFLOW.md`: announce the exact next change and repeatable baseline test, let Yerzhan test before implementation, then provide the same after-test with evidence and limitations. Do not start the next behavioral task automatically.
+
+Latest main fetched: `543b215212ee0fbed04e2892455d34e9a53cea0d` (eight commits after the prior base). The merge has first parent `284503ad85754746ba50e1c70195ecd58ef3b952` and retains main's creator-started Arena rooms, equipment/build changes, snapshot controls and UI/voice refinements. Conflict resolution preserved the snapshot test plus diagnostics, the complete client start/join API and waiting-room restrictions, and module URL validation with missing-file coverage.
+
+Post-merge validation: full `npm run check` and `npm run build` pass; the two historical failing tests below now pass with main's updates. The added lobby/diagnostic integration test also passes (ten focused diagnostic groups total). Upstream-main versus merged diagnostic selected packet/outcome hashes match at all four RTTs. Prediction reason `4` now means any non-active round, including creator waiting, so waiting is not mislabeled as a network stall. An independent read-only review found no dropped upstream behavior or gameplay/authority changes from conflict resolution.
+
+Desktop Chrome 1440×900 Practice and two-client moving/firing synthetic scene were rendered and screenshots inspected. The diagnostic driver captured no page/console/request errors; its retained frame p99 is 16.8 ms with diagnostics both off and on. These software-WebGL samples verify the merge/observer smoke, not a speedup. No new soak or hosted two-player acceptance is claimed for the merge; the six-minute soak below belongs to the earlier checkpoint. See `validation/performance-stability/main-merge/` for the new receipt. All 21 pre-existing dirty/untracked files were verified byte-identical after merging.
+
+**No performance improvement has been implemented or established by our diagnostics.** The proposed next task is a playable local two-client network reproduction that Yerzhan can test before any prediction/recovery fix. It has not started. The merged commit will be the new baseline; do not compare future improvements against pre-merge UI/lobby behavior and attribute all differences to performance work.
+
 ## Contract and source receipt — 2026-09-14
 
 Single implementation owner/session; diagnostics first and at most one behavioral improvement. Desktop browser only at 1440×900. No merge, push, deployment, paid requests or database operations.

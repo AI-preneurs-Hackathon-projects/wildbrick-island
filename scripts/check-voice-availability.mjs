@@ -88,10 +88,10 @@ test('synchronous cancellation from presentation callbacks cannot open microphon
  }
 });
 
-test('configuration can be enabled after an unavailable attempt; retry checks fresh state without a native loop',async()=>{
+test('configuration can be enabled after an unavailable attempt while Speak retries native speech',async()=>{
  const f=fixture();try{
   f.source.status=async()=>Response.json({configured:false});await f.voice.record();assert.equal(f.micCalls,0);
-  f.voice.start();assert.equal(f.requests().length,1,'Speak alone never grants recording consent');assert.equal(f.recognizers.length,0);
+  f.voice.start();assert.equal(f.requests().length,1,'Speak alone never grants recording consent');assert.equal(f.recognizers.length,1);f.voice.stop();
   f.source.status=async()=>Response.json({configured:true});await f.voice.record();assert.equal(f.requests().length,2);assert.equal(f.micCalls,1);assert.equal(f.voice.state,'recording');
  }finally{f.close();}
 });

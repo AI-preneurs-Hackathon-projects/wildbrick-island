@@ -1,0 +1,62 @@
+{
+  "main": "543b215212ee0fbed04e2892455d34e9a53cea0d",
+  "firstParent": "284503ad85754746ba50e1c70195ecd58ef3b952",
+  "fullCheck": "passed",
+  "build": "passed: 67 assets",
+  "additionalDiagnosticGroups": 10,
+  "scope": "Merged-source validation; no performance improvement or new real-time soak claimed. Synthetic fixtures auto-start; creator-lobby semantics have separate client/core/API tests.",
+  "sourceSha256": {
+    "public/arena-client.js": "6fb26940cc0f19699aa3bfff4fe179062ad86c04e7e3374c1057eb72b17a3d3e",
+    "public/arena-core.js": "e8b1f9dd5ffbbd9068bfa9e43a2b242830b57bd9721343a349294833f223de0f",
+    "public/arena-diagnostics.js": "f2b54b5277a068b56c72d3314863e670ab8853a7a2626865a36ca7129ac72211",
+    "scripts/check-arena-diagnostics.mjs": "758b5ae3c57df3a146b3e4fa6bad90a991debc8e13fadbb6d0a9e6d9a949fcbb",
+    "scripts/check.mjs": "b9a6444edc4462c81a767f8d9f737f60a2bf69ba930602157e8bf26e0870ecd7",
+    "package.json": "16b8601414093186495a26f17ee7bc1e0c3b2af6296dc7ca3ca5f97d21c03f17"
+  },
+  "parity": [
+    {
+      "rttMs": 0,
+      "upstreamPacketDigest": "cd1d16f3fc2f23273df1735bc5b412d97afa000a4c96069bdc9c86ef2ae7f825",
+      "mergedPacketDigest": "cd1d16f3fc2f23273df1735bc5b412d97afa000a4c96069bdc9c86ef2ae7f825",
+      "upstreamOutcomeDigest": "1d952311625c8593319d946552fea7cc245705ba716cde0a34c10ef4cb865e2c",
+      "mergedOutcomeDigest": "1d952311625c8593319d946552fea7cc245705ba716cde0a34c10ef4cb865e2c",
+      "zeroMovement": [
+        0,
+        0
+      ]
+    },
+    {
+      "rttMs": 100,
+      "upstreamPacketDigest": "ec673ba77ae3c800ab549eb9ad9e058aa648ebdeaaa5487ff8b685defc2a0315",
+      "mergedPacketDigest": "ec673ba77ae3c800ab549eb9ad9e058aa648ebdeaaa5487ff8b685defc2a0315",
+      "upstreamOutcomeDigest": "a00941a0957349ec10310014acbbc0eaf2ed24227cb28de570937ce4e9def541",
+      "mergedOutcomeDigest": "a00941a0957349ec10310014acbbc0eaf2ed24227cb28de570937ce4e9def541",
+      "zeroMovement": [
+        0,
+        0
+      ]
+    },
+    {
+      "rttMs": 600,
+      "upstreamPacketDigest": "b165fb648814581de81a09253dbf2f5b0a6125c4cd9628c185e2ebd9415bf935",
+      "mergedPacketDigest": "b165fb648814581de81a09253dbf2f5b0a6125c4cd9628c185e2ebd9415bf935",
+      "upstreamOutcomeDigest": "55cb85907e6af9071e8945bf21b3fbe6e2c60830279c132916741b1fbdaa66ad",
+      "mergedOutcomeDigest": "55cb85907e6af9071e8945bf21b3fbe6e2c60830279c132916741b1fbdaa66ad",
+      "zeroMovement": [
+        0,
+        0
+      ]
+    },
+    {
+      "rttMs": 1600,
+      "upstreamPacketDigest": "fba93a3411d2a051ade25dd6bf9a1db870d6d41d28ecc1e9672443e8dc3c1fc1",
+      "mergedPacketDigest": "fba93a3411d2a051ade25dd6bf9a1db870d6d41d28ecc1e9672443e8dc3c1fc1",
+      "upstreamOutcomeDigest": "214a913a2249234e628b3dd92fcd9a3aae3aa41a846963f1022e7fc3f8b81252",
+      "mergedOutcomeDigest": "214a913a2249234e628b3dd92fcd9a3aae3aa41a846963f1022e7fc3f8b81252",
+      "zeroMovement": [
+        369,
+        369
+      ]
+    }
+  ]
+}

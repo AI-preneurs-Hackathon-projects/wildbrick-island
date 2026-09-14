@@ -7,7 +7,7 @@ import {JSDOM} from 'jsdom';
 import * as THREE from '../public/vendor/three.module.js';
 import {createArenaClient} from '../public/arena-client.js';
 import {createArenaView} from '../public/arena-view.js';
-import {makeKit,attackBlockReason} from '../public/arena-core.js';
+import {makeKit,attackBlockReason,advanceRoom} from '../public/arena-core.js';
 import {newMotion} from '../public/movement-stream.js';
 import {WORLD_ENTITIES} from '../public/world-data.js';
 import {arenaStore} from '../worker/arena-store.js';
@@ -38,7 +38,10 @@ for(const rtt of [50,150,300]){
  }
  const a=peer('test-shooter'),b=peer('test-target');
  try{
-  assert.deepEqual(await Promise.all([a.client.join('Shooter','TEST'),b.client.join('Target','TEST')]),[true,true]);
+  assert.equal(await a.client.join('Shooter','TEST',undefined,true),true);
+  assert.equal(await b.client.join('Target','TEST'),true);
+  assert.equal(await a.client.start(),true);
+  await until(()=>peers.every(p=>p.client.snapshot?.round?.status==='active'),'creator started coded arena');
   const shooter=a.client.snapshot.self,target=b.client.snapshot.self;
   // Verify the actual endpoint rejects anonymous requests and crossed principals.
   assert.equal((await handleArenaAPI(new Request('https://brickwild.test/api/arena/sync',{method:'POST',body:'{}'}),{DB})).status,401);

@@ -8,14 +8,14 @@ const container=t=>String(t||'').split(';')[0].trim().toLowerCase();
 
 // All browser effects are owned by one attempt. Injected platform objects are for
 // isolated tests; the production UI always uses the same-origin fetch below.
-export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback=()=>{},platform={}}){
+export function createVoice({onCommand,onState=()=>{},onFallback=()=>{},platform={}}){
  const browser=globalThis.window||globalThis;
  const Recognition=platform.Recognition===undefined?(browser.SpeechRecognition||browser.webkitSpeechRecognition):platform.Recognition;
  const Recorder=platform.MediaRecorder===undefined?browser.MediaRecorder:platform.MediaRecorder;
  const media=platform.mediaDevices||globalThis.navigator?.mediaDevices;
  const send=platform.fetch||globalThis.fetch,now=platform.now||(()=>performance.now());
  const later=platform.setTimeout||setTimeout,clear=platform.clearTimeout||clearTimeout;
- let serial=0,current=null,state='idle',preferRecording=false;
+ let serial=0,current=null,state='idle';
  const alive=a=>current===a&&a.id===serial;
  function notify(s,text){state=s;onState(s,text);}
  function timer(a,name,ms,fn){clear(a.timers.get(name));a.timers.set(name,later(()=>{a.timers.delete(name);if(alive(a))fn();},ms));}
@@ -30,7 +30,7 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
  function retire(a){if(!alive(a))return false;current=null;serial++;cleanup(a);return true;}
  function stop(){const a=current;if(a)retire(a);else serial++;notify('canceled','');}
  function begin(route){if(current)retire(current);const a={id:++serial,route,timers:new Map(),chunks:[],bytes:0,final:'',finalAt:0,stopping:false};current=a;return a;}
- function offer(message,draft='',available=true){preferRecording=true;notify('error',message);onNotice(message,6000);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
+ function offer(message,draft='',available=true){notify('error',message);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
  function fail(a,message,draft='',available=true){if(retire(a))offer(message,draft,available);}
  function complete(a,text){
   if(!alive(a))return;
@@ -48,7 +48,7 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
  }
  function start(){
   if(current){if(['listening','recording'].includes(state))stopCapture(current);else if(['checking','requesting-permission'].includes(state))stop();return;}
-  if(preferRecording||!Recognition){offer('Record your idea instead, or type it.');return;}
+  if(!Recognition){offer('Type an idea instead.');return;}
   const a=begin('native');notify('requesting-permission','Starting speech…');
   timer(a,'startup',VOICE_LIMITS.startMs,()=>fail(a,'Speech did not start. Record instead or type an idea.'));
   try{
@@ -69,10 +69,10 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
    complete(a,data.text);
   }catch{if(alive(a))fail(a,'The recording could not be transcribed. No automatic retry was sent.');}
  }
- // This method must only be called by the explicit Record action next to the
- // audio-upload notice. Preference never silently grants recording/upload consent.
+ // Retained for isolated recording lifecycle checks. The game UI routes speech
+ // failures to typing and never starts recorded upload automatically.
  async function record(){
-  if(current)return;preferRecording=true;const a=begin('recorded'),mime=recordingType(Recorder);
+  if(current)return;const a=begin('recorded'),mime=recordingType(Recorder);
   if(!mime||!media?.getUserMedia){fail(a,'Recording is unavailable in this browser. Type an idea or try another browser.');return;}
   notify('checking','Checking recorded voice…');if(!alive(a))return;a.abort=new AbortController();
   timer(a,'availability',VOICE_LIMITS.startMs,()=>fail(a,'Could not check recorded voice. Try Speak again later, or type an idea.','',false));

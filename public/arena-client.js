@@ -2,7 +2,7 @@ import {solveWeaponAim} from './aiming.js';
 import {MAP_CYCLE} from './map-catalog.js';
 import {weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
-import {predictPlayer,cleanInput} from './arena-core.js';
+import {predictPlayer,cleanInput} from './arena-core.js?v=40';
 import {MOVE_DT} from './movement.js';
 import {packFrame,frameInput,MAX_MOVE_FRAMES} from './movement-stream.js';
 import {validateBlueprint} from './blueprint.js';
@@ -51,25 +51,26 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);status('expired');onError(e.message,e.status);}else{status('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
- async function join(name,room,avatarColor){
+ async function join(name,room,avatarColor,create=false){
   if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;status('joining');
   try{
    if(generation!==lifecycle)return false;
-   const result=await request('/api/arena/join',{name,room,avatarColor,motionVersion:1,mapVersion:1,resume:ticket});
+   const result=await request('/api/arena/join',{name,room,create,avatarColor,motionVersion:1,mapVersion:1,resume:ticket});
    if(generation!==lifecycle){request('/api/arena/leave',{session:result.session,token:result.token}).catch(()=>{});return false;}
    view.reset();self=null;snapshot=null;commands=[];predictedCommands.clear();previewAt=-Infinity;seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};
    roomCode=result.room;credentials={session:result.session,token:result.token};accept(result.snapshot);schedule();return true;
   }catch(e){if(generation===lifecycle){credentials=null;status('offline');onError(e.message,e.status);}return false;}finally{if(generation===lifecycle)joining=false;}
  }
+ async function start(){if(!credentials||snapshot?.round?.status!=='waiting')return false;try{const result=await request('/api/arena/start',credentials);accept(result.snapshot);schedule(0);return true;}catch(e){onError(e.message,e.status);return false;}}
  async function leave(){lifecycle++;joining=false;closed=true;clearTimer(timer);const old=credentials||joinTicket;joinTicket=null;credentials=null;self=null;snapshot=null;view.reset();commands=[];predictedCommands.clear();frames=[];accumulator=0;jumpQueued=false;input={};status('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
- function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status==='finished'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;const id=++commandId;commands.push({id,type,mode,blueprint});if(type==='fire')previewAttack(id);schedule(0);return true;}
+ function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status!=='active'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;const id=++commandId;commands.push({id,type,mode,blueprint});if(type==='fire')previewAttack(id);schedule(0);return true;}
  function previewAttack(id){const time=serverTime(),k=self?.kit.stats;if(!k||clock()-lastSuccess>=1000||self.health<=0||self.building||!k.damage||time<self.protectedUntil||time<self.overheatedUntil||clock()-previewAt<k.interval*1000)return;previewAt=clock();predictedCommands.add(id);while(predictedCommands.size>64)predictedCommands.delete(predictedCommands.values().next().value);const pose=view.state||self,aim=solveWeaponAim(snapshot,pose);onEvent({type:'attack-preview',commandId:id,player:self.id,weapon:k.weapon,yaw:aim.yaw,pitch:0,origin:aim.launchContact?aim.anchor:aim.muzzle,muzzle:aim.muzzle,aimYaw:aim.yaw,aimCorrection:aim.correction,roundId:snapshot.round?.id,spawnSerial:pose.spawnSerial||0,kitId:pose.kit.id,time},self.id);}
 
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){
-  if(snapshot?.round?.status==='finished')newInput={};const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
-  const predictionReason=diagnostics?(!self?0:!credentials?5:snapshot?.round?.status==='finished'?4:!fresh?2:frames.length>=MAX_MOVE_FRAMES?3:1):0;
-  if(self&&snapshot&&fresh&&snapshot.round?.status!=='finished'){
+  if(snapshot?.round?.status!=='active')newInput={};const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
+  const predictionReason=diagnostics?(!self?0:!credentials?5:snapshot?.round?.status!=='active'?4:!fresh?2:frames.length>=MAX_MOVE_FRAMES?3:1):0;
+  if(self&&snapshot&&fresh&&snapshot.round?.status==='active'){
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){
     const frame=packFrame(++nextFrame,{...input,jump:jumpQueued});jumpQueued=false;frames.push(frame);predictPlayer(self,frameInput(frame),MOVE_DT,{...snapshot,time:serverTime(),preview:true});accumulator-=MOVE_DT;
@@ -83,5 +84,5 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   if(diagnostics)diagnose('tick',{at:clock(),age:snapshot?clock()-lastSuccess:undefined,pending:frames.length,reason:predictionReason});
   return pose;
  }
- return {join,leave,tick,command,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return !!credentials;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !credentials||clock()-lastSuccess>1000;},serverTime};
+ return {join,start,leave,tick,command,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return !!credentials;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !credentials||clock()-lastSuccess>1000;},serverTime};
 }

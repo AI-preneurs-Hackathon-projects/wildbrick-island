@@ -258,13 +258,13 @@ await check('replacing all three rendered worlds removes old geometry and preser
   world.setDestroyed([map.entities.find(e=>e.hp>0).id]);world.setDestroyed([]);world.dispose();assert.deepEqual(scene.children,[retained]);
  }
 });
-await check('SQLite-backed API rejects stale map clients before movement or attacks and accepts updated reconnects and late joins',async()=>{
+await check('SQLite-backed API rejects stale map clients and late joins while accepting an updated reconnect',async()=>{
  const sqlite=new DatabaseSync(':memory:');
  try{
   for(const name of fs.readdirSync(new URL('../drizzle',import.meta.url)).filter(n=>n.endsWith('.sql')).sort())sqlite.exec(fs.readFileSync(new URL('../drizzle/'+name,import.meta.url),'utf8'));
   const DB={prepare(sql){return {bind(...args){return {async first(){await Promise.resolve();return sqlite.prepare(sql).get(...args)||null;},async run(){await Promise.resolve();const result=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(result.changes)}};}};}};}};
   const api=(path,body,principal='fixture-owner')=>handleArenaAPI(new Request('https://brickwild.test/api/arena/'+path,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://brickwild.test','oai-authenticated-user-id':principal},body:JSON.stringify(body)}),{DB});
-  const initial=await api('join',{name:'Legacy',room:'MAPTEST',motionVersion:1});assert.equal(initial.status,200);
+  const initial=await api('join',{name:'Legacy',room:'MAPTEST',create:true,motionVersion:1});assert.equal(initial.status,200);
   const joined=await initial.json(),credentials={session:joined.session,token:joined.token};assert.equal(joined.snapshot.round.mapId,'island');
   const store=arenaStore(DB);await store.mutate('MAPTEST',r=>{r.round.status='finished';r.round.intermissionEndsAt=r.time-1;});
   const refresh=await api('sync',{...credentials,seq:1,mapVersion:1,input:{}});assert.equal(refresh.status,200);const beach=(await refresh.json()).snapshot;assert.equal(beach.round.mapId,'beach');
@@ -279,10 +279,8 @@ await check('SQLite-backed API rejects stale map clients before movement or atta
   const oldJoin=await api('join',{name:'Old late join',room:'MAPTEST',motionVersion:1},'old-late');assert.equal(oldJoin.status,410);assert.equal(sqlite.prepare('SELECT COUNT(*) AS count FROM arena_sessions').get().count,sessions,'rejected joins do not leak a reserved session');
   const reconnect=await api('join',{name:'Refreshed',room:'MAPTEST',motionVersion:1,mapVersion:1,resume:credentials});assert.equal(reconnect.status,200);
   const resumed=await reconnect.json();assert.equal(resumed.snapshot.self,joined.snapshot.self);assert.equal(resumed.snapshot.round.mapId,'beach');
-  const late=await api('join',{name:'Current late join',room:'MAPTEST',motionVersion:1,mapVersion:1},'new-late');assert.equal(late.status,200);
-  const current=await late.json();assert.equal(current.snapshot.round.mapId,'beach');assert.equal(current.snapshot.round.endsAt,resumed.snapshot.round.endsAt);
-  assert.ok(current.snapshot.players.some(p=>p.id===resumed.snapshot.self));
-  await api('leave',credentials);await api('leave',{session:current.session,token:current.token},'new-late');
+  const late=await api('join',{name:'Current late join',room:'MAPTEST',motionVersion:1,mapVersion:1},'new-late');assert.equal(late.status,409);assert.match((await late.json()).error,/already in progress/);
+  await api('leave',credentials);
  }finally{sqlite.close();}
 });
 console.log(`\n${checks} map rotation, collision, client transition, rendering and SQLite API checks passed.`);

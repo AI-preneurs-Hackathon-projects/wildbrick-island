@@ -3,8 +3,22 @@ import {createHash} from 'node:crypto';
 import {createArenaDiagnostics} from '../public/arena-diagnostics.js';
 import {createArenaClient} from '../public/arena-client.js';
 import {performanceFixture} from './lib/performance-fixture.mjs';
+import {newRoom,queuePlayer,startRoom,roomSnapshot} from '../public/arena-core.js';
+import {newMotion} from '../public/movement-stream.js';
 
 let checks=0;async function check(name,fn){await fn();checks++;console.log('PASS '+name);}
+await check('creator lobby stays immobile and diagnostics distinguish waiting from network stalls',async()=>{
+ let now=100000,createFlag;const room=newRoom(now,'lobby-diagnostics'),d=createArenaDiagnostics();
+ const client=createArenaClient({}, {diagnostics:d,clock:()=>now,setTimer:()=>0,clearTimer(){},fetcher:async(path,options)=>{
+  const packet=JSON.parse(options.body||'{}');
+  if(path.endsWith('/join')){createFlag=packet.create;const p=queuePlayer(room,'host','Local host',now);p.motion=newMotion(now);room.revision++;return {ok:true,status:200,json:async()=>({room:'LOCAL',session:p.id,token:'local-only',snapshot:structuredClone(roomSnapshot(room,p.id))})};}
+  if(path.endsWith('/start')){startRoom(room,'host',now);room.revision++;return {ok:true,status:200,json:async()=>({snapshot:structuredClone(roomSnapshot(room,'host'))})};}
+  return {ok:true,status:200,json:async()=>({})};
+ }});
+ assert.equal(await client.join('Local host','LOCAL',undefined,true),true);assert.equal(createFlag,true);
+ const before={x:client.self.x,z:client.self.z};client.tick(1/60,{z:1,fire:true});assert.deepEqual({x:client.self.x,z:client.self.z},before);assert.equal(client.command('build','bow'),false);assert.equal(d.export().predictionReasons[4],1);assert.equal(d.export().predictionReasons[2],0);
+ now+=500;assert.equal(await client.start(),true);assert.equal(client.snapshot.round.status,'active');client.tick(1/60,{z:1});assert.equal(d.export().predictionReasons[1],1);assert.ok(d.export().metrics.pendingFrames.lifetimeMax>0);await client.leave();assert.equal(d.export().inFlight,0);
+});
 await check('bounded retained window, lifetime maximum, immutable export and sanitized input',()=>{
  const d=createArenaDiagnostics({capacity:4});for(const duration of [1000,2,3,4,5,6])d.record('request-end',{duration,status:200,failure:0,token:'DO_NOT_RETAIN',error:'PRIVATE'});
  d.record('unknown',{secret:'PRIVATE'});d.record('tick',{age:NaN,pending:Infinity,reason:999});

@@ -1,6 +1,6 @@
-import {ACTION_BINDINGS,keyAction,typingTarget,gameplayBlocked} from './action-bindings.js';
+import {ACTION_BINDINGS,keyAction,typingTarget,gameplayBlocked} from './action-bindings.js?v=42';
 // Left hand: WASD/Shift and Q/E/R/F camera. Right hand: arrow actions.
-export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{},onJump=()=>{},onPause=()=>{},onMic=()=>{},onHotkeys=()=>{},onControls=()=>{},onCollection=()=>{},onSlot=()=>false,onPickup=()=>false,onHome,getState}){
+export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{},onJump=()=>{},onPause=()=>{},onMic=()=>{},onHotkeys=()=>{},onControls=()=>{},onCollection=()=>{},onSnapshot=()=>{},onSlot=()=>false,onPickup=()=>false,onHome,getState}){
  const keys=new Set(),touchPointers=new Map(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,drag=null,joyPointer=null,up=false,down=false,fire=false,fireTap=false,fireFrame=false,composing=false;
  const scene=document.querySelector('#scene'),joy=document.querySelector('#joystick'),knob=document.querySelector('#joy-knob');
  const typing=typingTarget;
@@ -20,6 +20,7 @@ export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{
   if(e.repeat||keys.has(code))return;keys.add(code);
   if(Number.isInteger(slot)){onSlot(slot);return;}
   if(action==='collection'){onCollection();return;}
+  if(action==='snapshot'){onSnapshot();return;}
   if(action==='speak'){onMic();return;}
   if(action==='drop'||action==='pickup'){const state=getState();if(!state.building)(state.carrying??(state.mode!=='foot'||!!state.custom)?onDrop:onPickup)();return;}
   if(action==='rise'&&getState().mode!=='plane')onJump();
