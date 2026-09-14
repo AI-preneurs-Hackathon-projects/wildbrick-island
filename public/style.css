@@ -166,3 +166,11 @@
 .practice-side-controls{position:absolute;top:76px;left:28px;width:250px;display:grid;gap:8px}
 .practice-side-controls .practice-creations,.practice-side-controls .movement-controls{position:static;width:100%;margin:0;transform:none}
 @media(max-width:900px){.practice-route{top:76px;right:16px}.practice-side-controls{top:76px;left:16px;width:220px}}
+
+/* Help uses two simple hand-based shortcut lists. */
+.help-control-sections{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.help-control-sections h3{margin:0 0 12px;font-size:15px}
+.help-key-lines{display:grid;gap:8px;margin:0}
+.help-key-lines>div{display:grid;grid-template-columns:92px 1fr;align-items:center;gap:10px}
+.help-key-lines dt,.help-key-lines dd{margin:0}
+.help-key-lines dd{font-size:13px;font-weight:700}
