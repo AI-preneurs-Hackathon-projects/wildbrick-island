@@ -44,6 +44,7 @@
 @media(max-height:550px){.tutorial{padding:15px;width:min(620px,calc(100vw - 24px))}.tour-image{width:40%;float:left;margin:8px 20px 12px 0}.tutorial h2{font-size:27px;margin-top:10px}.tutorial p{font-size:15px}.tutorial .primary{width:auto;min-height:46px}.arena-vitals{top:65px}.in-arena .generation{top:75px;left:50%;max-width:300px}.build-dock{bottom:15px}.build-dock .mic-button{height:52px}.voice-status{max-height:40px}.in-arena .build-progress{bottom:115px}}
 
 .build-dock .mic-button{border-radius:16px;flex-direction:row}.build-dock .mic-button svg{width:25px;height:25px}.mic-button::after{display:none}.voice-status:empty{display:none}
+.tutorial .tour-tip{display:flex;align-items:center;justify-content:center;gap:8px;margin:-6px 0 18px;font-size:14px;font-weight:800;color:var(--ink-soft)}.tutorial .tour-tip kbd{min-width:30px;min-height:28px;padding:3px 8px}
 #arena-explore{width:100%;min-height:44px;margin-top:12px}
 @media(max-width:600px){.arena-vitals{width:calc(54% - 18px)}.arena-board,.arena-board[open]{width:calc(46% - 18px)}.arena-rank{grid-template-columns:minmax(0,1fr) 22px;gap:6px}.arena-rank>b,.arena-rank>small{display:none}.arena-rank span{font-size:12px}.arena-health-label{gap:5px;flex-wrap:wrap}.arena-health-label strong{white-space:nowrap}}
 /* Shared player entry and the two existing game modes. */
