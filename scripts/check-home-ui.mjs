@@ -24,9 +24,9 @@ function setup(joinImpl=async()=>true){
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
- const app=setup();for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
+ const app=setup();assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
- name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
+ name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
 });
 await check('Explore keeps newer speech controls and shows the full Practice route without Arena or rewards',async()=>{
  const app=setup();name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);
@@ -37,7 +37,7 @@ await check('Explore keeps newer speech controls and shows the full Practice rou
 await check('failed authentication preserves sign-in and Exit to home returns to the home screen',async()=>{
  const app=setup(async()=>{app.arenaUI.error('Sign in',401);return false;});name('Sky');$('start').click();await app.entry;
  assert.equal($('arena-sign-in').classList.contains('hidden'),false);assert.equal($('arena-sign-in').target,'_top');assert.equal(new URL($('arena-sign-in').href).searchParams.get('return_to'),'/');assert.equal(window.sessionStorage.getItem('brickwild-player-name'),'Sky');
- assert.equal($('arena-explore').textContent,'Exit to home');$('arena-explore').click();assert.equal(app.leaves,1);assert.equal(app.state.started,false);assert.equal($('arena-lobby').open,false);assert.equal($('arena-join-error').textContent,'');assert.equal($('arena-sign-in').classList.contains('hidden'),true);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('intro').classList.contains('hidden'),false);
+ assert.equal($('arena-explore').textContent,'Exit to home');$('arena-explore').click();assert.equal(app.leaves,1);assert.equal(app.state.started,false);assert.equal($('arena-lobby').open,false);assert.equal($('arena-join-error').textContent,'');assert.equal($('arena-sign-in').classList.contains('hidden'),true);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');assert.equal($('intro').classList.contains('hidden'),false);
 });
 await check('pause exit returns home in online, reconnecting, expired, offline and dead states',()=>{
  const app=setup();name('River');$('explore-start').click();const room=newRoom(),p=addPlayer(room,'p','River');
