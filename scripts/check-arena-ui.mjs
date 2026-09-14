@@ -57,7 +57,7 @@ check('arrow actions combine movement, attack and speech without moving the came
 check('Hotkeys opens and closes by button, H and Escape; presets are absent',()=>{
  input.clear();assert.equal(document.querySelectorAll('[data-build]').length,0);assert.equal(document.querySelector('#help span').textContent,'Help');
  const before=builds.length;for(const code of ['Digit1','Digit2','Digit3','Digit4']){key('keydown',code);key('keyup',code);}assert.equal(builds.length,before);
- document.querySelector('#help').click();const menu=document.querySelector('#menu');assert.ok(menu.open);assert.ok(state.paused);assert.equal(menu.querySelectorAll('.arrow-hotkeys kbd').length,4);assert.doesNotMatch(menu.textContent,/Backspace|Rise|Lower/);assert.match(menu.textContent,/Jump \/ Up/);assert.match(menu.textContent,/Down/);assert.doesNotMatch(menu.textContent,/Touch controls/);
+ document.querySelector('#help').click();const menu=document.querySelector('#menu');assert.ok(menu.open);assert.ok(state.paused);assert.equal(menu.querySelectorAll('.arrow-hotkeys kbd').length,4);assert.doesNotMatch(menu.textContent,/Backspace|Rise|Lower/);assert.match(menu.textContent,/Jump \/ Up/);assert.match(menu.textContent,/Down/);assert.doesNotMatch(menu.textContent,/Touch controls|Parachutes carry|Menus stop your controls/);
  key('keydown','KeyH');assert.equal(menu.open,false);assert.equal(state.paused,false);key('keydown','KeyP');assert.equal(menu.open,false);key('keyup','KeyP');key('keydown','KeyH');assert.ok(menu.open);key('keydown','Escape');assert.equal(menu.open,false);
  document.querySelector('#help').click();document.querySelector('#close-menu').click();assert.equal(menu.open,false);assert.equal(state.paused,false);
 });
