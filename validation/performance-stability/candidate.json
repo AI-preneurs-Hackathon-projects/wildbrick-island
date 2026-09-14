@@ -1,0 +1,1445 @@
+{
+  "environment": "virtual clock, in-process fetch, real clients and authoritative core; no HTTP/store/rendering",
+  "results": [
+    {
+      "latencyMs": 0,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 102,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 102,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 4,
+        "players": 0
+      },
+      "packetDigest": "cd1d16f3fc2f23273df1735bc5b412d97afa000a4c96069bdc9c86ef2ae7f825",
+      "outcomeDigest": "1d952311625c8593319d946552fea7cc245705ba716cde0a34c10ef4cb865e2c",
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:17.971Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100000,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 100000,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 100018.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 112002.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 102,
+              "retained": 102,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 58.66666667010577,
+              "p95": 115.33333333392511,
+              "p99": 118.6666666687961,
+              "windowMax": 118.66666667001846,
+              "lifetimeMax": 118.66666667001846
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 4,
+              "p95": 7,
+              "p99": 8,
+              "windowMax": 8,
+              "lifetimeMax": 8
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 100,
+              "retained": 100,
+              "p50": 120,
+              "p95": 120,
+              "p99": 120,
+              "windowMax": 120,
+              "lifetimeMax": 120
+            },
+            "ackAdvance": {
+              "count": 100,
+              "retained": 100,
+              "p50": 7,
+              "p95": 8,
+              "p99": 8,
+              "windowMax": 8,
+              "lifetimeMax": 8
+            },
+            "correctionM": {
+              "count": 100,
+              "retained": 100,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 102,
+            "request-end": 102,
+            "snapshot": 101,
+            "tick": 720,
+            "status": 103,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            102,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 102
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:17.972Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100001,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 100001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 100018.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 112002.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 102,
+              "retained": 102,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 57.66666667010577,
+              "p95": 114.33333333392511,
+              "p99": 117.6666666687961,
+              "windowMax": 117.66666667001846,
+              "lifetimeMax": 117.66666667001846
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 4,
+              "p95": 7,
+              "p99": 8,
+              "windowMax": 8,
+              "lifetimeMax": 8
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 100,
+              "retained": 100,
+              "p50": 120,
+              "p95": 120,
+              "p99": 120,
+              "windowMax": 120,
+              "lifetimeMax": 120
+            },
+            "ackAdvance": {
+              "count": 100,
+              "retained": 100,
+              "p50": 7,
+              "p95": 8,
+              "p99": 8,
+              "windowMax": 8,
+              "lifetimeMax": 8
+            },
+            "correctionM": {
+              "count": 100,
+              "retained": 100,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 102,
+            "request-end": 102,
+            "snapshot": 101,
+            "tick": 720,
+            "status": 103,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            102,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 102
+          }
+        }
+      ]
+    },
+    {
+      "latencyMs": 100,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 57,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 57,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 6,
+        "players": 0
+      },
+      "packetDigest": "ec673ba77ae3c800ab549eb9ad9e058aa648ebdeaaa5487ff8b685defc2a0315",
+      "outcomeDigest": "a00941a0957349ec10310014acbbc0eaf2ed24227cb28de570937ce4e9def541",
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.009Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100000,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 100100,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 100218.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 112202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 57,
+              "retained": 57,
+              "p50": 100,
+              "p95": 100,
+              "p99": 100,
+              "windowMax": 100,
+              "lifetimeMax": 100
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 112.00000000077125,
+              "p95": 208.6666666691308,
+              "p99": 218.66666666766105,
+              "windowMax": 218.66666666990204,
+              "lifetimeMax": 218.66666666990204
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 13,
+              "p95": 19,
+              "p99": 20,
+              "windowMax": 20,
+              "lifetimeMax": 20
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 55,
+              "retained": 55,
+              "p50": 220,
+              "p95": 220,
+              "p99": 220,
+              "windowMax": 220,
+              "lifetimeMax": 220
+            },
+            "ackAdvance": {
+              "count": 55,
+              "retained": 55,
+              "p50": 13,
+              "p95": 14,
+              "p99": 14,
+              "windowMax": 14,
+              "lifetimeMax": 14
+            },
+            "correctionM": {
+              "count": 55,
+              "retained": 55,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 57,
+            "request-end": 57,
+            "snapshot": 56,
+            "tick": 720,
+            "status": 58,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            57,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 57
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.009Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100101,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 100201,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 100218.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 112202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 57,
+              "retained": 57,
+              "p50": 100,
+              "p95": 100,
+              "p99": 100,
+              "windowMax": 100,
+              "lifetimeMax": 100
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 107.66666666945093,
+              "p95": 207.6666666691599,
+              "p99": 217.66666666769015,
+              "windowMax": 217.66666666993115,
+              "lifetimeMax": 217.66666666993115
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 13,
+              "p95": 19,
+              "p99": 20,
+              "windowMax": 20,
+              "lifetimeMax": 20
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 54,
+              "retained": 54,
+              "p50": 220,
+              "p95": 220,
+              "p99": 220,
+              "windowMax": 220,
+              "lifetimeMax": 220
+            },
+            "ackAdvance": {
+              "count": 54,
+              "retained": 54,
+              "p50": 13,
+              "p95": 14,
+              "p99": 14,
+              "windowMax": 14,
+              "lifetimeMax": 14
+            },
+            "correctionM": {
+              "count": 54,
+              "retained": 54,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 57,
+            "request-end": 57,
+            "snapshot": 55,
+            "tick": 720,
+            "status": 57,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            57,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 57
+          }
+        }
+      ]
+    },
+    {
+      "latencyMs": 600,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 20,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 19,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 8,
+        "players": 0
+      },
+      "packetDigest": "b165fb648814581de81a09253dbf2f5b0a6125c4cd9628c185e2ebd9415bf935",
+      "outcomeDigest": "55cb85907e6af9071e8945bf21b3fbe6e2c60830279c132916741b1fbdaa66ad",
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.031Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100000,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 100600,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 101218.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 113202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 20,
+              "retained": 20,
+              "p50": 600,
+              "p95": 600,
+              "p99": 600,
+              "windowMax": 600,
+              "lifetimeMax": 600
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 352.00000000307045,
+              "p95": 685.3333333344053,
+              "p99": 715.3333333335759,
+              "windowMax": 718.6666666698438,
+              "lifetimeMax": 718.6666666698438
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 56,
+              "p95": 77,
+              "p99": 79,
+              "windowMax": 80,
+              "lifetimeMax": 80
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 17,
+              "retained": 17,
+              "p50": 720,
+              "p95": 720,
+              "p99": 720,
+              "windowMax": 720,
+              "lifetimeMax": 720
+            },
+            "ackAdvance": {
+              "count": 17,
+              "retained": 17,
+              "p50": 43,
+              "p95": 44,
+              "p99": 44,
+              "windowMax": 44,
+              "lifetimeMax": 44
+            },
+            "correctionM": {
+              "count": 17,
+              "retained": 17,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 20,
+            "request-end": 20,
+            "snapshot": 18,
+            "tick": 720,
+            "status": 20,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            20,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 20
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.031Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100601,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101201,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 101218.66666666667,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 113202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 19,
+              "retained": 19,
+              "p50": 600,
+              "p95": 600,
+              "p99": 600,
+              "windowMax": 600,
+              "lifetimeMax": 600
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 351.0000000032451,
+              "p95": 681.0000000025029,
+              "p99": 711.0000000027212,
+              "windowMax": 717.6666666700185,
+              "lifetimeMax": 717.6666666700185
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 56,
+              "p95": 77,
+              "p99": 79,
+              "windowMax": 80,
+              "lifetimeMax": 80
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 16,
+              "retained": 16,
+              "p50": 720,
+              "p95": 720,
+              "p99": 720,
+              "windowMax": 720,
+              "lifetimeMax": 720
+            },
+            "ackAdvance": {
+              "count": 16,
+              "retained": 16,
+              "p50": 43,
+              "p95": 44,
+              "p99": 44,
+              "windowMax": 44,
+              "lifetimeMax": 44
+            },
+            "correctionM": {
+              "count": 16,
+              "retained": 16,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 19,
+            "request-end": 19,
+            "snapshot": 17,
+            "tick": 720,
+            "status": 19,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            19,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            720,
+            0,
+            0,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 19
+          }
+        }
+      ]
+    },
+    {
+      "latencyMs": 1600,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 369,
+          "staleStops": 300,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 10,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 369,
+          "staleStops": 301,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 9,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 8,
+        "players": 0
+      },
+      "packetDigest": "fba93a3411d2a051ade25dd6bf9a1db870d6d41d28ecc1e9672443e8dc3c1fc1",
+      "outcomeDigest": "214a913a2249234e628b3dd92fcd9a3aae3aa41a846963f1022e7fc3f8b81252",
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.046Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100000,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101600,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103218.66666666667,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103335.33333333337,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104335.33333333366,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 105052.00000000054,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105668.66666666738,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106052.00000000083,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106768.6666666677,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107768.666666668,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108485.33333333487,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109102.00000000172,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109485.33333333516,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110202.00000000204,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111202.00000000233,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111935.33333333588,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112568.6666666694,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112935.33333333617,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113652.00000000304,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114635.33333333666,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114652.00000000333,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 115202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 10,
+              "retained": 10,
+              "p50": 1600,
+              "p95": 1600,
+              "p99": 1600,
+              "windowMax": 1600,
+              "lifetimeMax": 1600
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 858.6666666679521,
+              "p95": 1635.333333333343,
+              "p99": 1702.000000002532,
+              "windowMax": 1718.6666666692036,
+              "lifetimeMax": 1718.6666666692036
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 84,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 7,
+              "retained": 7,
+              "p50": 1720,
+              "p95": 1720,
+              "p99": 1720,
+              "windowMax": 1720,
+              "lifetimeMax": 1720
+            },
+            "ackAdvance": {
+              "count": 7,
+              "retained": 7,
+              "p50": 38,
+              "p95": 60,
+              "p99": 60,
+              "windowMax": 60,
+              "lifetimeMax": 60
+            },
+            "correctionM": {
+              "count": 7,
+              "retained": 7,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 10,
+            "request-end": 10,
+            "snapshot": 8,
+            "tick": 720,
+            "status": 10,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            10,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            351,
+            300,
+            69,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 10
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T12:22:18.046Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 101601,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 103201,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103218.66666666667,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104202.00000000029,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 104935.33333333384,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105568.66666666736,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 105935.33333333413,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106652.000000001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107635.33333333462,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 107652.0000000013,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108368.66666666817,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109002.00000000169,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109368.66666666846,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110085.33333333534,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111068.66666666896,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 111085.33333333563,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111802.0000000025,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112435.33333333602,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112802.0000000028,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113535.33333333634,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114535.33333333663,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 115202.00000000349,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 9,
+              "retained": 9,
+              "p50": 1600,
+              "p95": 1600,
+              "p99": 1600,
+              "windowMax": 1600,
+              "lifetimeMax": 1600
+            },
+            "snapshotAgeMs": {
+              "count": 720,
+              "retained": 720,
+              "p50": 857.6666666684177,
+              "p95": 1631.000000000975,
+              "p99": 1701.0000000004948,
+              "windowMax": 1717.6666666696692,
+              "lifetimeMax": 1717.6666666696692
+            },
+            "pendingFrames": {
+              "count": 720,
+              "retained": 720,
+              "p50": 85,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 719,
+              "retained": 719,
+              "p50": 16.666666666671517,
+              "p95": 16.666666666671517,
+              "p99": 16.666666666671517,
+              "windowMax": 16.666666666671517,
+              "lifetimeMax": 16.666666666671517
+            },
+            "snapshotGapMs": {
+              "count": 6,
+              "retained": 6,
+              "p50": 1720,
+              "p95": 1720,
+              "p99": 1720,
+              "windowMax": 1720,
+              "lifetimeMax": 1720
+            },
+            "ackAdvance": {
+              "count": 6,
+              "retained": 6,
+              "p50": 38,
+              "p95": 60,
+              "p99": 60,
+              "windowMax": 60,
+              "lifetimeMax": 60
+            },
+            "correctionM": {
+              "count": 6,
+              "retained": 6,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 9,
+            "request-end": 9,
+            "snapshot": 7,
+            "tick": 720,
+            "status": 9,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            9,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            1,
+            0,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            351,
+            301,
+            68,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "200": 9
+          }
+        }
+      ]
+    }
+  ]
+}

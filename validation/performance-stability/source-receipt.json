@@ -1,0 +1,16 @@
+{
+  "base": "3bcfe4a00575135fec94ae94888cfbfcdd23be66",
+  "branch": "performance/arena-stability",
+  "candidate": "The commit containing these file hashes",
+  "sha256": {
+    "public/arena-client.js": "a16fb687fe4035780219066466271817a6fdd7a8d5d4d87da67b5d5e28c07f7b",
+    "public/arena-diagnostics.js": "f2b54b5277a068b56c72d3314863e670ab8853a7a2626865a36ca7129ac72211",
+    "scripts/check.mjs": "b9a6444edc4462c81a767f8d9f737f60a2bf69ba930602157e8bf26e0870ecd7",
+    "scripts/check-arena-diagnostics.mjs": "ebab839ea9296bfa4fb69b7967a773becafcd0d81e02432687037b9d3d23acf8",
+    "scripts/diagnose-arena-desktop.mjs": "b3796367b62ba8780131f94be472b077f1cb3b731db277786c2bdc1390ebb971",
+    "scripts/diagnose-arena-stability.mjs": "702ba373004e4c2337649919e11f2db9c8583f18e38dc7082dc7d94b69461d55",
+    "scripts/soak-arena-stability.mjs": "38a33bd6212fa80dd2b3c8fbc166e5d99424a4076757f66343c441a240eded74",
+    "scripts/lib/performance-fixture.mjs": "65f2a56f46a4a4a94a070703f864793d67c5421ed74f9fe47c7266a897acc89c",
+    "package.json": "2859774cf10256532d62669fb6100e20503360cfbb0bd5d805ab7c03e08712d4"
+  }
+}

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
 import {createSimulation} from '../public/simulation.js';
 import {parseCommand,GATES,RINGS,TARGETS,CRATES,completion,nearestTarget} from '../public/rules.js';
 const root=path.resolve(import.meta.dirname,'..');let checks=0;
 const check=(label,fn)=>{fn();checks++;console.log(`PASS ${label}`);};
-check('all JavaScript parses and local module references resolve',()=>{for(const name of fs.readdirSync(path.join(root,'public')).filter(n=>n.endsWith('.js'))){const p=path.join(root,'public',name);execFileSync(process.execPath,['--check',p]);const source=fs.readFileSync(p,'utf8');for(const match of source.matchAll(/from\s+['"](\.[^'"]+)['"]/g))assert.ok(fs.existsSync(path.resolve(path.dirname(p),match[1])),`${name}: ${match[1]}`);}});
+check('all JavaScript parses and local module references resolve',()=>{for(const name of fs.readdirSync(path.join(root,'public')).filter(n=>n.endsWith('.js'))){const p=path.join(root,'public',name);execFileSync(process.execPath,['--check',p]);const source=fs.readFileSync(p,'utf8');for(const match of source.matchAll(/from\s+['"](\.[^'"]+)['"]/g))assert.ok(fs.existsSync(new URL(match[1],pathToFileURL(p))),`${name}: ${match[1]}`);}});
+check('module URL checks accept cache queries and still reject absent files',()=>{const entry=pathToFileURL(path.join(root,'public/main.js'));assert.ok(fs.existsSync(new URL('./avatar-preview.js?v=35#module',entry)));assert.equal(fs.existsSync(new URL('./missing-module-fixture.js?v=35',entry)),false);});
 check('entrypoint and vendored engine assets exist',()=>{for(const file of ['index.html','style.css','favicon.svg','main.js','vendor/three.module.js','vendor/three.core.js','vendor/THREE-LICENSE.txt','vendor/RAPIER-LICENSE.txt'])assert.ok(fs.statSync(path.join(root,'public',file)).size>0,file);});
 check('voice synonyms and safe whole-word matching',()=>{for(const [phrase,want]of [['Build a car','car'],['please make an airplane','plane'],['build an archery','bow'],['give me a sword','sword'],['run','foot'],['rainbow',null],['do not build a car',null],['hello there',null]])assert.equal(parseCommand(phrase),want);});
 const events=[];const sim=await createSimulation([{x:0,z:-10,w:8,d:3,h:5}],e=>events.push(e));

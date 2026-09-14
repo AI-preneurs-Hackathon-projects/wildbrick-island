@@ -1,0 +1,172 @@
+[
+  {
+    "file": "scripts/check.mjs",
+    "status": 0,
+    "passes": 18
+  },
+  {
+    "file": "scripts/check-generations.mjs",
+    "status": 0,
+    "passes": 9
+  },
+  {
+    "file": "scripts/check-adventure.mjs",
+    "status": 0,
+    "passes": 14
+  },
+  {
+    "file": "scripts/check-live-replays.mjs",
+    "status": 0,
+    "passes": 4
+  },
+  {
+    "file": "scripts/check-arena.mjs",
+    "status": 1,
+    "passes": 22
+  },
+  {
+    "file": "scripts/check-arena-ui.mjs",
+    "status": 0,
+    "passes": 20
+  },
+  {
+    "file": "scripts/check-firing.mjs",
+    "status": 0,
+    "passes": 11
+  },
+  {
+    "file": "scripts/check-rounds.mjs",
+    "status": 0,
+    "passes": 6
+  },
+  {
+    "file": "scripts/check-round-refinements.mjs",
+    "status": 1,
+    "passes": 7
+  },
+  {
+    "file": "scripts/check-maps.mjs",
+    "status": 0,
+    "passes": 14
+  },
+  {
+    "file": "scripts/check-support.mjs",
+    "status": 0,
+    "passes": 6
+  },
+  {
+    "file": "scripts/check-join-recovery.mjs",
+    "status": 0,
+    "passes": 5
+  },
+  {
+    "file": "scripts/check-control-fixes.mjs",
+    "status": 0,
+    "passes": 8
+  },
+  {
+    "file": "scripts/check-item-effects.mjs",
+    "status": 0,
+    "passes": 8
+  },
+  {
+    "file": "scripts/check-home-ui.mjs",
+    "status": 0,
+    "passes": 10
+  },
+  {
+    "file": "scripts/check-movement.mjs",
+    "status": 0,
+    "passes": 11
+  },
+  {
+    "file": "scripts/check-network-movement.mjs",
+    "status": 0,
+    "passes": 29
+  },
+  {
+    "file": "scripts/check-generation-budget.mjs",
+    "status": 0,
+    "passes": 3
+  },
+  {
+    "file": "scripts/check-current-replays.mjs",
+    "status": 0,
+    "passes": 3
+  },
+  {
+    "file": "scripts/check-hit-registration.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-hit-registration-network.mjs",
+    "status": 0,
+    "passes": 9
+  },
+  {
+    "file": "scripts/check-emitter-space.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-handheld-aiming.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-aiming-harness.mjs",
+    "status": 0,
+    "passes": 1
+  },
+  {
+    "file": "scripts/check-aim-attachment.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-control-separation.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-combat-balance.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-camera-pitch.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-voice.mjs",
+    "status": 0,
+    "passes": 15
+  },
+  {
+    "file": "scripts/check-transcription.mjs",
+    "status": 0,
+    "passes": 11
+  },
+  {
+    "file": "scripts/check-voice-ui.mjs",
+    "status": 0,
+    "passes": 6
+  },
+  {
+    "file": "scripts/check-voice-harness.mjs",
+    "status": 0,
+    "passes": 1
+  },
+  {
+    "file": "scripts/check-voice-availability.mjs",
+    "status": 0,
+    "passes": 0
+  },
+  {
+    "file": "scripts/check-arena-diagnostics.mjs",
+    "status": 0,
+    "passes": 9
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "case": "pulse 2 m",
+      "status": "Displayed weapon angle: 15.00°\nBase correction: 15.00°\nFocus depth: 2.98 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nhit: -0.45, 1.94, 1.43\nRejected: no\nTarget health / mount: 85.6 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 1 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "pulse 5 m",
+      "status": "Displayed weapon angle: 10.43°\nBase correction: 10.43°\nFocus depth: 4.43 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nhit: -0.00, 1.94, 4.43\nRejected: no\nTarget health / mount: 85.6 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 1 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "pulse 10 m",
+      "status": "Displayed weapon angle: 4.76°\nBase correction: 4.76°\nFocus depth: 9.43 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nhit: 0.00, 1.94, 9.43\nRejected: no\nTarget health / mount: 85.6 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 1 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "pulse 20 m",
+      "status": "Displayed weapon angle: 2.28°\nBase correction: 2.28°\nFocus depth: 19.43 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nhit: -0.00, 1.94, 19.43\nRejected: no\nTarget health / mount: 85.6 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 1 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "cover",
+      "status": "Displayed weapon angle: 15.00°\nBase correction: 15.00°\nFocus depth: 2.98 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nimpact: 0.00, 1.50, 0.00\nRejected: no\nTarget health / mount: 100.0 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 0 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "protected",
+      "status": "Displayed weapon angle: 15.00°\nBase correction: 15.00°\nFocus depth: 2.98 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nblocked: -0.10, 1.60, 0.33\nRejected: no\nTarget health / mount: 100.0 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 0 / 1\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "punch KO",
+      "status": "Displayed weapon angle: 0.00°\nBase correction: 0.00°\nFocus depth: 2.20 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nhit: 0.00, 1.30, 0.00\nRejected: no\nTarget health / mount: 0.0 / 0.0\nRaw damage / interval / DPS: 27 / 0.5 / 54.00\nContact KO hits / elapsed ms: 5 / 2130\nConfirmed hits / blocked: 5 / 0\nShooter height / kit: 0.00 / foot\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "Down retains flying kit",
+      "status": "Displayed weapon angle: 0.00°\nBase correction: 0.00°\nFocus depth: 15.00 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\n\nRejected: no\nTarget health / mount: none\nRaw damage / interval / DPS: 7 / 0.16 / 43.75\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 0 / 0\nShooter height / kit: 5.20 / harness\nRecoverable items: 0\nVisible shots: 0"
+    },
+    {
+      "case": "G-equivalent drop",
+      "status": "Displayed weapon angle: 0.00°\nBase correction: 0.00°\nFocus depth: 2.20 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\n\nRejected: no\nTarget health / mount: none\nRaw damage / interval / DPS: 27 / 0.5 / 54.00\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 0 / 0\nShooter height / kit: 5.20 / foot\nRecoverable items: 1\nVisible shots: 0"
+    }
+  ],
+  "errors": []
+}

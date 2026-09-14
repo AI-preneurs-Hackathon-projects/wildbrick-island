@@ -1,0 +1,117 @@
+base-check.log
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: main.js: ./avatar-preview.js?v=35
+    at file:///private/tmp/brickwild-stability-session/base/scripts/check.mjs:9:355
+    at check (file:///private/tmp/brickwild-stability-session/base/scripts/check.mjs:8:26)
+    at file:///private/tmp/brickwild-stability-session/base/scripts/check.mjs:9:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v22.22.0
+
+base-arena.log
+PASS weapon and armor choices have bounded, distinct tradeoffs
+PASS punches wind up, hit once, miss at range, and retries cannot repeat damage
+PASS punches follow the current body facing at every angle even when the camera faces away
+PASS projectile contact produces one confirmed hit event at its contact point
+PASS server geometry bounds match renderer and muzzle stays on creation
+PASS 40 players share a room and snapshots expose no input/session secrets
+PASS fast vehicles stop at houses without impacts, damage or relocation
+PASS heavy mounts stop at trees and safe ground landings do not eject pilots
+PASS all five flight markers admit a correctly aligned plane
+PASS mounts cannot jump; prediction cannot damage or change a loadout
+PASS cover restoration waits for occupants without moving them; time is monotonic
+PASS moving assembly completes a custom mount with shield and trusted flame
+PASS mount health absorbs damage, then the pilot is exposed; one death counts once
+PASS bow reaches distant rivals, projectiles respect cover, melee has no projectile
+PASS melee uses height, facing and line of sight, including placed scenery
+PASS automatic fire overheats and stale inputs stop firing and movement
+PASS one player claims each landed pickup; buffs last ten seconds
+PASS sky drops cycle health, defense and speed without any equipment
+PASS support pickups retain effects and never replace a creation; legacy gear is removed
+PASS weapons and vehicles remain buildable with no equipment lifetime
+PASS generated scenery is placed once with shared bounded shot cover
+(node:55091) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS SQLite compare-and-swap preserves simultaneous room joins and monotonic revisions
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ '#f17a48'
+- '#ffcf55'
+     ^
+
+    at file:///private/tmp/brickwild-stability-session/base/scripts/check-arena.mjs:85:511
+    at async check (file:///private/tmp/brickwild-stability-session/base/scripts/check-arena.mjs:14:42)
+    at async file:///private/tmp/brickwild-stability-session/base/scripts/check-arena.mjs:85:1 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '#f17a48',
+  expected: '#ffcf55',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.0
+
+base-round-refinements.log
+PASS both new maps have one unambiguous colored floor surface across every painted overlap
+PASS every mountain ridge level can be reached and landed on with an ordinary jump
+PASS three rounds accumulate independent scores exactly once, clear creations, and end without a fourth round
+PASS automatic support collection waits for contact, landing and a clear path
+PASS support bricks collect automatically on contact without replacing equipment
+PASS Down only descends; Enter drops then picks up once without repeat duplicates
+PASS jumping on foot never offers Lower, while the flight Lower button descends without dropping equipment
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ []
+- [
+-   'W',
+-   'A',
+-   'S',
+-   'D',
+-   'Q',
+-   'E',
+-   'R',
+-   'F'
+- ]
+
+    at file:///private/tmp/brickwild-stability-session/base/scripts/check-round-refinements.mjs:23:533
+    at check (file:///private/tmp/brickwild-stability-session/base/scripts/check-round-refinements.mjs:12:25)
+    at file:///private/tmp/brickwild-stability-session/base/scripts/check-round-refinements.mjs:23:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [],
+  expected: [
+    'W', 'A', 'S',
+    'D', 'Q', 'E',
+    'R', 'F'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v22.22.0

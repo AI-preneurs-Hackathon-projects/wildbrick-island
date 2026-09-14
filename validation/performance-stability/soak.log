@@ -1,0 +1,7 @@
+{"utc":"2026-09-14T12:25:51.633Z","elapsedSeconds":0,"round":1,"timers":2,"players":2,"rejoins":0}
+{"utc":"2026-09-14T12:26:51.648Z","elapsedSeconds":60,"round":1,"timers":4,"players":2,"rejoins":0}
+{"utc":"2026-09-14T12:27:51.642Z","elapsedSeconds":120,"round":1,"timers":4,"players":2,"rejoins":1}
+{"utc":"2026-09-14T12:28:51.651Z","elapsedSeconds":180,"round":1,"timers":4,"players":2,"rejoins":1}
+{"utc":"2026-09-14T12:29:51.643Z","elapsedSeconds":240,"round":1,"timers":4,"players":2,"rejoins":2}
+{"utc":"2026-09-14T12:30:51.653Z","elapsedSeconds":300,"round":1,"timers":4,"players":2,"rejoins":3}
+{"complete":true,"wallMs":360009.389625,"rejoins":3,"events":{"join":4,"build":22,"built":22,"attack-preview":11,"shot":321,"shot-end":321,"item-dropped":19,"dismount":19,"swing":67,"hit":1,"round-ended":1,"round-started":1},"afterLeave":{"timers":0,"maxTimers":8,"players":0},"output":"/private/tmp/brickwild-stability-session/soak-final.json"}

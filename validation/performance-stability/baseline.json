@@ -1,0 +1,181 @@
+{
+  "environment": "virtual clock, in-process fetch, real clients and authoritative core; no HTTP/store/rendering",
+  "results": [
+    {
+      "latencyMs": 0,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 102,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 102,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 4,
+        "players": 0
+      },
+      "packetDigest": "cd1d16f3fc2f23273df1735bc5b412d97afa000a4c96069bdc9c86ef2ae7f825",
+      "outcomeDigest": "1d952311625c8593319d946552fea7cc245705ba716cde0a34c10ef4cb865e2c",
+      "diagnostics": []
+    },
+    {
+      "latencyMs": 100,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 57,
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 57,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 6,
+        "players": 0
+      },
+      "packetDigest": "ec673ba77ae3c800ab549eb9ad9e058aa648ebdeaaa5487ff8b685defc2a0315",
+      "outcomeDigest": "a00941a0957349ec10310014acbbc0eaf2ed24227cb28de570937ce4e9def541",
+      "diagnostics": []
+    },
+    {
+      "latencyMs": 600,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 20,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 0,
+          "staleStops": 0,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 19,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 8,
+        "players": 0
+      },
+      "packetDigest": "b165fb648814581de81a09253dbf2f5b0a6125c4cd9628c185e2ebd9415bf935",
+      "outcomeDigest": "55cb85907e6af9071e8945bf21b3fbe6e2c60830279c132916741b1fbdaa66ad",
+      "diagnostics": []
+    },
+    {
+      "latencyMs": 1600,
+      "durationMs": 12000,
+      "stats": [
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 369,
+          "staleStops": 300,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 10,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        },
+        {
+          "ticks": 720,
+          "movingTicks": 720,
+          "zeroMovement": 369,
+          "staleStops": 301,
+          "statuses": [
+            "joining",
+            "online",
+            "offline"
+          ],
+          "requests": 9,
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "rounds": 0
+        }
+      ],
+      "resources": {
+        "timers": 0,
+        "maxTimers": 8,
+        "players": 0
+      },
+      "packetDigest": "fba93a3411d2a051ade25dd6bf9a1db870d6d41d28ecc1e9672443e8dc3c1fc1",
+      "outcomeDigest": "214a913a2249234e628b3dd92fcd9a3aae3aa41a846963f1022e7fc3f8b81252",
+      "diagnostics": []
+    }
+  ]
+}
