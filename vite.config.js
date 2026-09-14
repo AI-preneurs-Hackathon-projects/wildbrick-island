@@ -16,6 +16,7 @@ function apiPreview(){return {name:'brickwild-private-api-preview',configureServ
   if(req.url==='/__combat'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/combat-harness.html')));return;}
   if(req.url==='/__layouts'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/layout-harness.html')));return;}
   if(req.url?.split('?')[0]==='/__voice'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/voice-harness.html')));return;}
+  if(req.url?.split('?')[0]==='/api/transcription-status'){res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({configured:false}));return;}
   if(req.url?.split('?')[0]==='/api/transcribe'){res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({code:'unavailable',error:'Recorded voice is unavailable in local Practice. Use /__voice for a no-upload recording test.'}));return;}
   if(!req.url?.startsWith('/api/'))return next();
   if(req.url.startsWith('/api/arena/')){res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify({error:'Arena multiplayer is unavailable in this local preview. Choose Back to Practice, or play on the published site after signing in.'}));return;}

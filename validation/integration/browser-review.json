@@ -1,0 +1,22 @@
+{
+  "errors": [],
+  "requests": [
+    {
+      "url": "http://127.0.0.1:5174/api/generation-status",
+      "method": "GET"
+    },
+    {
+      "url": "http://127.0.0.1:5174/api/transcription-status",
+      "method": "GET"
+    }
+  ],
+  "combat": "Displayed weapon angle: 2.28°\nBase correction: 2.28°\nFocus depth: 19.43 m\nCamera yaw: 0.00 rad\nBody facing: 0.00 rad\nOld ACK delivered; current relative angle should stay 2.28°\nRejected: no\nTarget health / mount: 100.0 / 0.0\nRaw damage / interval / DPS: 16 / 0.42 / 38.10\nContact KO hits / elapsed ms: not run\nConfirmed hits / blocked: 0 / 0\nShooter height / kit: 0.00 / harness\nRecoverable items: 0\nVisible shots: 1",
+  "checks": [
+    "rendered Practice and R/F movement",
+    "Help includes camera and voice",
+    "unconfigured recording: zero microphone requests and zero audio uploads",
+    "synthetic recording dispatches once",
+    "cancel delayed synthetic response dispatches zero",
+    "combat fixture rendered pulse, movement and old ACK"
+  ]
+}

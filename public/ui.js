@@ -99,7 +99,7 @@ export function createUI(actions){
   $('#speed').textContent=(s.mode==='car'||s.mode==='plane')?`${Math.round(s.speed*3.6)} km/h${s.mode==='plane'?` · ${Math.round(s.y)} m`:''}`:'Practice at your own pace';
  }
  function voiceState(status,text){
-  const capturing=['listening','recording'].includes(status),busy=['requesting-permission','stopping','transcribing'].includes(status),active=capturing||busy;
+  const capturing=['listening','recording'].includes(status),busy=['checking','requesting-permission','stopping','transcribing'].includes(status),active=capturing||busy;
   $('#mic').classList.toggle('listening',active);$('#mic').setAttribute('aria-pressed',String(active));$('#mic').disabled=['stopping','transcribing'].includes(status);
   $('#mic span').textContent=status==='recording'?'Finish recording':status==='listening'?'Finish speaking':busy?'Please wait…':'Speak / Build';
   $('#cancel-voice').classList.toggle('hidden',!active&&status!=='error');

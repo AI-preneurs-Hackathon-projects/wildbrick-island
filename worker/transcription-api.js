@@ -3,6 +3,14 @@ import {creationPrompt} from '../public/blueprint.js';
 export const TRANSCRIPTION_LIMITS=Object.freeze({bytes:4*1024*1024,uploadMs:30000,upstreamMs:30000,responseBytes:8192});
 const MODEL='gpt-4o-mini-transcribe',UPSTREAM='https://api.openai.com/v1/audio/transcriptions';
 const reply=(status,code,error)=>Response.json({code,error},{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+// Configuration readiness only: no provider request, admission or database write.
+export function transcriptionStatus(request,env){
+ if(!request.headers.get('oai-authenticated-user-id'))return reply(401,'unauthenticated','Sign in to use recorded voice.');
+ if(request.method!=='GET')return reply(405,'method','Use GET to check recorded voice.');
+ const origin=new URL(request.url).origin;
+ if((request.headers.get('origin')&&request.headers.get('origin')!==origin)||request.headers.get('sec-fetch-site')==='cross-site')return reply(403,'origin','Open Brickwild to record an idea.');
+ return Response.json({configured:!!env.OPENAI_API_KEY&&env.OPENAI_TRANSCRIPTION_MODEL===MODEL&&typeof env.DB?.prepare==='function'},{headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
+}
 class Rejection extends Error{constructor(status,code,message){super(message);Object.assign(this,{status,code});}}
 
 async function readBytes(body,max,signal){

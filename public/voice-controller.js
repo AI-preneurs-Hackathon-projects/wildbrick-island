@@ -30,8 +30,8 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
  function retire(a){if(!alive(a))return false;current=null;serial++;cleanup(a);return true;}
  function stop(){const a=current;if(a)retire(a);else serial++;notify('canceled','Voice canceled.');}
  function begin(route){if(current)retire(current);const a={id:++serial,route,timers:new Map(),chunks:[],bytes:0,final:'',finalAt:0,stopping:false};current=a;return a;}
- function offer(message,draft=''){preferRecording=true;notify('error',message);onNotice(message,6000);onFallback(message,{draft,canRecord:!!media?.getUserMedia&&!!recordingType(Recorder)});}
- function fail(a,message,draft=''){if(retire(a))offer(message,draft);}
+ function offer(message,draft='',available=true){preferRecording=true;notify('error',message);onNotice(message,6000);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
+ function fail(a,message,draft='',available=true){if(retire(a))offer(message,draft,available);}
  function complete(a,text){
   if(!alive(a))return;
   let prompt;try{prompt=creationPrompt(text);}catch{fail(a,'Use 2–360 characters. Record again or edit your description.',typeof text==='string'?text:'');return;}
@@ -47,7 +47,7 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
   try{if(a.route==='native')a.recognition.stop();else {a.recorder.stop();tracks(a);}}catch{fail(a,'The microphone could not finish. Record again when ready.');}
  }
  function start(){
-  if(current){if(['listening','recording'].includes(state))stopCapture(current);else if(state==='requesting-permission')stop();return;}
+  if(current){if(['listening','recording'].includes(state))stopCapture(current);else if(['checking','requesting-permission'].includes(state))stop();return;}
   if(preferRecording||!Recognition){offer('Record your idea instead, or type it.');return;}
   const a=begin('native');notify('requesting-permission','Starting speech…');
   timer(a,'startup',VOICE_LIMITS.startMs,()=>fail(a,'Speech did not start. Record instead or type an idea.'));
@@ -74,7 +74,15 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
  async function record(){
   if(current)return;preferRecording=true;const a=begin('recorded'),mime=recordingType(Recorder);
   if(!mime||!media?.getUserMedia){fail(a,'Recording is unavailable in this browser. Type an idea or try another browser.');return;}
-  notify('requesting-permission','Allow microphone access to record.');
+  notify('checking','Checking recorded voice…');if(!alive(a))return;a.abort=new AbortController();
+  timer(a,'availability',VOICE_LIMITS.startMs,()=>fail(a,'Could not check recorded voice. Try Speak again later, or type an idea.','',false));
+  try{
+   const response=await send('/api/transcription-status',{method:'GET',credentials:'same-origin',cache:'no-store',signal:a.abort.signal});
+   if(!alive(a))return;const status=await response.json();if(!alive(a))return;
+   if(!response.ok||status.configured!==true){fail(a,response.status===401?'Sign in to use recorded voice.':'Recorded voice is unavailable here. Type an idea, or try Speak again after the owner enables it.','',false);return;}
+  }catch{if(alive(a))fail(a,'Could not check recorded voice. Try Speak again later, or type an idea.','',false);return;}
+  clearTimer(a,'availability');
+  notify('requesting-permission','Allow microphone access to record.');if(!alive(a))return;
   timer(a,'permission',VOICE_LIMITS.permissionMs,()=>fail(a,'Microphone permission is still pending. Cancel the browser prompt or try again when ready.'));
   try{
    const stream=await media.getUserMedia({audio:true});
