@@ -1,0 +1,1599 @@
+{
+  "scope": "Actual localhost Node HTTP/fetch, two active real clients and authoritative core, 1600 ms target RTT. Response socket destroyed after mutation, separate response delayed beyond 12 s client timeout, and transient503. Node timing is observational; fixed virtual comparison establishes exact tick counts. Not Worker/D1/build reservation/hosted validation.",
+  "results": [
+    {
+      "version": "baseline",
+      "wallMs": 36633.805458999996,
+      "stats": [
+        {
+          "requests": 23,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 20,
+          "acceptedFrames": 843,
+          "abortedResponses": 1,
+          "lostResponses": 1,
+          "lateResponses": 0,
+          "commandPackets": 2,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1
+          }
+        },
+        {
+          "requests": 16,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 14,
+          "acceptedFrames": 610,
+          "abortedResponses": 1,
+          "lostResponses": 0,
+          "lateResponses": 1,
+          "commandPackets": 0,
+          "oldSeqRejected": 0,
+          "commandEffects": {}
+        }
+      ],
+      "events": [
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          }
+        ],
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          }
+        ]
+      ],
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T13:35:55.525Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100004.776042,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101630.115417,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103255.795209,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103363.223917,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104362.734917,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 105099.51704199999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105748.270834,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106105.87095899999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106821.996334,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107812.23729199999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 107829.425292,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108563.054625,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109196.244542,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 109485.645584,
+              "code": 1,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 109485.713959,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109554.58441699999,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 111746.85674999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111755.9665,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112760.6425,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113478.82549999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114110.83295899999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114489.4685,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 115211.47249999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 116219.835834,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 116937.09458399999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 117554.461959,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 117933.000042,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 118666.493875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 119662.562459,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 120396.574417,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 121035.156375,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 121394.14425,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 122129.095334,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 123126.379334,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 123840.797584,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 124475.219,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 124852.004334,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 125569.303875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 126567.70275,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 126584.917792,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127300.668417,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 127953.486375,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 128308.440125,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129038.423167,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 130015.58,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130031.825834,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 130780.040584,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 131443.617375,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 131766.10700000002,
+              "code": 2
+            },
+            {
+              "type": "request-failure",
+              "at": 132489.418959,
+              "code": 5,
+              "status": 503
+            },
+            {
+              "type": "status",
+              "at": 132489.46770900002,
+              "code": 3
+            },
+            {
+              "type": "status",
+              "at": 134744.804917,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134758.19695900002,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135749.23925,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136484.86412500002,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137133.559834,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137473.24383400002,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 138206.05762500002,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 138266.9905,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 23,
+              "retained": 23,
+              "p50": 1606.6445830000011,
+              "p95": 1610.764458000005,
+              "p99": 1624.7190420000115,
+              "windowMax": 1624.7190420000115,
+              "lifetimeMax": 1624.7190420000115
+            },
+            "snapshotAgeMs": {
+              "count": 2042,
+              "retained": 2042,
+              "p50": 968.3315409999923,
+              "p95": 2710.9895840000245,
+              "p99": 3636.135249999992,
+              "windowMax": 3976.654999999999,
+              "lifetimeMax": 3976.654999999999
+            },
+            "pendingFrames": {
+              "count": 2042,
+              "retained": 2042,
+              "p50": 89,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2041,
+              "retained": 2041,
+              "p50": 17.241041000001132,
+              "p95": 17.5726250000007,
+              "p99": 18.540582999994513,
+              "windowMax": 23.552249999993364,
+              "lifetimeMax": 23.552249999993364
+            },
+            "snapshotGapMs": {
+              "count": 19,
+              "retained": 19,
+              "p50": 1728.6501659999922,
+              "p95": 3980.684459000011,
+              "p99": 3980.684459000011,
+              "windowMax": 3980.684459000011,
+              "lifetimeMax": 3980.684459000011
+            },
+            "ackAdvance": {
+              "count": 19,
+              "retained": 19,
+              "p50": 39,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 19,
+              "retained": 19,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 23,
+            "request-end": 23,
+            "snapshot": 20,
+            "tick": 2042,
+            "status": 151,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            21,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            3,
+            2,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            860,
+            990,
+            192,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 21,
+            "503": 1
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T13:35:55.526Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 101630.257375,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 103255.150792,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103255.90699999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104259.809,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 104995.74258399999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105629.328417,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106003.792709,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106735.23054199999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107726.29225,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108458.970667,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109094.381125,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109453.555375,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110189.82675,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111186.08649999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111912.129292,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112553.607,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112915.369125,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113649.536417,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114645.36525,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 116151.181792,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 125759.835834,
+              "code": 2,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 128019.29075,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 128020.535625,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 129021.225667,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129755.76708399999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 130404.05175,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130746.083042,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 131476.486042,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 132450.251709,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 132484.37937500002,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 133217.63733400003,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 133869.647667,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 134210.10237500002,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134928.68516700002,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135903.541625,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 135937.775167,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136654.99133400002,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137319.948459,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137662.111417,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 138267.424625,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 16,
+              "retained": 16,
+              "p50": 1606.7685420000053,
+              "p95": 12001.165583000009,
+              "p99": 12001.165583000009,
+              "windowMax": 12001.165583000009,
+              "lifetimeMax": 12001.165583000009
+            },
+            "snapshotAgeMs": {
+              "count": 2042,
+              "retained": 2042,
+              "p50": 1346.0708339999983,
+              "p95": 12621.581667000006,
+              "p99": 14024.583375000002,
+              "windowMax": 14366.631917000006,
+              "lifetimeMax": 14366.631917000006
+            },
+            "pendingFrames": {
+              "count": 2042,
+              "retained": 2042,
+              "p50": 90,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2041,
+              "retained": 2041,
+              "p50": 17.240125000011176,
+              "p95": 17.567958999992697,
+              "p99": 18.37120799999684,
+              "windowMax": 23.979999999995925,
+              "lifetimeMax": 23.979999999995925
+            },
+            "snapshotGapMs": {
+              "count": 12,
+              "retained": 12,
+              "p50": 1729.278542,
+              "p95": 14381.540792,
+              "p99": 14381.540792,
+              "windowMax": 14381.540792,
+              "lifetimeMax": 14381.540792
+            },
+            "ackAdvance": {
+              "count": 12,
+              "retained": 12,
+              "p50": 39,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 12,
+              "retained": 12,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 16,
+            "request-end": 16,
+            "snapshot": 13,
+            "tick": 2042,
+            "status": 709,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            15,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            2,
+            1,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            629,
+            1285,
+            128,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 15
+          }
+        }
+      ],
+      "beforeLeave": {
+        "timers": 3,
+        "serverTimers": 1,
+        "clientTimers": 2,
+        "requests": 1,
+        "maxRequests": 2,
+        "sockets": 2,
+        "players": 2
+      },
+      "afterLeave": {
+        "timers": 0,
+        "serverTimers": 0,
+        "clientTimers": 0,
+        "requests": 0,
+        "maxRequests": 3,
+        "sockets": 0,
+        "players": 0
+      },
+      "targetActiveMs": 35000
+    },
+    {
+      "version": "candidate",
+      "wallMs": 36632.082,
+      "stats": [
+        {
+          "requests": 23,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 20,
+          "acceptedFrames": 843,
+          "abortedResponses": 1,
+          "lostResponses": 1,
+          "lateResponses": 0,
+          "commandPackets": 2,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1
+          }
+        },
+        {
+          "requests": 16,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 14,
+          "acceptedFrames": 610,
+          "abortedResponses": 1,
+          "lostResponses": 0,
+          "lateResponses": 1,
+          "commandPackets": 0,
+          "oldSeqRejected": 0,
+          "commandEffects": {}
+        }
+      ],
+      "events": [
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          }
+        ],
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          }
+        ]
+      ],
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T13:36:35.419Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100004.64275,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101614.389,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103222.90008299999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103343.79574999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104355.812458,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 105072.33549999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105691.092,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106081.909625,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106801.843333,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107798.06137499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108531.071333,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109165.121583,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 109447.63225,
+              "code": 1,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 109447.6525,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109523.42124999998,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 111707.400333,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111712.278166,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112722.032458,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113437.42970800001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114056.13604099999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114450.26916599998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 115168.021916,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 116182.455541,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 116900.832,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 117532.37008299999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 117907.5265,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 118621.260041,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 119633.368958,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 120348.063833,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 120981.84683299999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 121356.05629099999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 122073.93945799998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 123081.15629099999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 123812.462833,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 124458.812833,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 124799.46295799999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 125531.880041,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 126521.40270800001,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 126538.534208,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127267.242291,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 127917.75345799999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 128258.41195800001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 128994.45704099999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 129986.027083,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 130720.273666,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 131368.856125,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 131708.84737499998,
+              "code": 2
+            },
+            {
+              "type": "request-failure",
+              "at": 132429.65524999998,
+              "code": 5,
+              "status": 503
+            },
+            {
+              "type": "status",
+              "at": 132429.69125,
+              "code": 3
+            },
+            {
+              "type": "status",
+              "at": 134687.756916,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134702.677458,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135697.336416,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136415.876541,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137065.15449999998,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137424.95683299997,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 138157.62991599998,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 138232.57825,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 23,
+              "retained": 23,
+              "p50": 1605.763208999997,
+              "p95": 1608.5780000000086,
+              "p99": 1609.0687080000062,
+              "windowMax": 1609.0687080000062,
+              "lifetimeMax": 1609.0687080000062
+            },
+            "snapshotAgeMs": {
+              "count": 2048,
+              "retained": 2048,
+              "p50": 967.8414579999808,
+              "p95": 2710.895375000022,
+              "p99": 3631.981458000024,
+              "windowMax": 3981.0571660000132,
+              "lifetimeMax": 3981.0571660000132
+            },
+            "pendingFrames": {
+              "count": 2048,
+              "retained": 2048,
+              "p50": 89,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2047,
+              "retained": 2047,
+              "p50": 17.213624999974854,
+              "p95": 17.463707999995677,
+              "p99": 17.80525000000489,
+              "windowMax": 23.837083000020357,
+              "lifetimeMax": 23.837083000020357
+            },
+            "snapshotGapMs": {
+              "count": 19,
+              "retained": 19,
+              "p50": 1727.3527079999913,
+              "p95": 3983.5482910000137,
+              "p99": 3983.5482910000137,
+              "windowMax": 3983.5482910000137,
+              "lifetimeMax": 3983.5482910000137
+            },
+            "ackAdvance": {
+              "count": 19,
+              "retained": 19,
+              "p50": 38,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 19,
+              "retained": 19,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 23,
+            "request-end": 23,
+            "snapshot": 20,
+            "tick": 2048,
+            "status": 151,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            21,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            3,
+            2,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            866,
+            989,
+            193,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 21,
+            "503": 1
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T13:36:35.419Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 101614.5005,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 103222.33516599998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103222.93258299999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104236.15099999998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 104954.070958,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105587.31004099999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 105964.18083299999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106680.62254099999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107693.687416,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108409.77049999998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109027.44945799999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109421.639375,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110137.71645799998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111147.718708,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111881.89624999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112516.96258299999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112876.06437499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113593.20970799998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114587.516791,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114604.700416,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 116096.177875,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 125716.08004100001,
+              "code": 2,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 127973.32283300001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127985.68137500001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 128977.30791599999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129711.99312500001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 130361.52325,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130703.41420799997,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 131435.908041,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 132426.590083,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 132444.011541,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 133157.85775,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 133806.735458,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 134165.365791,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134891.362875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135885.94112499998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136622.043125,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137268.505333,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137611.033041,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 138233.23625,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 16,
+              "retained": 16,
+              "p50": 1606.0546250000189,
+              "p95": 12002.510999999999,
+              "p99": 12002.510999999999,
+              "windowMax": 12002.510999999999,
+              "lifetimeMax": 12002.510999999999
+            },
+            "snapshotAgeMs": {
+              "count": 2048,
+              "retained": 2048,
+              "p50": 1344.1516249999986,
+              "p95": 12637.153499999986,
+              "p99": 14032.616208000021,
+              "windowMax": 14375.548791000008,
+              "lifetimeMax": 14375.548791000008
+            },
+            "pendingFrames": {
+              "count": 2048,
+              "retained": 2048,
+              "p50": 90,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2047,
+              "retained": 2047,
+              "p50": 17.21066700000665,
+              "p95": 17.468290999997407,
+              "p99": 17.83308300000499,
+              "windowMax": 25.06199999997625,
+              "lifetimeMax": 25.06199999997625
+            },
+            "snapshotGapMs": {
+              "count": 12,
+              "retained": 12,
+              "p50": 1728.4183750000084,
+              "p95": 14380.480208000023,
+              "p99": 14380.480208000023,
+              "windowMax": 14380.480208000023,
+              "lifetimeMax": 14380.480208000023
+            },
+            "ackAdvance": {
+              "count": 12,
+              "retained": 12,
+              "p50": 38,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 12,
+              "retained": 12,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 16,
+            "request-end": 16,
+            "snapshot": 13,
+            "tick": 2048,
+            "status": 713,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            15,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            2,
+            1,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            633,
+            1286,
+            129,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 15
+          }
+        }
+      ],
+      "beforeLeave": {
+        "timers": 3,
+        "serverTimers": 1,
+        "clientTimers": 2,
+        "requests": 1,
+        "maxRequests": 2,
+        "sockets": 2,
+        "players": 2
+      },
+      "afterLeave": {
+        "timers": 0,
+        "serverTimers": 0,
+        "clientTimers": 0,
+        "requests": 0,
+        "maxRequests": 3,
+        "sockets": 0,
+        "players": 0
+      },
+      "targetActiveMs": 35000
+    }
+  ]
+}

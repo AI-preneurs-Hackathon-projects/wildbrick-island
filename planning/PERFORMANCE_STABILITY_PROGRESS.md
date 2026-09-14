@@ -1,6 +1,14 @@
 # Arena performance and stability checkpoint
 
-## Current working agreement — latest-main merge and owner testing
+## Current result — movement candidate rejected, runtime restored
+
+Yerzhan authorized autonomous baseline/implementation/verification in the follow-up, superseding the historical owner-baseline pause. Latest main `538e075feb407c9985f1bfc79ee904cfb9948ccf` was merged separately as `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`. That frozen baseline retains diagnostics `284503a` and prior integration `e25bfe2`. Full baseline checks pass; neither historical failing test remains an exception.
+
+**No movement-performance improvement is retained.** The attempted bounded overlap reduced pauses but failed sustained-fire preservation. All authored runtime edits were reverted before committing. The retained work is a repeatable rejection test, more accurate existing fixtures and real localhost HTTP cancellation/response-loss coverage. A manual owner baseline or Practice test is not required and would not resolve this failure.
+
+The exact reproduction, rejected source patch, metrics and final validation are recorded at the end of this document. Earlier sections are historical evidence and must not be read as the current authorization or acceptance result.
+
+## Historical working agreement — earlier main merge and owner testing
 
 Yerzhan explicitly authorized merging latest main into this branch after the initial checkpoint. The earlier no-merge constraint below describes that initial session only. Push/deployment remain unauthorized. Before future performance behavior changes, follow `planning/PERFORMANCE_TESTING_WORKFLOW.md`: announce the exact next change and repeatable baseline test, let Yerzhan test before implementation, then provide the same after-test with evidence and limitations. Do not start the next behavioral task automatically.
 
@@ -131,3 +139,93 @@ Read-only review caught a fixture-only zero-duration tick artifact around rejoin
 The checkpoint consists of opt-in instrumentation, development-only fixtures/runners, focused regression coverage, the module-URL validation repair and this evidence. `source-receipt.json` records exact SHA-256 hashes of every authored runtime/test/runner source and the verified base. The authored commit is the commit containing this document and that receipt; its parent/rollback point is `3bcfe4a00575135fec94ae94888cfbfcdd23be66`. A single `git revert <checkpoint-commit>` is the safe rollback path; do not reset or clean the shared checkout.
 
 The portable binary patch was checked against an untouched archive of the verified base. Final commit SHA and patch location are reported in the task completion receipt. This is a reviewable diagnostics checkpoint with known baseline suite failures and remaining hardware/HTTP/hosted acceptance, not production stability acceptance. No merge, push, deployment, account-manifest change, database operation or external message occurred. All pre-existing dirty/untracked planning files remain outside the authored commit.
+
+
+## Authorized movement-continuity experiment — rejected
+
+Latest main `538e075feb407c9985f1bfc79ee904cfb9948ccf` (quick-tour UI only) was integrated separately as `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`. This is the frozen optimization baseline; its archive is isolated from the shared checkout. Earlier diagnostics and merge history remain ancestors. The owner-baseline pause is explicitly superseded for this slice.
+
+Selected hypothesis: serialized syncs make already sampled frames wait almost two round trips for acknowledgment. Test one extra **movement-only** sync slot after a successful RTT above 750 ms, paced at half the measured RTT. Maximum two syncs. The first variant drained movement before commands; a second allowed a command behind one older movement request and blocked every subsequent send until its response. Neither variant preserved sustained-fire outcomes. A final trial removing the extra high-latency held-fire polling delay also failed. Both the 90-frame prediction bound and 1000 ms freshness gate stay unchanged. Existing server sequence/frame IDs and wall-clock movement credit remain authoritative; no worker/core, collision, combat, interpolation, renderer or storage change is selected.
+
+Before evaluating the complete candidate matrix, acceptance criteria are: at least 20% fewer held zero-displacement ticks at 1600 ms on both peers, no worse longest stop; no added stops at 0/100/600 ms; no extra normal-latency requests; pending frames at most 90 and sync requests at most two; no worse correction displacement or release overshoot; preserved authoritative speed, frame order/ACK monotonicity and command deduplication. Asymmetric/jitter and fault scenarios must retain bounded drift and cleanup, terminal expiry, deliberate rejoin and round transitions. Any command loss/duplication or unbounded recovery rejects the candidate. Timing uses fixed seeded inputs, sequential runs and explicit stationary/collision/death exclusions. Exploratory gate-only removal was rejected (369→339 stopped ticks, only 8%, no coherent fix).
+
+The comparison is movement continuity, not FPS. Local adapter/rendered evidence will be labeled separately from Worker/D1, hardware GPU and hosted acceptance.
+
+### Failed hypothesis and retained result
+
+The rejected client allowed two bounded, overlapping slow-link requests, retaining full unacknowledged frame prefixes, the 90-frame bound, 1000 ms freshness gate and unchanged authoritative frame credit. The local player moved on more held-input ticks, with zero measured replay correction and release overshoot in the fixed movement scenarios. This was insufficient for acceptance.
+
+With two bow-equipped peers following identical 3-second holds / 1-second releases, the new command timing aligned their requests. Serialized held-fire traffic then advanced the room about every 1720 ms. `advanceRoom` simulates at most the latest 1000 ms; after skipping 720 ms, its first 30 Hz step is about 753 ms after the prior input, beyond `INPUT_STALE_MS=750`. Existing staggered peers advance the room sooner. Explicit fire commands still deduplicated and eventually acknowledged, but held-fire simulation was lost. Removing the extra 120 ms high-latency held-fire delay did not pass the repeated comparison either. No server/combat timing rewrite or weapon-specific exemption was added to hide this failure.
+
+The final rejected source has no candidate Git commit: it was never accepted. Its exact bytes are identified by the SHA-256 in the comparison and its patch against baseline. The retained runtime candidate is exactly baseline `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`; source equality is checked in the final receipt. Do not attribute main's quick-tour changes to performance work.
+
+The minimum next experiment is a fixed two-peer authoritative trace that preserves accepted `input.fire` intervals while varying request phase (staggered versus aligned) and RTT around 1500–1750 ms. Establish a bounded way to process held attacks without skipping their valid input window or replaying command effects; compare command IDs, shot times, cooldown/heat and release boundaries before attempting movement overlap again. This is one precisely scoped server-input-timing experiment, not permission for a general server/CAS or transport rewrite. No further runtime improvement starts in this session.
+
+### Rejected before/after values
+
+Node v22.22.0; seed 452067; two active clients; fixed 60 Hz virtual time. Both versions use their own client/core module graph. Static obstacles and drops are disabled in the fixture; firing peers start separated with bows. Held-input stops exclude stationary periods, death, joining and round/spawn discontinuities. The firing window is 18 seconds with a 3-second hold / 1-second release pattern. Metrics are frozen before leave/drain.
+
+| Scenario | Baseline stopped ticks, peer 0 / 1 | Rejected candidate stopped ticks, peer 0 / 1 | Baseline → rejected longest stop, ms, peer 0 / 1 |
+| --- | --- | --- | --- |
+| hold-0 | 0 / 0 | 0 / 0 | 0 / 0 → 0 / 0 |
+| hold-100 | 0 / 0 | 0 / 0 | 0 / 0 → 0 / 0 |
+| hold-600 | 0 / 0 | 0 / 0 | 0 / 0 → 0 / 0 |
+| hold-1600 | 369 / 369 | 271 / 283 | 1100 / 1100 → 717 / 1083 |
+| asymmetric-600-1600 | 0 / 436 | 0 / 297 | 0 / 1100 → 0 / 1083 |
+| asymmetric-directions | 435 / 436 | 303 / 297 | 1100 / 1100 → 717 / 1083 |
+| seeded-jitter | 309 / 253 | 230 / 173 | 833 / 800 → 550 / 717 |
+| movement-firing | 553 / 543 | 482 / 477 | 1100 / 1200 → 1100 / 1067 |
+| accepted-response-loss | 929 / 709 | 601 / 525 | 1500 / 1100 → 1100 / 1083 |
+| late-ACK | 475 / 436 | 297 / 297 | 1500 / 1100 → 783 / 1083 |
+
+At 1600 ms, stopped time was **6150 / 6150 ms → 4517 / 4717 ms** (26.6% / 23.3% fewer stopped ticks). This candidate is nevertheless **rejected**: authoritative shots in the timed firing window fell **7 / 9 → 6 / 6**. Explicit command effects were 4 / 5 → 5 / 5 within the window and 5 / 5 on both versions after drain. Counting only explicit commands or only event-delivery IDs would have missed the regression.
+
+Both candidates retained the 90-frame high-water and produced zero measured movement replay error and release overshoot in the fixed movement scenarios. The rejected scheduler used up to two sync requests rather than one at high RTT; normal-latency request counts remained unchanged. Detailed per-peer stop counts/durations, accepted/displayed travel, ACK progress, correction p95/max, pending high-water and cleanup are in the comparison JSON. None of these values is a useful retained improvement after the runtime revert.
+
+### Final checks and reproducible commands
+
+- Full `npm run check` passes on the frozen baseline and restored final source. Final suite includes 11 new movement/failure/comparison checks plus the 10 existing diagnostics checks and existing movement/authority, combat/contact, weapon attachment, camera, controls, history and no-upload voice regressions. The comparison command intentionally exits 1 for the rejected candidate (lost held-fire shots) and restored runtime (no 20% improvement). These are expected negative acceptance results, not unexplained suite failures.
+- `npm run build`, `node scripts/check-package.mjs` and `node scripts/check-voice-package.mjs` pass: 67 public assets, 3 unchanged migrations, byte-identical asset serving, unauthenticated Arena/transcription rejection and development-runner exclusion. No production runtime, worker, renderer, hosting identity or migration file differs from frozen baseline.
+- Real localhost Node HTTP/fetch checks ran sequentially on frozen and restored clients: 35-second active targets, **36,633.8 / 36,632.1 ms** after join including cleanup. Each run destroyed one response socket after an accepted mutation, delayed a separate accepted response beyond the real 12-second AbortSignal timeout, and injected a transient 503. Each explicit fire command produced one authoritative effect. Both peers remained connected; final requests, timers, seats and sockets were all zero. Final request/accepted-frame counts matched across runs. This is an isolated authoritative-core adapter, not Worker/D1, authenticated sessions or build-reservation/CAS validation.
+- The virtual matrix covers 0/100/600/1600 ms RTT, independent per-peer seeded jitter, peer-asymmetric and direction-asymmetric delay, hold/release/reverse, moving/firing, accepted response loss, transient errors, late ACK, downlink outage, genuine uplink outage with expiry, 401/410, pending leave and round transition. Explicit rejoin is exercised only in the core fixture; its `addPlayer` helper is not a claim that production allows creating a new seat mid-round.
+- No 30-minute HTTP soak, hardware-GPU benchmark or hosted acceptance is claimed. The candidate failed the gameplay gate and was reverted before a long soak; running a long acceptance soak of that rejected runtime would not make it safe. The previous six-minute simulated soak remains historical. Round transition here is deterministic virtual coverage, with the current round deadline shortened in the test fixture, not a new real-time round soak.
+
+From the repository, prepare isolated copies without switching the shared checkout:
+
+```sh
+arena_base=$(mktemp -d /private/tmp/arena-base.XXXXXX)
+git archive 0b17f9ed427522dc98f62fdbb4d7078e5cf181c2 | tar -x -C "$arena_base"
+npm run check:movement-continuity
+npm run diagnose:movement -- --baseline "$arena_base" --baseline-sha 0b17f9ed427522dc98f62fdbb4d7078e5cf181c2 --output /private/tmp/arena-restored.json
+```
+
+The last command is expected to exit 1: restored runtime equals baseline and makes no improvement claim. To reproduce the rejected attempt safely in a separate copy:
+
+```sh
+arena_trial=$(mktemp -d /private/tmp/arena-trial.XXXXXX)
+git archive 0b17f9ed427522dc98f62fdbb4d7078e5cf181c2 | tar -x -C "$arena_trial"
+git -C "$arena_trial" apply "$PWD/validation/performance-stability/movement-attempt/rejected-candidate.patch"
+npm run diagnose:movement -- --baseline "$arena_base" --candidate "$arena_trial" --baseline-sha 0b17f9ed427522dc98f62fdbb4d7078e5cf181c2 --output /private/tmp/arena-rejected.json
+npm run check:arena-http -- --baseline "$arena_base" --output /private/tmp/arena-http.json
+```
+
+The rejected comparison exits 1 specifically for reduced authoritative held-fire shots on both peers. The HTTP command uses ephemeral loopback ports, no existing service and no external calls. No manual Arena URL is offered: the local Vite preview still does not provide Arena APIs. Do not send Yerzhan to Practice to certify this failure.
+
+Rollback: no runtime rollback remains necessary; it was already restored. Revert only the final authored test/evidence checkpoint commit reported in the session receipt if those additions are unwanted. Preserve integration `0b17f9e`, Hadrien's main changes and unrelated files. All 22 pre-existing dirty/untracked files were verified byte-identical before checkpointing.
+
+### Desktop completion and checkpoint evidence
+
+Final desktop verification used Chrome/ANGLE SwiftShader at 1440×900, sequentially, with 960 rendered steps per run. The corrected diagnostics-off/on runs at 100 ms both completed without captured page, console or request errors. Frozen-baseline versus restored-source runs then matched at 100 and 1600 ms: 9 / 6 authoritative shot events respectively, two completed builds, identical held-stop counts and zero sampled muzzle-attachment error (35 / 14 visible-flash samples). Screenshots were inspected; both equipped bows and actors remain coherent. Each run drained all fixture seats and timers. These are simplified two-client Arena scenes, not Practice and not a hardware-GPU performance claim.
+
+One initial frozen-asset browser attempt closed unexpectedly before producing a result. A bounded retry with browser process logging completed all four runs. The process log included display-link/GPU warnings; the successful runs' page/console/request captures were clear. The failed attempt is not counted as acceptance, and no frame-rate improvement is inferred from the retry.
+
+Evidence is under `validation/performance-stability/movement-attempt/`: rejected source patch and comparison, restored comparison, real HTTP receipt, observer/rendered JSON and four inspected screenshots. The source receipt hashes authored test code and verifies production-runtime equality with the frozen baseline. A final local test/evidence commit accompanies this document; the rejected runtime has no commit and must not be treated as deployable.
+
+Reproduce the desktop checks using an existing localhost Vite preview at 5194 and externally available Playwright (not a new release dependency):
+
+```sh
+PLAYWRIGHT_MODULE=file:///private/tmp/brickwild-browser-run/node_modules/playwright/index.mjs STABILITY_OUTPUT=/private/tmp/arena-desktop node scripts/diagnose-arena-desktop.mjs
+PLAYWRIGHT_MODULE=file:///private/tmp/brickwild-browser-run/node_modules/playwright/index.mjs STABILITY_BASELINE="$arena_base" STABILITY_OUTPUT=/private/tmp/arena-desktop-restored node scripts/diagnose-arena-desktop.mjs
+```
+
+The last command serves frozen baseline assets explicitly and fails on missing baseline files rather than mixing them with live candidate assets. The local preview was verified listening at `127.0.0.1:5194`; the driver supplies its synthetic test route. This is an automated command, not a persistent manual Arena endpoint.

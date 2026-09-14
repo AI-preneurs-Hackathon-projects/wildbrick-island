@@ -1,0 +1,41 @@
+{
+  "utc": "2026-09-14T13:48:35.014969+00:00",
+  "branch": "performance/arena-stability",
+  "main": "538e075feb407c9985f1bfc79ee904cfb9948ccf",
+  "integrationAndRuntimeBaseline": "0b17f9ed427522dc98f62fdbb4d7078e5cf181c2",
+  "rejectedCandidateCommit": null,
+  "rejectedSourceSHA256": "18733c45e0191d0b29303a7ae7d39afd10c0dc67b08405175263ca83009135b3",
+  "runtimeRestored": true,
+  "node": "v22.22.0",
+  "authoredCodeSHA256": {
+    "package.json": "c228daa202efe3ac66cf10d871b708557e1fb3abcb85b420baea19682650b9af",
+    "scripts/check-package.mjs": "bbb5c0aa5230475be04f5976b12ec81d63a704a2db73591f01b5ee4e93fddcf4",
+    "scripts/diagnose-arena-desktop.mjs": "4316cf9a5c332f8c1010bb28d935ca9cacfdb550fe1bf5ee4fe53efdf4823927",
+    "scripts/lib/performance-fixture.mjs": "2dfb99545dc18fb4d33affef9e894351edfd1be16da004a9f5cf6098ed9b5b2b",
+    "scripts/check-arena-movement-continuity.mjs": "2e81965dda397b56ffa08f1549ee0ab5a07305a265fbdd3a5754394b120edeba",
+    "scripts/compare-arena-movement.mjs": "a8291d6d55f3f70149ae1f1cacb8ae5cfd20a026c01f7e9220d86450ed8f76c0",
+    "scripts/lib/arena-http-fixture.mjs": "2f49025030e7ff61a09dd998331b573ebf29b22d0c80d4031ab345027ce38302",
+    "scripts/check-arena-http.mjs": "7c3b09df90d0a6f7ba6c0d28386977ff3421285497511482f53ca655481ee37e"
+  },
+  "checks": {
+    "baselineFullSuite": "passed",
+    "finalFullSuite": "passed",
+    "focusedMovementChecks": 11,
+    "existingDiagnosticsChecks": 10,
+    "build": "passed",
+    "packageChecks": "passed;67assets;3migrations;developmentFilesExcluded",
+    "http": "two sequential 35s active targets; actual postjoin wall36.634s and36.632s including cleanup",
+    "desktop": "1440x900 Chrome SwiftShader,960frames/run,off/on100ms andbaseline/restored100/1600ms; screenshots inspected; page/console/request capture clear",
+    "rejectedComparison": "expected rejection: authoritative heldfire shots7/9 to6/6",
+    "restoredComparison": "all timed peers andruntimehashes identical; expected no20percentgain rejection"
+  },
+  "limits": [
+    "No retained runtime improvement",
+    "No real-time round soak of this rejected candidate",
+    "No Worker/D1/build-reservation or hosted validation",
+    "No hardwareGPU performance claim",
+    "One initial frozen-asset browser attempt closed unexpectedly before results; bounded retry completed all4runs. Browser process logging reported display-link/GPU warnings; final page/console/request captures were clear."
+  ],
+  "preservedUnrelatedFiles": 22,
+  "publication": "No push, deployment or merge to main"
+}

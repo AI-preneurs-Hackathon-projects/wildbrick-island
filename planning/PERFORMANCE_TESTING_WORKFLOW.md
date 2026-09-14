@@ -1,6 +1,12 @@
 # Performance work: Yerzhan's before/after testing workflow
 
-## Agreement for every future iteration
+## Current authorization — autonomous movement-pause comparison
+
+Yerzhan explicitly superseded the owner-baseline pause on 2026-09-14. For this local movement-pause slice, capture the frozen baseline, announce the selected change, implement and verify autonomously. Owner review is optional confirmation of a finished candidate. Do not require a new interactive page or a Practice test for Arena acceptance. Keep the historical agreement below as context; its mandatory pause and deferred-behavior language no longer govern this slice.
+
+Current comparison base: `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`, after separately merging main `538e075feb407c9985f1bfc79ee904cfb9948ccf`. No branch reset.
+
+## Historical agreement before the explicit follow-up
 
 Before any new performance behavior changes, provide Yerzhan with:
 
@@ -22,7 +28,7 @@ It reproduced a useful failure: with two clients and 1600 ms simulated round-tri
 
 The latest main merge brings Hadrien's separate lobby, snapshot, equipment, score/UI and typing/voice changes. Their visible effects must not be credited to our diagnostics. Historical captures under `validation/performance-stability/` belong to the original diagnostics checkpoint; the merge validation receipt is separate.
 
-## What Yerzhan can test locally now
+## Historical Practice-only instructions — not Arena acceptance
 
 From `/Users/y/ringi-dev/wildbrick-island`:
 
@@ -52,13 +58,17 @@ node scripts/diagnose-arena-stability.mjs --diagnostics ../public/arena-diagnost
 
 The JSON compares two active simulated clients at 0/100/600/1600 ms RTT. Inspect `stats[].zeroMovement`, `diagnostics[].predictionReasons`, snapshot gap and pending-frame metrics. It runs on virtual time, so the command's execution speed is **not** game performance. The two-client desktop driver is currently an automated synthetic scene; it is not yet a manual playable network test page.
 
-## Proposed next task — not started
+## Historical proposed next task — superseded by the authorized movement fix
 
 Prepare an **interactive local two-client Arena reproduction** with repeatable 100/600/1600 ms network presets and a baseline capture/reset control. Show the measured local movement gate separately from frame timing. Prefer actual client/server request handling in an isolated local adapter, preserving creator-started lobbies, authority, expiry and attack deduplication. No production users, paid calls or storage migrations.
 
 First hand Yerzhan that unchanged-behavior baseline to play. Use one moving/shooting player per peer and the same kit/route for 60 seconds at each delay. Agree which visible symptom is reproduced and record stop duration/count, worst frame gaps, input/attack response and reconnects. The longer 30-minute HTTP/server soak remains a later acceptance check.
 
 Only after that baseline test should we select one small prediction/recovery change. The expected improvement would be fewer/shorter **network-induced movement pauses**, not faster character speed or a blanket FPS increase. No specific queue/timeout change is approved by the current evidence. Do not raise the freshness timeout alone; do not combine recovery work with remote interpolation or rendering optimization.
+
+## Current autonomous result
+
+The movement-overlap candidate was implemented, compared and rejected: fewer movement pauses came with fewer authoritative held-fire shots. Runtime edits were reverted. The existing progress document and `validation/performance-stability/movement-attempt/` hold the precise failed hypothesis and evidence. No owner test is requested; Practice cannot certify this network change. Future proposals must state the exact next experiment and measurable acceptance before work, while this follow-up authorizes autonomous baseline capture rather than a mandatory owner pause.
 
 ## Standard result card
 
@@ -71,4 +81,4 @@ Only after that baseline test should we select one small prediction/recovery cha
 | Checked | Automated tests, rendered checks, duration and actual server/network scope |
 | Not verified | Hardware/hosted/manual gaps and any known failing tests |
 | Rollback | Focused revert commit, preserving other work |
-| Next | One proposed next task, with a baseline test before work begins |
+| Next | One proposed next task, with an automated baseline before implementation; owner confirmation is optional |
