@@ -5,6 +5,8 @@ import {createArenaUI} from '../public/arena-ui.js';
 import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
+const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
+assert.match(shell,/style\.css\?v=33/);assert.match(shell,/main\.js\?v=33/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
