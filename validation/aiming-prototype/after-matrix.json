@@ -1,0 +1,1215 @@
+{
+  "source": "handheld-aiming-prototype-on-d2644d5",
+  "method": "Isolated simulation plus renderer transform inspection, no WebGL pixels or production calls. Four fixed spread seeds; not statistical accuracy estimates.",
+  "data": [
+    {
+      "name": "default-bow",
+      "weapon": "bow",
+      "range": 56,
+      "muzzle": {
+        "x": 0.2954049691449742,
+        "y": 1.26,
+        "z": 1.4887864211784634
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    {
+      "name": "car-as-carried-pulse",
+      "weapon": "pulse",
+      "range": 42,
+      "muzzle": {
+        "x": -0.5469559111143663,
+        "y": 1.9375984251968505,
+        "z": 1.4577264303916675
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 4.577566798522237e-16
+    },
+    {
+      "name": "octopus-as-carried-pulse",
+      "weapon": "pulse",
+      "range": 42,
+      "muzzle": {
+        "x": -0.576496106809693,
+        "y": 1.8561604011962696,
+        "z": 1.2971987879946945
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 2.220446049250313e-16
+    },
+    {
+      "name": "car-as-carried-automatic",
+      "weapon": "automatic",
+      "range": 38,
+      "muzzle": {
+        "x": -0.21367676587488116,
+        "y": 2.1375984251968507,
+        "z": 1.523995984101616
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 5.551115123125783e-16
+    },
+    {
+      "name": "dragon-as-carried-flame",
+      "weapon": "flame",
+      "range": 15,
+      "muzzle": {
+        "x": -0.2261086265867874,
+        "y": 2.095559739729805,
+        "z": 1.2736421676651573
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "outsideNominalRange": true
+        }
+      ],
+      "maxRendererEmitterError": 2.482534153247273e-16
+    },
+    {
+      "name": "car-as-carried-bow",
+      "weapon": "bow",
+      "range": 56,
+      "muzzle": {
+        "x": 0.172518952207482,
+        "y": 2.0975984251968507,
+        "z": 1.814612684534573
+      },
+      "collision": [
+        0.9,
+        2.5,
+        0.9
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 4.965068306494546e-16
+    },
+    {
+      "name": "saved-mounted-car",
+      "weapon": "automatic",
+      "range": 38,
+      "muzzle": {
+        "x": 0,
+        "y": 1.85,
+        "z": 2.46
+      },
+      "collision": [
+        3.2,
+        2.769527920650425,
+        5.08
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 6.661338147750939e-16
+    },
+    {
+      "name": "saved-mounted-octopus",
+      "weapon": "pulse",
+      "range": 42,
+      "muzzle": {
+        "x": 0,
+        "y": 1.945612487597153,
+        "z": 2.95
+      },
+      "collision": [
+        6,
+        2.7956124875971526,
+        6.691701908741743
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "maxRendererEmitterError": 8.881784197001252e-16
+    },
+    {
+      "name": "saved-mounted-dragon",
+      "weapon": "flame",
+      "range": 15,
+      "muzzle": {
+        "x": 0,
+        "y": 2.7085655384355922,
+        "z": 3.780614948150319
+      },
+      "collision": [
+        7.422511331289844,
+        3.116396258309647,
+        8
+      ],
+      "cases": [
+        {
+          "distance": 0,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 0.9,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 2,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 5,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 10,
+          "zero": 24,
+          "zeroN": 24,
+          "spread": 32,
+          "spreadN": 32,
+          "alignedAltitude": 8,
+          "alignedN": 8,
+          "cameraInvariant": true,
+          "zeroFacings": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "distance": 20,
+          "outsideNominalRange": true
+        }
+      ],
+      "maxRendererEmitterError": 8.881784197001252e-16
+    }
+  ]
+}

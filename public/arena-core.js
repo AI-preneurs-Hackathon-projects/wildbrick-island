@@ -1,4 +1,7 @@
-import {weaponMuzzle,weaponAim} from './weapon-aim.js';
+import {solveWeaponAim} from './aiming.js';
+import {bounds,solidBoxes,projectileContact} from './shot-geometry.js';
+export {solidBoxes} from './shot-geometry.js';
+import {weaponAim} from './weapon-aim.js';
 import {movementShape,isMovementBlocker,canFit,overlapsBody} from './movement-blocking.js';
 import {moveDirect,startJump,MOVE_DT} from './movement.js';
 import {newMotion,frameInput,validFrames,MAX_MOVE_FRAMES} from './movement-stream.js';
@@ -35,9 +38,7 @@ function safeSpawn(room,id,kit=makeKit()){const spawns=arenaMap(room).spawns,sha
 export function addPlayer(room,id,name,now=room.time){ensureRound(room);if(room.match.complete&&!Object.keys(room.players).length){const nextId=room.round.id+1;room.match=newMatch();room.round=newRound(nextId,now,'waiting','island');room.items=[];room.drops=[];room.placed=[];room.destroyed={};room.damage={};room.events=[];room.nextDrop=now+4000;room.dropIndex=0;}const round=ensureRound(room);if(round.status==='waiting')room.round=newRound(round.id,now,'active',round.mapId);const [x,z]=safeSpawn(room,id),kit=makeKit();const p={roundId:room.round.status==='active'?room.round.id:null,id,name,x,y:0,z,yaw:Math.PI,speed:0,vertical:0,flightAltitude:12,health:100,mountHealth:0,kit,building:null,kills:0,deaths:0,respawnAt:0,protectedUntil:now+3000,defenseUntil:0,speedUntil:0,lastSeen:now,input:{},inputAt:now,lastSeq:0,lastCommand:0,nextShot:0,heat:0,overheatedUntil:0,buildReadyAt:0,actionAt:0};room.players[id]=p;event(room,'join',{player:id,name});return p;}
 export function removePlayer(room,id){if(room.players[id]){event(room,'leave',{player:id,name:room.players[id].name});delete room.players[id];}}
 export function cleanInput(raw={}){const number=(v,a,b)=>typeof v==='number'&&Number.isFinite(v)?clamp(v,a,b):0;return {x:number(raw.x,-1,1),z:number(raw.z,-1,1),cameraYaw:number(raw.cameraYaw,-10000,10000),weaponPitch:0,up:raw.up===true,down:raw.down===true,sprint:raw.sprint===true,fire:raw.fire===true,jump:raw.jump===true};}
-function bounds(p){const [w,h,d]=p.kit.stats.collision,yaw=p.kit.stats.mounted?p.yaw:0,c=Math.abs(Math.cos(yaw)),s=Math.abs(Math.sin(yaw));return {hx:(w*c+d*s)/2,hy:h/2,hz:(d*c+w*s)/2,h};}
 export function movementBoxes(room){const boxes=[];for(const e of arenaMap(room).entities)if(isMovementBlocker(e)&&!room.destroyed?.[e.id])boxes.push(...e.boxes);for(const e of room.placed||[])if(!room.destroyed?.[e.id])boxes.push({...e,y:e.h/2});return boxes;}
-export function solidBoxes(room){const list=[];for(const e of arenaMap(room).entities)if(!room.destroyed[e.id])for(const box of e.boxes)list.push({entity:e,box});for(const e of room.placed||[])if(!room.destroyed[e.id])list.push({entity:e,box:{x:e.x,y:e.h/2,z:e.z,w:e.w,h:e.h,d:e.d}});return list;}
 function destroyCover(room,e,amount,source){if(e.hp<=0)return false;room.damage[e.id]=(room.damage[e.id]||0)+amount;if(room.damage[e.id]<e.hp)return false;room.destroyed[e.id]=room.time+60000;delete room.damage[e.id];event(room,'break',{entity:e.id,by:source,color:e.color||'#ffcf55',x:e.boxes?.[0]?.x??e.x,y:e.boxes?.[0]?.y??e.h/2,z:e.boxes?.[0]?.z??e.z});return true;}
 function dismount(room,p,crashed=false){const old=p.kit.name;p.kit=makeKit();p.mountHealth=0;p.building=null;p.speed=0;p.vertical=0;p.jumpRemaining=0;p.vy=0;p.grounded=false;p.heat=0;p.melee=null;event(room,crashed?'crash':'dismount',{player:p.id,name:old,x:p.x,y:p.y+1,z:p.z});}
 function dropItem(room,p){
@@ -81,45 +82,27 @@ export function attackBlockReason(room,p){
  if(room.round?.status!=='active')return 'round';if(p.health<=0)return 'dead';if(p.building)return 'building';if(!p.kit.stats.damage)return 'unarmed';
  if(room.time<p.protectedUntil)return 'protection';if(room.time<p.overheatedUntil)return 'heat';if(room.time<p.nextShot)return 'cooldown';return null;
 }
-function projectileContact(room,b,from,to,boxes,launchYaw=null){
- let hit=to.y<=0&&from.y>=0?{t:from.y/Math.max(1e-9,from.y-to.y),ground:true}:null;
- // Scenery wins ties, including a launch origin inside both cover and a rival.
- for(const {entity,box} of boxes){if(room.destroyed[entity.id])continue;const h=segmentBox(from,to,box);if(h&&(!hit||h.t<hit.t))hit={...h,entity};}
- for(const p of Object.values(room.players)){
-  if(p.id===b.owner||p.health<=0)continue;
-  // Overlapping bodies are legal; the launch bridge must not become a rear attack.
-  if(launchYaw!==null&&(p.x-from.x)*Math.sin(launchYaw)+(p.z-from.z)*Math.cos(launchYaw)<-1e-9)continue;
-  const bb=bounds(p),h=segmentBox(from,to,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);
-  if(h&&(!hit||h.t<hit.t))hit={...h,player:p};
- }
- return hit;
-}
 function resolveProjectileContact(room,b,from,to,hit){
  const point={x:from.x+(to.x-from.x)*hit.t,y:from.y+(to.y-from.y)*hit.t,z:from.z+(to.z-from.z)*hit.t,attack:b.id,color:b.color};
  if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}
  else{if(hit.entity)destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',{...point,by:b.owner,entity:hit.entity?.id||'ground'});}
 }
-function shoot(room,p,input,commandId=null){const k=p.kit.stats;ensureRound(room);if(attackBlockReason(room,p))return;
+function shoot(room,p,input,commandId=null,aimSolver=solveWeaponAim){const k=p.kit.stats;ensureRound(room);if(attackBlockReason(room,p))return;
  p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
- let {yaw,pitch}=weaponAim(p,input.weaponPitch);const anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
+ let {yaw,pitch}=weaponAim(p);
  if(k.projectileSpeed===0){const attack=event(room,'swing',{player:p.id,x:p.x,y:p.y+1.3,z:p.z,yaw,weapon:k.weapon,commandId});p.melee={at:room.time+(k.windup||.18)*1000,yaw,kit:p.kit.id,damage:k.damage,range:k.range,attack:attack.id};return;}
 
- yaw+=(rand(room)-.5)*k.spread;pitch+=(rand(room)-.5)*k.spread*.7;
- const from=weaponMuzzle(p,yaw,pitch);
- // Retain the ground clamp for legacy emitter data. Cover and players share one
- // ordered launch query instead of clipping past a victim or redirecting off cover.
- const groundClamp=from.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-from.y)):1;
- for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*groundClamp;
-
+ const solution=aimSolver(room,p),{anchor,muzzle:from}=solution;
+ yaw=solution.yaw+(rand(room)-.5)*k.spread;pitch=(rand(room)-.5)*k.spread*.7;
  // Bound each shooter's outstanding work without deleting another player's shots.
  if(room.projectiles.filter(b=>b.owner===p.id).length>=24||room.projectiles.length>=2048){event(room,'notice',{player:p.id,text:'The arena has a lot of projectiles. Try attacking again shortly.'});return;}
  const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};
- const contact=projectileContact(room,projectile,anchor,from,solidBoxes(room),p.yaw);
+ const contact=solution.launchContact;
  // Immediate contact has no live projectile. Replay starts at the body so the
  // visible trace travels toward the contact instead of backwards from the muzzle.
  const visible={...projectile,...(contact?anchor:from)};
- event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,x:visible.x,y:visible.y,z:visible.z,projectile:visible});
+ event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,aimYaw:solution.yaw,kitId:p.kit.id,muzzle:{...from},x:visible.x,y:visible.y,z:visible.z,projectile:visible});
  if(contact)resolveProjectileContact(room,projectile,anchor,from,contact);else room.projectiles.push(projectile);
 }
 function resolveMelee(room,p){
@@ -186,9 +169,9 @@ export function advanceRoom(room,now){ensureRound(room);now=Math.max(room.time,n
  // Also transition when a request arrives at the exact intermission boundary.
  if(room.round.status==='finished'&&!room.match.complete&&now>=room.round.intermissionEndsAt){room.time=room.round.intermissionEndsAt;restartRound(room,room.round.id);room.time=now;}
  return room;}
-export function applyInput(room,id,packet,now,kit=null){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}const round=ensureRound(room);if(packet.roundId!==undefined&&packet.roundId!==round.id){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}if(round.status==='finished'){const c=packet.command;if(c&&Number.isSafeInteger(c.id)&&c.id>p.lastCommand){p.lastCommand=c.id;}return;}p.input=cleanInput(packet.input);p.aimPitch=weaponAim(p,p.input.weaponPitch).pitch;p.inputAt=now;applyFrames(room,p,packet,now);
+export function applyInput(room,id,packet,now,kit=null,aimSolver=solveWeaponAim){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}const round=ensureRound(room);if(packet.roundId!==undefined&&packet.roundId!==round.id){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}if(round.status==='finished'){const c=packet.command;if(c&&Number.isSafeInteger(c.id)&&c.id>p.lastCommand){p.lastCommand=c.id;}return;}p.input=cleanInput(packet.input);p.aimPitch=weaponAim(p,p.input.weaponPitch).pitch;p.inputAt=now;applyFrames(room,p,packet,now);
  const command=packet.command;if(!command||!Number.isSafeInteger(command.id)||command.id<=p.lastCommand)return;p.lastCommand=command.id;if(p.health<=0)return;
- if(command.type==='fire')shoot(room,p,p.input,command.id);
+ if(command.type==='fire')shoot(room,p,p.input,command.id,aimSolver);
  if(command.type==='jump')startJump(p,p.kit.stats.mounted);
  if(command.type==='exit'){dropItem(room,p);return;}
  if(command.type==='pickup'){collectPickup(room,p,command.mode);return;}

@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import fs from 'node:fs';
+import {pathToFileURL} from 'node:url';
+const sourceRoot=process.env.BRICKWILD_SOURCE_ROOT?pathToFileURL(process.env.BRICKWILD_SOURCE_ROOT.replace(/\/$/,'')+'/'):new URL('../',import.meta.url);
+const core=await import(new URL('public/arena-core.js',sourceRoot));
+const {WORLD_ENTITIES}=await import(new URL('public/world-data.js',sourceRoot));
+const {weaponMuzzle}=await import(new URL('public/weapon-aim.js',sourceRoot));
+const read=name=>JSON.parse(fs.readFileSync(new URL('../validation/live/final-compact-none/'+name+'.json',import.meta.url))).blueprint;
+const carry=(name,weapon)=>{const b=read(name);return {...b,movement:'carry',traits:{...b.traits,weapon:weapon||b.traits.weapon}};};
+function setup(b=carry('armed-car','pulse'),distance=5,yaw=0){const r=core.newRoom(100000),p=core.addPlayer(r,'p','Shooter'),q=core.addPlayer(r,'q','Target');for(const e of WORLD_ENTITIES)r.destroyed[e.id]=1e12;r.nextDrop=1e12;Object.assign(p,{x:0,y:0,z:0,yaw,protectedUntil:0,motion:{},kit:core.makeKit(b?'fixture':'bow',b)});Object.assign(q,{x:Math.sin(yaw)*distance,y:0,z:Math.cos(yaw)*distance,protectedUntil:0,motion:{}});p.kit.stats.spread=0;return {r,p,q};}
+const fire=(s,camera=0,id=1)=>{core.applyInput(s.r,'p',{seq:id,input:{cameraYaw:camera},command:{id,type:'fire'}},s.r.time);return s.r.events.findLast(e=>e.type==='shot');};
+const run=s=>core.advanceRoom(s.r,s.r.time+1000);
+const near=(a,b,tol=1e-7)=>assert.ok(Math.abs(a-b)<tol,`${a} != ${b}`);
+const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+for(const b of [carry('armed-car','pulse'),carry('octopus')])test(`${b.name} derived carried pulse: feasible body-forward contact in eight facings and three camera orbits`,()=>{
+ for(const d of [0,.9,2,5,10,20])for(let i=0;i<8;i++)for(const camera of [0,Math.PI/2,Math.PI]){const s=setup(b,d,i*Math.PI/4),e=fire(s,camera);run(s);assert.ok(s.q.health<100,`distance ${d}, yaw ${i}, camera ${camera}`);assert.equal(s.r.events.filter(e=>e.type==='hit').length,1);near(s.p.yaw,i*Math.PI/4);assert.ok(Math.abs(Math.atan2(Math.sin(e.yaw-s.p.yaw),Math.cos(e.yaw-s.p.yaw)))<=Math.PI/12+1e-9);}
+});
+test('accepted shot rotates around the grip, not an unrotated emitter',()=>{const s=setup(),before=weaponMuzzle(s.p),e=fire(s);assert.ok(e.yaw>0&&e.yaw<=Math.PI/12);assert.ok(distance(e.projectile,before)>.01);near(e.projectile.vx/e.projectile.vz,Math.tan(e.yaw));});
+
+const {solveWeaponAim,weaponPath,horizontalCorrection,HANDHELD_AIM_CAP}=fs.existsSync(new URL('public/aiming.js',sourceRoot))?await import(new URL('public/aiming.js',sourceRoot)):{};
+const {solidBoxes,projectileContact}=fs.existsSync(new URL('public/shot-geometry.js',sourceRoot))?await import(new URL('public/shot-geometry.js',sourceRoot)):{};
+const {weaponGrip,weaponOffset}=await import(new URL('public/weapon-aim.js',sourceRoot));
+const {blueprintMetrics}=await import(new URL('public/blueprint-metrics.js',sourceRoot));
+const degrees=a=>a*180/Math.PI;
+function wall(s,x,z,w=.08,d=.08,id='wall'){s.r.placed.push({id,x,z,w,d,h:5,hp:1000});}
+test('closed-form final angle handles below/at/above cap, both sides, and valid extreme emitters',()=>{
+ for(const sign of [-1,1])for(const deg of [0,14.99,15,15.01,40]){const depth=deg?1/Math.tan(deg*Math.PI/180):1e12;near(degrees(horizontalCorrection([-sign,0,0],[0,0,0],depth)),sign*Math.min(deg,15));}
+ for(const x of [-16,16]){const b=carry('armed-car','pulse');b.traits.emitter=[x,1.85,2.6];const s=setup(b,2),a=solveWeaponAim(s.r,s.p),unchanged=JSON.stringify(s.r);assert.ok(Math.abs(a.correction)<=HANDHELD_AIM_CAP);for(const n of [a.yaw,a.focusDepth,...Object.values(a.muzzle),...Object.values(a.direction)])assert.ok(Number.isFinite(n));assert.ok(a.focusDepth-((a.muzzle.x-s.p.x)*Math.sin(s.p.yaw)+(a.muzzle.z-s.p.z)*Math.cos(s.p.yaw))>=1.5-1e-9);weaponPath(s.r,s.p,a);assert.equal(JSON.stringify(s.r),unchanged);fire(s);run(s);assert.equal(s.q.health<100,x>0,'left extreme saturates and misses; right extreme has feasible launch contact');}
+});
+test('empty focus, behind, dead and vertically separated bodies never become a radial lock-on',()=>{
+ for(const mode of ['empty','behind','dead','above']){const s=setup();if(mode==='empty')delete s.r.players.q;if(mode==='behind')s.q.z=-1;if(mode==='dead'){s.q.health=0;s.q.respawnAt=1e12;}if(mode==='above')s.q.y=9;const a=solveWeaponAim(s.r,s.p);assert.equal(a.focusContact,null);near(a.focusDepth,s.p.kit.stats.range);const old=s.q.health;fire(s);run(s);assert.equal(s.q.health,old);}
+ const s=setup();s.p.kit.stats.range=.1;const a=solveWeaponAim(s.r,s.p);assert.ok(Number.isFinite(a.yaw));assert.ok(a.focusDepth>a.range);fire(s);run(s);assert.equal(s.q.health,100,'focus clearance cannot extend projectile range');
+});
+test('focus query and muzzle path are distinct; each physical obstruction is respected',()=>{
+ const axis=setup();wall(axis,0,2.5);const aa=solveWeaponAim(axis.r,axis.p);assert.equal(aa.focusContact.entity.id,'wall');assert.equal(weaponPath(axis.r,axis.p,aa).contact.player.id,'q','actual ray passes beside the thin focus-query wall');fire(axis);run(axis);assert.ok(axis.q.health<100);
+ const ray=setup(),initial=solveWeaponAim(ray.r,ray.p);wall(ray,initial.muzzle.x+initial.direction.x*.6,initial.muzzle.z+initial.direction.z*.6);const ra=solveWeaponAim(ray.r,ray.p);assert.equal(ra.focusContact.player.id,'q');assert.equal(weaponPath(ray.r,ray.p,ra).contact.entity.id,'wall');fire(ray);run(ray);assert.equal(ray.q.health,100);assert.equal(ray.r.events.filter(e=>e.type==='impact').length,1);
+ const bridge=setup();wall(bridge,0,.1,4,.1);const ba=solveWeaponAim(bridge.r,bridge.p),path=weaponPath(bridge.r,bridge.p,ba);assert.ok(path.launch);assert.equal(path.contact.entity.id,'wall');const e=fire(bridge);run(bridge);assert.equal(bridge.q.health,100);assert.deepEqual({x:e.x,y:e.y,z:e.z},path.from);assert.equal(bridge.r.events.find(e=>e.type==='impact').attack,e.projectile.id);
+});
+test('nearest protected rival and stable cover/body ties are blocking, never a damage exception',()=>{
+ const s=setup(undefined,2);s.q.protectedUntil=s.r.time+10000;const far=core.addPlayer(s.r,'far','Far');Object.assign(far,{x:0,y:0,z:5,protectedUntil:0,motion:{}});const a=solveWeaponAim(s.r,s.p);assert.equal(a.focusContact.player.id,'q');fire(s);run(s);assert.equal(s.q.health,100);assert.equal(far.health,100);assert.equal(s.r.events.filter(e=>e.type==='blocked').length,1);assert.equal(s.r.events.filter(e=>e.type==='hit').length,0);
+ const tie=setup(undefined,5);wall(tie,0,5,1.14,1.14);assert.equal(solveWeaponAim(tie.r,tie.p).focusContact.entity.id,'wall');fire(tie);run(tie);assert.equal(tie.q.health,100);
+ const pair=setup();pair.r.players.aa={...pair.q,id:'aa'};const first=solveWeaponAim(pair.r,pair.p).focusContact.player.id;pair.r.players=Object.fromEntries(Object.entries(pair.r.players).reverse());assert.equal(first,'aa');assert.equal(solveWeaponAim(pair.r,pair.p).focusContact.player.id,'aa');
+});
+test('focus transitions are deterministic; destroyed cover and departed targets are removed immediately',()=>{
+ const s=setup(),nearAim=solveWeaponAim(s.r,s.p);s.q.x=2;const empty=solveWeaponAim(s.r,s.p);assert.equal(empty.focusContact,null);assert.ok(Math.abs(empty.correction)<Math.abs(nearAim.correction));s.q.x=0;near(solveWeaponAim(s.r,s.p).yaw,nearAim.yaw);wall(s,0,2.5);const withCover=solveWeaponAim(s.r,s.p);assert.equal(withCover.focusContact.entity.id,'wall');s.r.destroyed.wall=1e12;near(solveWeaponAim(s.r,s.p).yaw,nearAim.yaw);delete s.r.players.q;assert.equal(solveWeaponAim(s.r,s.p).focusContact,null);
+ for(let i=0;i<30;i++)assert.deepEqual(solveWeaponAim(s.r,s.p),solveWeaponAim(s.r,s.p));
+});
+test('unchanged spread is sampled once after base aim and cannot move the emitter or retarget a projectile',()=>{
+ const s=setup(),k=core.makeKit('fixture',carry('armed-car','pulse'));s.p.kit.stats.spread=k.stats.spread;const a=solveWeaponAim(s.r,s.p);let seed=s.r.seed;const rand=()=>{let n=seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;seed=n>>>0;return seed/4294967296;};const yaw=a.yaw+(rand()-.5)*k.stats.spread,pitch=(rand()-.5)*k.stats.spread*.7,e=fire(s);near(e.aimYaw,a.yaw);near(e.yaw,yaw);near(e.pitch,pitch);near(distance(e.muzzle,a.muzzle),0);assert.equal(s.r.seed,seed);const velocity=[e.projectile.vx,e.projectile.vy,e.projectile.vz];s.q.x=20;s.q.z=2;core.advanceRoom(s.r,s.r.time+100);assert.deepEqual([s.r.projectiles[0].vx,s.r.projectiles[0].vy,s.r.projectiles[0].vz],velocity);run(s);assert.equal(s.q.health,100);
+});
+test('moving before server firing uses current world; injected client aim/victim/damage is ignored on retries',()=>{
+ const s=setup(),preview=solveWeaponAim(s.r,s.p);s.q.z=10;const accepted=solveWeaponAim(s.r,s.p);assert.notEqual(accepted.yaw,preview.yaw);const packet={seq:1,input:{cameraYaw:Math.PI,aimYaw:3,damage:999,victim:'q',fixedAim:true},command:{id:1,type:'fire',yaw:3,damage:999,victim:'q'}};core.applyInput(s.r,'p',packet,s.r.time);const e=s.r.events.find(e=>e.type==='shot');near(e.aimYaw,accepted.yaw);run(s);core.applyInput(s.r,'p',{...packet,seq:2},s.r.time);assert.equal(s.r.events.filter(e=>e.type==='hit').length,1);near(s.q.health,85.6);assert.equal(s.r.events.filter(e=>e.type==='shot').length,1);
+});
+test('mounted saved car, octopus and dragon keep fixed emitters and zero correction in every facing',()=>{
+ for(const name of ['armed-car','octopus','dragon'])for(let i=0;i<8;i++){const s=setup(read(name),5,i*Math.PI/4),origin=weaponMuzzle(s.p),a=solveWeaponAim(s.r,s.p),e=fire(s,Math.PI);near(a.correction,0);near(distance(origin,a.muzzle),0);near(e.aimYaw,s.p.yaw);near(e.yaw,s.p.yaw);near(distance(e.muzzle,origin),0);}
+});
+test('queries have bounded linear work and do not mutate world, kit, seed or ordering',()=>{
+ const s=setup(),boxes=solidBoxes(s.r);let reads=0;const players={p:s.p};for(let i=0;i<200;i++)Object.defineProperty(players,'q'+i,{enumerable:true,get(){reads++;return {...s.q,id:'q'+i,x:20+i};}});const world={...s.r,players},before=JSON.stringify(s.r);const a=solveWeaponAim(world,s.p,{boxes});weaponPath(world,s.p,a,boxes);assert.ok(reads<=600,`${reads} actor reads exceeded three linear queries`);assert.equal(JSON.stringify(s.r),before);
+});
+
+const {JSDOM}=await import('jsdom');const THREE=await import(new URL('public/vendor/three.module.js',sourceRoot));const {createArenaView}=await import(new URL('public/arena-view.js',sourceRoot));
+const dom=new JSDOM('');globalThis.document=dom.window.document;dom.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
+const visual=(s,b)=>{const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),cache=new Map([['fixture',b]]);const draw=(options={})=>{view.update(core.roomSnapshot(s.r,'p'),s.p,cache,0,s.r.time,options);scene.updateMatrixWorld(true);};draw();return {scene,view,draw,model:scene.getObjectByName('arena-player:p').getObjectByName('creation')};};
+test('fresh, serialized and pre-correction stored kits pose their actual emitter on the authoritative origin; saved rebuild corrects legacy data',()=>{
+ for(const name of ['octopus','dragon'])for(const legacy of [false,true])for(let i=0;i<8;i++){const b=carry(name),s=setup(b,5,i*Math.PI/4),fresh=structuredClone(s.p.kit);if(legacy){const m=blueprintMetrics(b);s.p.kit.muzzle=s.p.kit.muzzle.map((v,i)=>Math.max(i===1?.2:-m.size[i]/2-.8,Math.min(v,i===1?m.size[1]+.8:m.size[i]/2+.8)));}s.p.kit=JSON.parse(JSON.stringify(s.p.kit));const stored=JSON.stringify(s.p.kit),a=solveWeaponAim(s.r,s.p),v=visual(s,b),emitter=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(v.model.matrixWorld);near(distance(emitter,a.muzzle),0);const axis=new THREE.Vector3(0,0,1).transformDirection(v.model.matrixWorld);near(axis.x,a.direction.x);near(axis.z,a.direction.z);const e=fire(s);near(distance(emitter,e.muzzle),0);assert.equal(JSON.stringify(s.p.kit),stored);v.view.clear();if(legacy){assert.notEqual(fresh.muzzle[1],s.p.kit.muzzle[1]);core.applyInput(s.r,'p',{seq:2,command:{id:2,type:'build'}},s.r.time,fresh);core.advanceRoom(s.r,s.r.time+1250);assert.deepEqual(s.p.kit.muzzle,fresh.muzzle);}}
+});
+test('confirmed shot pose and replay win over changed focus without repeating prediction animation or damage',()=>{
+ const b=carry('octopus'),s=setup(b),v=visual(s,b),a=solveWeaponAim(s.r,s.p);v.view.effect({type:'attack-preview',player:'p',time:s.r.time,weapon:'pulse',kitId:'fixture',aimYaw:a.yaw,yaw:a.yaw,muzzle:a.muzzle,origin:a.muzzle});const e=fire(s);core.advanceRoom(s.r,s.r.time+80);const hit=s.r.events.find(e=>e.type==='hit');assert.ok(hit);s.q.z=20;v.view.effect({...e,predicted:true});v.view.effect(hit);v.draw();const emitter=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(v.model.matrixWorld);near(distance(emitter,e.muzzle),0);near(new THREE.Vector3(0,0,1).transformDirection(v.model.matrixWorld).x,Math.sin(e.aimYaw));assert.equal(v.scene.getObjectByName('weapon-path-guide').visible,true,'guide does not blink on each shot');near(distance(v.scene.getObjectByName('weapon-path-end').position,hit),0);assert.ok(v.scene.getObjectByName('projectile:'+e.projectile.id));v.view.clear();
+});
+test('guide uses first launch contact and spread; menus, KO, round end and leave clear stale prediction',()=>{
+ const b=carry('armed-car','pulse'),s=setup(b),v=visual(s,b);s.p.kit.stats.spread=.2;v.draw();const guide=v.scene.getObjectByName('weapon-path-guide');assert.ok(guide.visible);assert.ok(guide.getObjectByName('weapon-spread-envelope').visible);wall(s,0,.1,4,.1);v.draw();const path=weaponPath(s.r,s.p);near(distance(guide.getObjectByName('weapon-path-end').position,path.to),0);assert.ok(guide.userData.launch);assert.equal(guide.getObjectByName('weapon-spread-envelope').visible,false);v.draw({showGuide:false});assert.equal(guide.visible,false);s.p.health=0;v.draw();assert.equal(guide.visible,false);s.p.health=100;s.r.round.status='finished';v.draw();assert.equal(guide.visible,false);v.view.update(null,null,new Map(),0,s.r.time);assert.equal(guide.visible,false);v.view.clear();assert.equal(guide.visible,false);
+});
+test('actual fixed cannon instance axis follows the solved barrel, and late ACK does not restart its firing pose',()=>{
+ const b=carry('octopus'),s=setup(b),v=visual(s,b),a=solveWeaponAim(s.r,s.p),center=new THREE.Vector3(...blueprintMetrics(b).normalize(b.parts[5].position));let cannon;
+ for(const mesh of v.model.children)if(mesh.isInstancedMesh&&mesh.geometry.type==='CylinderGeometry')for(let i=0;i<mesh.count;i++){const matrix=new THREE.Matrix4();mesh.getMatrixAt(i,matrix);if(new THREE.Vector3().setFromMatrixPosition(matrix).distanceTo(center)<1e-6)cannon=matrix;}
+ assert.ok(cannon);const axis=new THREE.Vector3(0,1,0).transformDirection(cannon).transformDirection(v.model.matrixWorld);near(axis.x,a.direction.x);near(axis.z,a.direction.z);
+ v.view.effect({type:'attack-preview',player:'p',time:s.r.time,weapon:'pulse',kitId:'fixture',aimYaw:a.yaw,yaw:a.yaw,muzzle:a.muzzle,origin:a.muzzle});const e=fire(s);s.r.time+=200;s.q.x=3;v.draw();v.view.effect({...e,predicted:true});v.draw();const now=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(v.model.matrixWorld);near(distance(now,solveWeaponAim(s.r,s.p).muzzle),0);assert.equal(v.scene.getObjectByName('weapon-path-guide').visible,true);v.view.clear();
+});
+test('spread brackets bound independent pitch/yaw samples; immediate replay faces its contact path',()=>{
+ const b=carry('armed-car','pulse'),s=setup(b),v=visual(s,b);s.p.kit.stats.spread=.2;v.draw();const path=weaponPath(s.r,s.p),length=distance(path.from,path.to),brackets=v.scene.getObjectByName('weapon-spread-envelope');near(brackets.scale.x,Math.tan(.1)*length);near(brackets.scale.y,Math.tan(.07)*length/Math.cos(.1));v.view.clear();
+ const t=setup(null,.9),w=visual(t,null),e=fire(t),hit=t.r.events.find(e=>e.type==='hit');w.view.effect(e);w.view.effect(hit);w.view.update(core.roomSnapshot(t.r,'p'),t.p,new Map(),.02,t.r.time+20);const projectile=w.scene.getObjectByName('projectile:'+e.projectile.id);projectile.updateWorldMatrix(true,false);const direction=new THREE.Vector3(0,0,1).transformDirection(projectile.matrixWorld),wanted=new THREE.Vector3(hit.x-e.x,hit.y-e.y,hit.z-e.z).normalize();near(direction.dot(wanted),1);assert.equal(t.r.events.filter(e=>e.type==='hit').length,1);w.view.clear();
+});

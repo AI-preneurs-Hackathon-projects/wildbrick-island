@@ -1,0 +1,25 @@
+✔ Red Twin-Gun Roadster derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (381.466133ms)
+✔ Wheeltop Mecha Octopus derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (322.558622ms)
+✔ accepted shot rotates around the grip, not an unrotated emitter (2.455466ms)
+✔ closed-form final angle handles below/at/above cap, both sides, and valid extreme emitters (438.584549ms)
+✔ empty focus, behind, dead and vertically separated bodies never become a radial lock-on (48.117085ms)
+✔ focus query and muzzle path are distinct; each physical obstruction is respected (18.188893ms)
+✔ nearest protected rival and stable cover/body ties are blocking, never a damage exception (15.865827ms)
+✔ focus transitions are deterministic; destroyed cover and departed targets are removed immediately (7.8379ms)
+✔ unchanged spread is sampled once after base aim and cannot move the emitter or retarget a projectile (5.595766ms)
+✔ moving before server firing uses current world; injected client aim/victim/damage is ignored on retries (7.922988ms)
+✔ mounted saved car, octopus and dragon keep fixed emitters and zero correction in every facing (125.850409ms)
+✔ queries have bounded linear work and do not mutate world, kit, seed or ordering (5.451267ms)
+✔ fresh, serialized and pre-correction stored kits pose their actual emitter on the authoritative origin; saved rebuild corrects legacy data (163.866197ms)
+✔ confirmed shot pose and replay win over changed focus without repeating prediction animation or damage (5.303014ms)
+✔ guide uses first launch contact and spread; menus, KO, round end and leave clear stale prediction (4.953858ms)
+✔ actual fixed cannon instance axis follows the solved barrel, and late ACK does not restart its firing pose (5.235141ms)
+✔ spread brackets bound independent pitch/yaw samples; immediate replay faces its contact path (7.066335ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1592.132501

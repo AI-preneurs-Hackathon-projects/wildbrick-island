@@ -42,5 +42,5 @@ export function createGeneratedModel(raw){
   for(const {mesh,items}of batches){items.forEach((e,i)=>{temp.multiplyMatrices(e.part.matrix,e.local);mesh.setMatrixAt(i,temp);});mesh.instanceMatrix.needsUpdate=true;}
  }
  update(0,1,0);
- return {group,blueprint,seat,grip,size:normalizedSize,parts:parts.length,drawCalls:batches.length,update,dispose(){if(disposed)return;disposed=true;group.removeFromParent();batches.forEach(b=>b.mesh.dispose());Object.values(shapes).forEach(g=>g.dispose());mat.dispose();}};
+ return {group,blueprint,seat,grip,emitter:blueprint.traits?new THREE.Vector3(...blueprint.traits.emitter).applyMatrix4(normalize):null,size:normalizedSize,parts:parts.length,drawCalls:batches.length,update,dispose(){if(disposed)return;disposed=true;group.removeFromParent();batches.forEach(b=>b.mesh.dispose());Object.values(shapes).forEach(g=>g.dispose());mat.dispose();}};
 }

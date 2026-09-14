@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> brickwild@3.0.0 build
+> node scripts/build.mjs
+
+Built self-contained Worker with 62 assets. API secrets are read only at runtime.

@@ -1,6 +1,6 @@
+import {solveWeaponAim,weaponPath} from './aiming.js';
 import {passedRing} from './ring-pass.js';
 import {makeKit} from './arena-core.js';
-import {weaponMuzzle,aimDirection,weaponAim} from './weapon-aim.js';
 import {movementShape,isMovementBlocker,canFit} from './movement-blocking.js';
 import {creationStats} from './combat.js';
 import {segmentBox,boxesOverlap} from './geometry.js';
@@ -12,9 +12,9 @@ export async function createSimulation(obstacles,onEvent){
  const scenery=new Map(obstacles.map((o,i)=>[i,{...o,y:o.y??o.h/2}]));
  let s=createState();let checkAccumulator=0;
  const movementBoxes=()=>[...scenery.values()].filter(isMovementBlocker).concat([...placements.values()]);
- const placements=new Map();let placementId=0;
+ const placements=new Map();let placementId=0,aimBoxesCache=null,aimTargetKey=null;
  function setMode(mode){s.mode=mode;s.jumpRemaining=0;s.vertical=0;s.vy=0;s.grounded=undefined;s.flightAltitude=s.y;}
- function removeEntity(id){for(const [key,o]of scenery)if(o.id===id)scenery.delete(key);s.destroyed||={};s.destroyed[id]=true;}
+ function removeEntity(id){aimBoxesCache=null;for(const [key,o]of scenery)if(o.id===id)scenery.delete(key);s.destroyed||={};s.destroyed[id]=true;}
  function emit(type,data={}){onEvent({type,...data});}
  function rayDistance(from,to,ignore){const distance=Math.hypot(to.x-from.x,to.y-from.y,to.z-from.z);let t=1;for(const o of [...scenery.values(),...placements.values()]){if(ignore&&o.id===ignore)continue;const hit=segmentBox(from,to,o);if(hit)t=Math.min(t,hit.t);}return t<1?Math.max(.2,distance*t-.45):distance;}
  // Scenery protects against shots, but never changes movement or camera position.
@@ -31,21 +31,18 @@ export async function createSimulation(obstacles,onEvent){
   const blueprint=validateBlueprint(design.blueprint),custom={blueprint,dimensions:design.dimensions};const mode=customMode(blueprint);
   s.building={mode,custom,time:0,duration:1.2};emit('build',{mode,custom});return true;
  }
+ function aimSolution(kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint)){
+  const key=s.targets.join(',')+':'+placementId+':'+placements.size;if(!aimBoxesCache||key!==aimTargetKey){aimTargetKey=key;const targets=TARGETS.map((t,i)=>({x:t.x,y:1.9,z:t.z,w:1.75,h:1.75,d:.4,id:'target:'+i})).filter((_,i)=>!s.targets.includes(i));aimBoxesCache=[...scenery.values(),...placements.values(),...targets].map((box,i)=>({entity:{id:box.id??'practice:'+i},box}));}
+  const world={players:[],destroyed:{}},p={...s,id:'practice',kit},solution=solveWeaponAim(world,p,{boxes:aimBoxesCache});return {...solution,path:weaponPath(world,p,solution,aimBoxesCache)};
+ }
  function jump(){if(s.started&&!s.paused&&startJump(s,['car','plane'].includes(s.mode)))emit('jump');}
  function action(aim){
   if(!s.started||s.paused||s.building||s.cooldown>0)return;
   s.actionTime=.40;s.cooldown=s.mode==='bow'?.62:s.mode==='sword'?.48:.3;
   if(s.custom?.blueprint.ability==='pulse'||s.mode==='bow'&&!s.custom){
-   const kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),{yaw,pitch}=weaponAim({...s,kit},aim?.weaponPitch),from=weaponMuzzle({...s,kit},yaw,pitch),dir=aimDirection(yaw,pitch),range=kit.stats.range;
-   const anchor={x:s.x,y:s.y+Math.max(1.2,kit.stats.collision[1]*.6),z:s.z};let obstruction=from.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-from.y)):1;
-   for(const o of [...scenery.values(),...placements.values()]){const hit=segmentBox(anchor,from,o);if(hit)obstruction=Math.min(obstruction,Math.max(0,hit.t-.02));}for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*obstruction;
-   let to={x:from.x+dir.x*range,y:from.y+dir.y*range,z:from.z+dir.z*range};
-   let nearest=to.y<=0?{t:from.y/Math.max(1e-9,from.y-to.y),id:'ground'}:null;
-   const targets=TARGETS.map((t,i)=>({x:t.x,y:1.9,z:t.z,w:1.75,h:1.75,d:.4,id:'target:'+i})).filter((_,i)=>!s.targets.includes(i));
-   for(const o of [...scenery.values(),...placements.values(),...targets]){const hit=segmentBox(from,to,o);if(hit&&(!nearest||hit.t<nearest.t))nearest={...hit,id:o.id};}
-   if(nearest)to=Object.fromEntries(['x','y','z'].map(key=>[key,from[key]+(to[key]-from[key])*nearest.t]));
-   const target=String(nearest?.id).startsWith('target:')?Number(nearest.id.slice(7)):null;
-   emit('shoot',{target,from,to,yaw,pitch,impact:!!nearest,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
+   const kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),solution=aimSolution(kit),path=solution.path;
+   const target=String(path.contact?.entity?.id).startsWith('target:')?Number(path.contact.entity.id.slice(7)):null;
+   emit('shoot',{target,from:path.from,to:path.to,guide:{from:path.from,to:path.to,direction:path.direction,spread:path.spread,launch:path.launch},yaw:solution.yaw,pitch:0,aimYaw:solution.yaw,muzzle:solution.muzzle,impact:!!path.contact,pulse:!!s.custom,color:kit.color,speed:kit.stats.projectileSpeed});return;
   }
   if(s.mode==='foot')emit('swing');
   if(s.mode==='car'&&s.custom?.blueprint.ability!=='swing'){s.boostUntil=s.time+.7;emit('boost');}
@@ -77,5 +74,5 @@ export async function createSimulation(obstacles,onEvent){
   if(s.mode==='plane')RINGS.forEach((p,i)=>{if(!s.rings.includes(i)&&passedRing(previous,s,i,creationStats(s.custom?.blueprint||s.mode,s.custom?.dimensions).collision[1])){s.rings.push(i);s.bricks+=20;emit('ring',{id:i});}});
   if(!s.won&&completion(s)){s.won=true;emit('win');}
  }
- return {get state(){return s;},build,buildCustom,action,jump,hitTarget,respawn,reset,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
+ return {get state(){return s;},aim:aimSolution,build,buildCustom,action,jump,hitTarget,respawn,reset,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
 }

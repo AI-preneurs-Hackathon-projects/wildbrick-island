@@ -3,6 +3,8 @@ import {pathToFileURL} from 'node:url';
 const sourceRoot=process.env.BRICKWILD_SOURCE_ROOT?pathToFileURL(process.env.BRICKWILD_SOURCE_ROOT.replace(/\/$/,'')+'/'):new URL('../',import.meta.url);
 const core=await import(new URL('public/arena-core.js',sourceRoot));
 const {WORLD_ENTITIES}=await import(new URL('public/world-data.js',sourceRoot));
+const aiming=await import(new URL('public/aiming.js',sourceRoot)).catch(()=>null);
+const origin=s=>aiming?aiming.solveWeaponAim(s.r,s.p).muzzle:weaponMuzzle(s.p);
 const {weaponMuzzle}=await import(new URL('public/weapon-aim.js',sourceRoot));
 const {blueprintMetrics}=await import(new URL('public/blueprint-metrics.js',sourceRoot));
 const {createArenaView}=await import(new URL('public/arena-view.js',sourceRoot));
@@ -25,12 +27,12 @@ function setup(name,b,d,yaw,spread,seed,altitude=false){
 }
 const data=[];
 for(const [name,b] of fixtures){
- const initial=setup(name,b,5,0,'zero',1),muzzle=weaponMuzzle(initial.p),row={name,weapon:initial.p.kit.stats.weapon,range:initial.p.kit.stats.range,muzzle,collision:initial.p.kit.stats.collision,cases:[]};
+ const initial=setup(name,b,5,0,'zero',1),muzzle=origin(initial),row={name,weapon:initial.p.kit.stats.weapon,range:initial.p.kit.stats.range,muzzle,collision:initial.p.kit.stats.collision,cases:[]};
  // Actual renderer transforms, without a WebGLRenderer or pixel claim.
  if(b){let error=0;for(let i=0;i<8;i++){
   const s=setup(name,b,5,i*Math.PI/4,'zero',1),scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera());view.update(core.roomSnapshot(s.r,'p'),s.p,new Map([[name,b]]),0,s.r.time);
   const model=scene.getObjectByName('arena-player:p').getObjectByName('creation');scene.updateMatrixWorld(true);
-  const emitter=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(model.matrixWorld),actual=weaponMuzzle(s.p);
+  const emitter=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(model.matrixWorld),actual=origin(s);
   error=Math.max(error,emitter.distanceTo(new THREE.Vector3(actual.x,actual.y,actual.z)));view.clear();
  }row.maxRendererEmitterError=error;}
  for(const distance of [0,.9,2,5,10,20]){

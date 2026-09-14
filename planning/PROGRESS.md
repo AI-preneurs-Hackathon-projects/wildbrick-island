@@ -42,3 +42,13 @@ GitHub main is `7ee2b1e2fd89f9b9b8b17de7cdd3c91fee705f90`. Despite different his
 Rendered acceptance has not occurred: a single browser attempt again failed to create WebGL, and two real authorized signed-in player sessions were unavailable here. Scene-graph and delayed synthetic-client results are not pixels or hosted acceptance. The previous no-publication-authorization wording no longer describes the released version; this follow-up is intentionally local-only under the latest instruction.
 
 See [COMBAT_ACCEPTANCE_FOLLOWUP.md](COMBAT_ACCEPTANCE_FOLLOWUP.md) for exact saved-version/deployment evidence, fixture provenance, the 0/0.9/2/5/10/20 m matrix, bounded aiming-policy proposal, precise local harness/hosted checklist, persisted-kit limitation and review scope. Sanitized release metadata and fresh check logs are under `validation/combat-acceptance/`. Historical validation records above remain intact.
+
+## Bounded handheld aiming prototype — 2026-09-14, ready for local review
+
+- Refreshed GitHub main `9e62523b37fef657b02ddb19294e4cdfd203f12d`; creator baseline `d2644d50b8f8171e41eb394f5d003b1e259208f9`. Every blob matches except the intentional hosting manifest and README differences. Dedicated creator checkout was clean; no applicable AGENTS.md found.
+- Native Sites read-only refresh: version 18/source `967983ddacdd60d0b470ce51f2a4daa6c7016ea7`, deployment `appgdep_6aa77ef82444819191e4945535394ea7`, succeeded; owner role, custom audience revision 3, environment revision 6. No site/runtime/data changes.
+- Authorized scope: shared deterministic 15° handheld convergence, matching pose/path guide, regression coverage and portable local visual handoff. Mounted barrels, damage, movement and later roadmap unchanged. No push/publication this run.
+- Implemented the shared closed-form solver, matching carried pose, neutral path/spread guide, confirmed-shot presentation and fixed-policy harness comparison. Preserved legacy stored muzzles; normal free blueprint rebuild obtains corrected coordinates.
+- Verified 17 focused aiming groups, all 44 contact groups, all five emitter groups, the original six delayed fixtures plus three moving-pulse fixtures, and 28 harness wiring cases. Full suite/build/package passed (62 assets, three migrations, Arena 401). Original three aiming repro groups fail against the reviewed baseline.
+- Both derived pulse fixtures: 12/24 to 24/24 zero-spread hits at each of 2/5/10/20 m. Extreme offsets still have legitimate capped misses. No rendered/pixel or real hosted two-account acceptance this run.
+- Review report: `AIMING_PROTOTYPE.md`; exact portable setup and cases: `LOCAL_AIMING_REVIEW.md`. Local commit/portable patch prepared for review; no new push/deployment.

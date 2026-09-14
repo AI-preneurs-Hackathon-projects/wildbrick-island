@@ -1,0 +1,1 @@
+PASS fixture route and 28 harness interaction cases: fixed/converged pulse at 2/5/10/20m, cap saturation, mirrored origin, both cover paths, protection, focus transitions, camera orbit, legacy rebuild and mounted fixed barrels. No-op renderer: NO pixels or hosted multiplayer evidence.

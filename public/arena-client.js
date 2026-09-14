@@ -1,5 +1,6 @@
+import {solveWeaponAim} from './aiming.js';
 import {MAP_CYCLE} from './map-catalog.js';
-import {weaponMuzzle,weaponAim} from './weapon-aim.js';
+import {weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
 import {predictPlayer,cleanInput} from './arena-core.js';
 import {MOVE_DT} from './movement.js';
@@ -57,7 +58,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  }
  async function leave(){lifecycle++;joining=false;closed=true;clearTimer(timer);const old=credentials||joinTicket;joinTicket=null;credentials=null;self=null;snapshot=null;view.reset();commands=[];predictedCommands.clear();frames=[];accumulator=0;jumpQueued=false;input={};onStatus('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
  function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status==='finished'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;const id=++commandId;commands.push({id,type,mode,blueprint});if(type==='fire')previewAttack(id);schedule(0);return true;}
- function previewAttack(id){const time=serverTime(),k=self?.kit.stats;if(!k||clock()-lastSuccess>=1000||self.health<=0||self.building||!k.damage||time<self.protectedUntil||time<self.overheatedUntil||clock()-previewAt<k.interval*1000)return;previewAt=clock();predictedCommands.add(id);while(predictedCommands.size>64)predictedCommands.delete(predictedCommands.values().next().value);const pose=view.state||self,aim=weaponAim(pose);onEvent({type:'attack-preview',commandId:id,player:self.id,weapon:k.weapon,yaw:aim.yaw,pitch:0,origin:weaponMuzzle(pose),time},self.id);}
+ function previewAttack(id){const time=serverTime(),k=self?.kit.stats;if(!k||clock()-lastSuccess>=1000||self.health<=0||self.building||!k.damage||time<self.protectedUntil||time<self.overheatedUntil||clock()-previewAt<k.interval*1000)return;previewAt=clock();predictedCommands.add(id);while(predictedCommands.size>64)predictedCommands.delete(predictedCommands.values().next().value);const pose=view.state||self,aim=solveWeaponAim(snapshot,pose);onEvent({type:'attack-preview',commandId:id,player:self.id,weapon:k.weapon,yaw:aim.yaw,pitch:0,origin:aim.launchContact?aim.anchor:aim.muzzle,muzzle:aim.muzzle,aimYaw:aim.yaw,kitId:pose.kit.id,time},self.id);}
 
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){

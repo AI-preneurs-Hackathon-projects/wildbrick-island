@@ -1,3 +1,4 @@
+import {solveWeaponAim,HANDHELD_AIM_CAP} from '../public/aiming.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
@@ -18,8 +19,8 @@ await check('every ranged weapon follows the character despite sideways and back
  for(const weapon of ['bow','pulse','automatic','flame'])for(const movement of ['carry','drive','fly'])for(const yaw of [-2.1,0,1.7])for(const pitch of [-.65,0,.65]){
   const {r,p}=setup(makeKit('test',{...fixture,movement,traits:{...fixture.traits,weapon}}));p.kit.stats.spread=0;
   applyInput(r,p.id,{seq:1,input:{cameraYaw:yaw,aimPitch:-pitch,weaponPitch:pitch},command:{id:1,type:'fire'}},r.time);
-  near(p.yaw,1.2);const b=r.projectiles[0],event=r.events.find(e=>e.type==='shot'),from=weaponMuzzle(p,p.yaw,pitch);assert.ok(b);assert.deepEqual(event.projectile,b);
-  for(const k of ['x','y','z'])near(b[k],from[k]);near(Math.atan2(b.vx,b.vz),p.yaw);near(Math.atan2(b.vy,Math.hypot(b.vx,b.vz)),0);
+  near(p.yaw,1.2);const b=r.projectiles[0],event=r.events.find(e=>e.type==='shot'),from=solveWeaponAim(r,p).muzzle;assert.ok(b);assert.deepEqual(event.projectile,b);
+  for(const k of ['x','y','z'])near(b[k],from[k]);near(Math.atan2(b.vx,b.vz),solveWeaponAim(r,p).yaw);assert.ok(Math.abs(solveWeaponAim(r,p).correction)<=HANDHELD_AIM_CAP);near(Math.atan2(b.vy,Math.hypot(b.vx,b.vz)),0);
  }
 });
 await check('ground, target and world-cover contacts retain the shot ID and exact position',()=>{
@@ -50,7 +51,7 @@ await check('rendered ranged attacks keep actors facing and align a carried emit
  for(const movement of ['carry','drive','fly']){const blueprint={...fixture,movement},kit=makeKit('test',blueprint),{r,p}=setup(kit),scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),cache=new Map([['test',blueprint]]);
   Object.assign(p,{aimYaw:-1.1,aimPitch:.5});view.update(roomSnapshot(r,p.id),p,cache,.016,r.time);const actor=scene.getObjectByName('arena-player:p');
   view.effect({type:'attack-preview',player:p.id,weapon:'automatic',yaw:p.aimYaw,pitch:p.aimPitch,origin:weaponMuzzle(p,p.aimYaw,p.aimPitch),time:r.time});view.update(roomSnapshot(r,p.id),p,cache,.016,r.time+16);near(actor.rotation.y,p.yaw);
-  if(movement==='carry'){const model=actor.getObjectByName('creation');scene.updateMatrixWorld(true);const grip=new THREE.Vector3(...weaponGrip(kit)).applyAxisAngle(new THREE.Vector3(0,1,0),p.yaw).add(actor.position);const expected=weaponMuzzle(p,p.aimYaw,p.aimPitch);const offset=new THREE.Vector3(...kit.muzzle).sub(new THREE.Vector3(.76,1.1,.3)).applyEuler(new THREE.Euler(0,p.yaw,0,'YXZ')).add(grip);near(offset.x,expected.x);near(offset.y,expected.y);near(offset.z,expected.z);near(model.rotation.y,0);}
+  if(movement==='carry'){const model=actor.getObjectByName('creation');scene.updateMatrixWorld(true);const grip=new THREE.Vector3(...weaponGrip(kit)).applyAxisAngle(new THREE.Vector3(0,1,0),p.yaw).add(actor.position);const expected=weaponMuzzle(p,p.aimYaw,p.aimPitch);const offset=new THREE.Vector3(...kit.muzzle).sub(new THREE.Vector3(.76,1.1,.3)).applyEuler(new THREE.Euler(0,p.yaw,0,'YXZ')).add(grip);near(offset.x,expected.x);near(offset.y,expected.y);near(offset.z,expected.z);near(model.rotation.y,solveWeaponAim(r,p).correction);}
   view.clear();
  }
 });

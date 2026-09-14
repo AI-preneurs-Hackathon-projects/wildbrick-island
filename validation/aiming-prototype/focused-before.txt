@@ -1,0 +1,68 @@
+✖ Red Twin-Gun Roadster derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (137.120253ms)
+✖ Wheeltop Mecha Octopus derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (125.085127ms)
+✖ accepted shot rotates around the grip, not an unrotated emitter (6.522295ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 935.526648
+
+✖ failing tests:
+
+test at scripts/check-handheld-aiming.mjs:16:62
+✖ Red Twin-Gun Roadster derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (137.120253ms)
+  AssertionError [ERR_ASSERTION]: distance 2, yaw 0, camera 0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-handheld-aiming.mjs:17:159)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-handheld-aiming.mjs:16:62
+✖ Wheeltop Mecha Octopus derived carried pulse: feasible body-forward contact in eight facings and three camera orbits (125.085127ms)
+  AssertionError [ERR_ASSERTION]: distance 2, yaw 0, camera 0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-handheld-aiming.mjs:17:159)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-handheld-aiming.mjs:19:1
+✖ accepted shot rotates around the grip, not an unrotated emitter (6.522295ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(e.yaw>0&&e.yaw<=Math.PI/12)
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-handheld-aiming.mjs:19:135)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

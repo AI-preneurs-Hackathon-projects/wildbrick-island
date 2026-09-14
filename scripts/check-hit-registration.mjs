@@ -40,10 +40,10 @@ for(const weapon of ['bow','automatic','flame','pulse','foot','sword','knife','h
 for(const weapon of ['bow','automatic','flame'])test(`${weapon}: normal body-centered forward shots in eight facings`,()=>{
  for(let i=0;i<8;i++){const s=setup(weapon,5,i*Math.PI/4);fire(s);run(s,500);assert.ok(damaged(s.q),`yaw ${i}`);assert.equal(hits(s.r).length,1);}
 });
-// Known unresolved aiming policy, not a usability acceptance criterion.
-test('known aiming limitation: the offset pulse ray misses the body axis at normal range',()=>{
+// Supersedes the former parallel-offset miss under the authorized aiming prototype.
+test('generated pulse contacts a feasible body-axis target without requiring camera aim',()=>{
  const s=setup('pulse',5),from=weaponMuzzle(s.p);s.q.x=from.x;fire(s);run(s);assert.equal(hits(s.r).length,1);
- const centered=setup('pulse',5);fire(centered);run(centered);assert.equal(centered.q.health,100,'offset barrel actually passes beside body; do not invent contact');
+ const centered=setup('pulse',5);fire(centered);run(centered);assert.ok(centered.q.health<100,'bounded convergence reaches the body axis');
 });
 for(const weapon of ['foot','sword','knife','hammer'])test(`${weapon}: surface reach has a strict boundary, including large mounted bodies`,()=>{
  for(const target of ['foot','car','plane'])for(const yaw of [0,Math.PI/4,Math.PI/2,Math.PI])for(const delta of [-.01,.01]){
@@ -77,7 +77,7 @@ test('melee respects cover to the nearest target surface, including overlap and 
  const s=setup('foot',4,0,'car');wall(s.r,3);fire(s);run(s);assert.equal(damaged(s.q),true,'body is before cover; center LOS must not reject it');
 });
 for(const weapon of ['bow','automatic','flame','pulse'])test(`${weapon}: range endpoint may contact; expiry alone never causes a hit`,()=>{
- for(const delta of [-.01,.01]){const s=setup(weapon,100);s.p.kit.stats.spread=0;const from=weaponMuzzle(s.p),pad=weapon==='flame'?.45:.12;s.q.x=from.x;s.q.z=from.z+s.p.kit.stats.range+.45+pad+delta;fire(s);run(s,2000);assert.equal(damaged(s.q),delta<0);assert.equal(s.r.events.filter(e=>e.type==='impact').length,0);assert.equal(s.r.events.filter(e=>e.type==='shot-end').length,delta<0?0:1);}
+ for(const delta of [-.01,.01]){const s=setup(weapon,100);s.p.kit.stats.spread=0;fire(s);const b=s.r.projectiles[0],seconds=s.p.kit.stats.range/s.p.kit.stats.projectileSpeed,pad=weapon==='flame'?.45:.12;s.q.x=b.x+b.vx*seconds;s.q.z=b.z+b.vz*seconds+.45+pad+delta;run(s,2000);assert.equal(damaged(s.q),delta<0);assert.equal(s.r.events.filter(e=>e.type==='impact').length,0);assert.equal(s.r.events.filter(e=>e.type==='shot-end').length,delta<0?0:1);}
 });
 test('ranged altitude separation and airborne contact use the actual body volume',()=>{
  for(const weapon of ['bow','automatic','flame'])for(const dy of [0,8]){const s=setup(weapon,.9);s.p.y=10;s.q.y=10+dy;s.p.motion={};s.q.motion={};fire(s);run(s);assert.equal(damaged(s.q),dy===0);}

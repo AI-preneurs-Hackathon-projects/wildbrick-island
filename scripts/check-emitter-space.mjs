@@ -9,6 +9,7 @@ const {newRoom,addPlayer,makeKit,applyInput,advanceRoom,roomSnapshot}=await impo
 const {WORLD_ENTITIES}=await import(new URL('public/world-data.js',sourceRoot));
 const {createArenaView}=await import(new URL('public/arena-view.js',sourceRoot));
 const {blueprintMetrics}=await import(new URL('public/blueprint-metrics.js',sourceRoot));
+const {solveWeaponAim}=await import(new URL('public/aiming.js',sourceRoot));
 const {weaponMuzzle}=await import(new URL('public/weapon-aim.js',sourceRoot));
 const dom=new JSDOM('');globalThis.document=dom.window.document;
 dom.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
@@ -21,7 +22,7 @@ for(const name of ['armed-car','octopus','dragon'])test(`${name}: serialized han
   const {r,p}=fixture(b,i*Math.PI/4);p.kit=JSON.parse(JSON.stringify(p.kit));
   const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera());view.update(roomSnapshot(r,p.id),p,new Map([['fixture',b]]),0,r.time);scene.updateMatrixWorld(true);
   const model=scene.getObjectByName('arena-player:p').getObjectByName('creation'),visual=new THREE.Vector3(...blueprintMetrics(b).normalize(b.traits.emitter)).applyMatrix4(model.matrixWorld);
-  assert.ok(distance(visual,weaponMuzzle(p))<1e-7,`${name} yaw ${p.yaw}: ${distance(visual,weaponMuzzle(p))}m emitter discrepancy`);
+  assert.ok(distance(visual,solveWeaponAim(r,p).muzzle)<1e-7,`${name} yaw ${p.yaw}: ${distance(visual,solveWeaponAim(r,p).muzzle)}m emitter discrepancy`);
   applyInput(r,p.id,{seq:1,input:{cameraYaw:p.yaw+Math.PI},command:{id:1,type:'fire'}},r.time);
   const shot=r.events.find(e=>e.type==='shot');assert.ok(distance(visual,shot.projectile)<1e-7);assert.equal(p.yaw,i*Math.PI/4);view.clear();
  }
