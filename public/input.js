@@ -1,20 +1,24 @@
 import {ACTION_BINDINGS,keyAction,typingTarget,gameplayBlocked} from './action-bindings.js';
 // Left hand: WASD/Shift and Q/E/R/F camera. Right hand: arrow actions.
-export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{},onJump=()=>{},onPause=()=>{},onMic=()=>{},onHotkeys=()=>{},onPickup=()=>false,onHome,getState}){
+export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{},onJump=()=>{},onPause=()=>{},onMic=()=>{},onHotkeys=()=>{},onControls=()=>{},onCollection=()=>{},onSlot=()=>false,onPickup=()=>false,onHome,getState}){
  const keys=new Set(),touchPointers=new Map(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,drag=null,joyPointer=null,up=false,down=false,fire=false,fireTap=false,fireFrame=false,composing=false;
  const scene=document.querySelector('#scene'),joy=document.querySelector('#joystick'),knob=document.querySelector('#joy-knob');
  const typing=typingTarget;
  const blocked=()=>gameplayBlocked(getState())||composing||typing(document.activeElement)||!!document.querySelector('dialog[open]');
  function clear(){keys.clear();touchPointers.clear();stick.x=stick.z=0;up=down=fire=fireTap=fireFrame=false;drag=null;joyPointer=null;knob.style.transform='translate(0,0)';}
  window.addEventListener('keydown',e=>{
+  const option=['AltLeft','AltRight'].includes(e.code);if(option&&!e.repeat&&!typing(e.target)&&!e.isComposing&&e.keyCode!==229&&!composing&&!e.ctrlKey&&!e.metaKey&&getState().started&&!document.querySelector('dialog[open]')){e.preventDefault();clear();onControls();return;}
   if(typing(e.target)||e.isComposing||e.keyCode===229||composing||e.ctrlKey||e.metaKey||e.altKey||!getState().started){clear();return;}
-  const code=e.code,action=keyAction(code),menu=document.querySelector('dialog[open]');
+  const code=e.code,action=keyAction(code),menu=document.querySelector('dialog[open]'),slot=ACTION_BINDINGS[action]?.slot;
+  if(Number.isInteger(slot)&&!e.repeat&&menu?.id==='menu'&&menu.dataset.mode==='collection'){e.preventDefault();clear();onSlot(slot);return;}
   if(!e.repeat&&(!menu||menu.id==='menu')&&['KeyH','Escape','KeyP'].includes(code)){
    e.preventDefault();clear();if(code==='KeyH')onHotkeys();else onPause();return;
   }
   if(blocked()){clear();return;}
   if(action)e.preventDefault();
   if(e.repeat||keys.has(code))return;keys.add(code);
+  if(Number.isInteger(slot)){onSlot(slot);return;}
+  if(action==='collection'){onCollection();return;}
   if(action==='speak'){onMic();return;}
   if(action==='drop'||action==='pickup'){const state=getState();if(!state.building)(state.carrying??(state.mode!=='foot'||!!state.custom)?onDrop:onPickup)();return;}
   if(action==='rise'&&getState().mode!=='plane')onJump();

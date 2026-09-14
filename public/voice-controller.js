@@ -28,7 +28,7 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
   tracks(a);a.chunks=[];a.final='';
  }
  function retire(a){if(!alive(a))return false;current=null;serial++;cleanup(a);return true;}
- function stop(){const a=current;if(a)retire(a);else serial++;notify('canceled','Voice canceled.');}
+ function stop(){const a=current;if(a)retire(a);else serial++;notify('canceled','');}
  function begin(route){if(current)retire(current);const a={id:++serial,route,timers:new Map(),chunks:[],bytes:0,final:'',finalAt:0,stopping:false};current=a;return a;}
  function offer(message,draft='',available=true){preferRecording=true;notify('error',message);onNotice(message,6000);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
  function fail(a,message,draft='',available=true){if(retire(a))offer(message,draft,available);}
