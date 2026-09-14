@@ -1,4 +1,4 @@
-import {ACTION_BINDINGS,bindingLabel} from './action-bindings.js?v=43';
+import {ACTION_BINDINGS,bindingLabel} from './action-bindings.js?v=48';
 import {arenaMap,getMap,nextMap} from './map-catalog.js';
 import {nearbyItem} from './arena-core.js?v=40';
 import {icon} from './ui.js?v=39';

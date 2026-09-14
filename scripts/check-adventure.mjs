@@ -63,6 +63,12 @@ await check('server bounds simultaneous designs and propagates cancellation upst
  assert.equal((await first).status,504);assert.equal((await second).status,504);
  const subsequent=await handleAPI(request({prompt:'after cancelling'}),env,async()=>Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(fixture)}]}]}));assert.equal(subsequent.status,200);
 });
+await check('a retry supersedes only the same player’s stuck design',async()=>{
+ const firstAbort=new AbortController();let calls=0;
+ const upstream=(_,options)=>{calls++;if(calls===1)return new Promise((resolve,reject)=>options.signal.addEventListener('abort',()=>reject(new DOMException('aborted','AbortError'))));return Response.json({status:'completed',output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(fixture)}]}]});};
+ const first=handleAPI(request({prompt:'stuck idea'},{signal:firstAbort.signal,ip:'same-player'}),env,upstream);for(let i=0;i<30&&calls<1;i++)await new Promise(resolve=>setTimeout(resolve,1));
+ const retry=await handleAPI(request({prompt:'replacement idea'},{ip:'same-player'}),env,upstream);assert.equal(retry.status,200);assert.equal((await first).status,504);assert.equal(calls,2);
+});
 await check('connection verification checks model access without exposing credentials',async()=>{
  let urlSeen;const r=await handleAPI(new Request('https://brickwild.test/api/generation-status?verify=1'),env,async(url,options)=>{urlSeen=url;assert.equal(options.method,undefined);return Response.json({id:'gpt-5.4'});});const d=await r.json();assert.equal(d.reachable,true);assert.ok(urlSeen.endsWith('/models/gpt-5.4'));assert.ok(!JSON.stringify(d).includes(env.OPENAI_API_KEY));
  const denied=await handleAPI(new Request('https://brickwild.test/api/generation-status?verify=1'),env,async()=>new Response('',{status:401}));assert.equal((await denied.json()).code,'invalid_key');

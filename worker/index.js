@@ -10,7 +10,7 @@ Set traits to semantic gameplay intent: weapon none/pulse/flame/automatic/bow/bl
 ability pulse gives a playful colored projectile (dragon breath, wand magic, ranged toy); swing gives short-range smash (swords, hammers); none for ordinary scenery/mounts. A dragon normally flies and has pulse. No graphic violence. Keep name under 64 characters and description under 180, explaining what THIS creation can do. Description must not promise unsupported abilities. A requested fanciful object should get a creative physical interpretation. No hardcoded templates: invent geometry for this description.`;
 const compactDesigner=DESIGNER.replace('Use at least 32 and typically 40-64 thoughtfully placed parts, no more than 128.','Use 20-40 meaningful parts, at most 64. Favor fewer strong silhouette parts; combine adjacent structural masses. Spend parts on the requested limbs, weapons, wheels and face rather than tiny trim.').replace('Use blueprint version 3.','Use blueprint version 4.').replace('Make each wing from at least three broad joined segments, and each leg from upper leg, lower leg and clawed foot.','Make each wing from two or three broad connected segments; use simple clear legs and feet.');
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-const traffic=new Map();let activeRequests=0;
+const traffic=new Map(),activeDesigns=new Map();
 async function boundedBody(request){
  const reader=request.body?.getReader();if(!reader)return '';
  const chunks=[];let size=0;
@@ -18,6 +18,8 @@ async function boundedBody(request){
  const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}return new TextDecoder().decode(bytes);
 }
 function rateLimit(request){const id=request.headers.get('cf-connecting-ip')||'private-owner',now=Date.now();for(const [key,v]of traffic)if(now-v.start>60000)traffic.delete(key);if(traffic.size>500)return false;const entry=traffic.get(id)||{start:now,count:0};entry.count++;traffic.set(id,entry);return entry.count<=8;}
+const generationPrincipal=request=>request.headers.get('oai-authenticated-user-id')||request.headers.get('cf-connecting-ip')||'site-automation';
+async function supersedeOwnDesigns(principal){const own=[...activeDesigns.values()].filter(entry=>entry.principal===principal);for(const entry of own)entry.controller.abort('superseded');if(own.length)await Promise.allSettled(own.map(entry=>entry.done));}
 export async function handleAPI(request,env,upstream=fetch){
  const url=new URL(request.url);
  if(url.pathname==='/api/generation-status'&&request.method==='GET'){
@@ -35,10 +37,11 @@ export async function handleAPI(request,env,upstream=fetch){
  if(!env.OPENAI_API_KEY)return json({error:'New AI designs are not available yet: the owner still needs to finish secure OpenAI setup. You can keep playing with the punches and any saved creations.',code:'not_configured'},503);
  if(Number(request.headers.get('content-length'))>2048)return json({error:'That description is too long.'},413);
  let prompt;try{const input=JSON.parse(await boundedBody(request));if(!input||Array.isArray(input)||typeof input!=='object'||Object.keys(input).some(k=>k!=='prompt'))return json({error:'Send only your creation description.'},400);prompt=creationPrompt(input.prompt);}catch(e){return json({error:e instanceof SyntaxError?'Write a description of your creation.':e.message},e instanceof RangeError?413:400);}
- if(activeRequests>=2)return json({error:'Two designs are already underway. Wait for one to finish before trying again.',code:'busy'},429);
+ const principal=generationPrincipal(request);await supersedeOwnDesigns(principal);
+ if(activeDesigns.size>=2)return json({error:'Other builders are designing creations right now. Try again shortly.',code:'busy'},429);
  if(!rateLimit(request))return json({error:'A lot of imagination at once! Wait a minute, then try again.'},429);
- let release;try{release=await reserveGeneration(env.DB,request.headers.get('oai-authenticated-user-id')||request.headers.get('cf-connecting-ip')||'site-automation');}catch{return json({error:'Build admission is temporarily unavailable. Try again shortly.',code:'budget_unavailable'},503);}if(!release)return json({error:'The island is designing several creations. Try again shortly.',code:'busy'},429);
- const controller=new AbortController(),abort=()=>controller.abort();request.signal.addEventListener('abort',abort,{once:true});if(request.signal.aborted)abort();const timer=setTimeout(abort,85000);activeRequests++;
+ let release;try{release=await reserveGeneration(env.DB,principal);}catch{return json({error:'Build admission is temporarily unavailable. Try again shortly.',code:'budget_unavailable'},503);}if(!release)return json({error:'The island is designing several creations. Try again shortly.',code:'busy'},429);
+ const controller=new AbortController(),abort=()=>controller.abort(),id=crypto.randomUUID();let finish;const done=new Promise(resolve=>finish=resolve);activeDesigns.set(id,{principal,controller,done});request.signal.addEventListener('abort',abort,{once:true});if(request.signal.aborted)abort();const timer=setTimeout(abort,85000);
  try{
   const model=env.OPENAI_MODEL||'gpt-5.4',compact=env.OPENAI_BLUEPRINT_DETAIL==='compact',started=Date.now();
   const response=await upstream('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,instructions:compact?compactDesigner:DESIGNER,input:prompt,...(model.startsWith('gpt-5')?{reasoning:{effort:env.OPENAI_REASONING_EFFORT==='none'?'none':'low'}}:{}),max_output_tokens:12000,store:false,text:{format:{type:'json_schema',name:'brick_creation',strict:true,schema:compact?COMPACT_BLUEPRINT_SCHEMA:BLUEPRINT_SCHEMA}}}),signal:controller.signal});
@@ -49,7 +52,7 @@ export async function handleAPI(request,env,upstream=fetch){
   const text=content.filter(c=>c.type==='output_text').map(c=>c.text).join('');if(text.length>90000)return json({error:'The design was too large. Try a simpler idea.'},502);
   const validationAt=Date.now();let blueprint,indexRepair=false;try{const raw=JSON.parse(text),normalized=normalizeGeneratedBlueprint(raw);indexRepair=JSON.stringify(raw)!==JSON.stringify(normalized);blueprint=validateBlueprint(normalized);}catch(e){return json({error:'The design didn’t fit together. Try again or simplify your description.',code:'invalid_design',issue:['structure','joints','parts','traits','palette_index','joint_index'].includes(e.code)?e.code:'json_or_shape',generation:{model,profile:compact?'compact':'detailed',durationMs:Date.now()-started,upstreamMs,inputTokens:data.usage?.input_tokens,outputTokens:data.usage?.output_tokens,reasoningTokens:data.usage?.output_tokens_details?.reasoning_tokens}},502);}
   return json({blueprint,generation:{model,profile:compact?"compact":"detailed",reasoningEffort:env.OPENAI_REASONING_EFFORT==='none'?'none':'low',indexRepair,durationMs:Date.now()-started,upstreamMs,validationMs:Date.now()-validationAt,inputTokens:data.usage?.input_tokens,outputTokens:data.usage?.output_tokens,reasoningTokens:data.usage?.output_tokens_details?.reasoning_tokens}});
- }catch(e){return json({error:controller.signal.aborted?'The design was cancelled or took too long. Try again when ready.':'The connection was interrupted. Please try again.'},504);}finally{clearTimeout(timer);request.signal.removeEventListener('abort',abort);activeRequests--;await release?.().catch(()=>{});}
+ }catch(e){return json({error:controller.signal.aborted?'The design was cancelled or took too long. Try again when ready.':'The connection was interrupted. Please try again.'},504);}finally{clearTimeout(timer);request.signal.removeEventListener('abort',abort);activeDesigns.delete(id);await release?.().catch(()=>{});finish();}
 }
 export default {async fetch(request,env,ctx){
  const url=new URL(request.url);if(url.pathname==='/api/transcription-status')return transcriptionStatus(request,env);if(url.pathname==='/api/transcribe')return handleTranscription(request,env);if(url.pathname.startsWith('/api/arena/'))return handleArenaAPI(request,env,ctx);if(url.pathname.startsWith('/api/'))return handleAPI(request,env);
