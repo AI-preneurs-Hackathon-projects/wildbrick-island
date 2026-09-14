@@ -1,0 +1,1 @@
+PASS development fixture route and harness control wiring: 24 normal-range cases, 5 contact/cover/protection/behind cases. Renderer replaced with a no-op; no WebGL pixels or visual acceptance.

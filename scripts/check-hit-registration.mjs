@@ -40,7 +40,8 @@ for(const weapon of ['bow','automatic','flame','pulse','foot','sword','knife','h
 for(const weapon of ['bow','automatic','flame'])test(`${weapon}: normal body-centered forward shots in eight facings`,()=>{
  for(let i=0;i<8;i++){const s=setup(weapon,5,i*Math.PI/4);fire(s);run(s,500);assert.ok(damaged(s.q),`yaw ${i}`);assert.equal(hits(s.r).length,1);}
 });
-test('generated pulse keeps its authored parallel barrel path, without camera aiming or homing',()=>{
+// Known unresolved aiming policy, not a usability acceptance criterion.
+test('known aiming limitation: the offset pulse ray misses the body axis at normal range',()=>{
  const s=setup('pulse',5),from=weaponMuzzle(s.p);s.q.x=from.x;fire(s);run(s);assert.equal(hits(s.r).length,1);
  const centered=setup('pulse',5);fire(centered);run(centered);assert.equal(centered.q.health,100,'offset barrel actually passes beside body; do not invent contact');
 });

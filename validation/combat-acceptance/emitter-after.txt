@@ -1,0 +1,13 @@
+✔ armed-car: serialized handheld kit fires from the renderer's authored emitter in eight facings (52.781796ms)
+✔ octopus: serialized handheld kit fires from the renderer's authored emitter in eight facings (32.515488ms)
+✔ dragon: serialized handheld kit fires from the renderer's authored emitter in eight facings (26.624215ms)
+✔ carried emitter bounds apply in model space before the hand translation (0.780738ms)
+✔ mounted emitter coordinates and ordinary point-blank cover ordering remain intact (10.585247ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 144.114368

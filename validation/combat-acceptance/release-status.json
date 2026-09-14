@@ -1,0 +1,30 @@
+{
+  "verified_on": "2026-09-14",
+  "method": "Read-only native Sites metadata/deployment status and GitHub connector tree comparison. No rendered production acceptance.",
+  "project_id": "appgprj_6aa4e30083f88191a4af01bb8feb2aeb",
+  "url": "https://brickwild-adventure.yerzhan452067.chatgpt.site",
+  "role": "owner",
+  "audience": "custom",
+  "audience_revision": 3,
+  "version": 18,
+  "version_id": "appgprj_6aa4e30083f88191a4af01bb8feb2aeb~appgver_3b2ac5980a2c8191b0f8cd839356d027",
+  "source_commit": "967983ddacdd60d0b470ce51f2a4daa6c7016ea7",
+  "deployment_id": "appgdep_6aa77ef82444819191e4945535394ea7",
+  "deployment_status": "succeeded",
+  "deployment_updated_at": "2026-09-14T04:59:12.328012+00:00",
+  "env_set_revision": 6,
+  "archive_hash": "sha256:b8314e8a657d916544efbc6ae06df2bb2c1decb10ac14a822207003b0ceb4ce4",
+  "github_main": "7ee2b1e2fd89f9b9b8b17de7cdd3c91fee705f90",
+  "tree_differences": [
+    {
+      "path": ".openai/hosting.json",
+      "creator_blob": "8f837bd660520e02c3d55a083491ed3ebe395c60",
+      "github_blob": "63e5d1a9c7715a3b149cc43b87e4777490ec9b9c"
+    },
+    {
+      "path": "README.md",
+      "creator_blob": "1cb6fb20bad121780db137955f1cd96f32172c71",
+      "github_blob": "79637f9fb032dabbc21d339623e6d2b54320d3d8"
+    }
+  ]
+}

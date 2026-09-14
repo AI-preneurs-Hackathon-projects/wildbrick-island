@@ -9,7 +9,15 @@ import {blueprintMetrics} from './blueprint-metrics.js';
 import {SUPPORT_DROPS} from './supply-catalog.js';
 import {arenaMap,MAP_CYCLE,mapForRound,nextMap} from './map-catalog.js';
 export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750,ROUND_MS=5*60*1000,INTERMISSION_MS=30000;
-export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];if(!stats.mounted&&blueprint){const grip=metrics.normalize([0,0,0]);muzzle=muzzle.map((v,i)=>v-grip[i]+[.76,1.1,.3][i]);}muzzle=muzzle.map((v,i)=>clamp(v,i===1?.2:-(metrics?.size[i]||stats.collision[i])/2-.8,i===1?(metrics?.size[1]||stats.collision[1])+.8:(metrics?.size[i]||stats.collision[i])/2+.8));if(!blueprint&&mode==='bow')muzzle=[-.72,1.26,1.48];return {placementSize:blueprint?.movement==='static'?metrics.size:null,id:mode,name:stats.name,blueprintId:blueprint?mode:null,mode:mode==='foot'&&!blueprint?'foot':stats.mounted?(stats.movement==='fly'?'plane':'car'):stats.weapon==='none'?'foot':['blade','knife','hammer','punch'].includes(stats.weapon)?'sword':'bow',stats,muzzle,color:blueprint?.palette?.[0]||'#ffcf55'};}
+export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);
+ let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];
+ // Clamp normalized model coordinates before translating to the stored hand grip.
+ // Model bounds do not include the hand offset. Clamping after translation
+ // lowered valid handheld emitters while the rendered geometry stayed in place.
+ muzzle=muzzle.map((v,i)=>clamp(v,i===1?.2:-(metrics?.size[i]||stats.collision[i])/2-.8,i===1?(metrics?.size[1]||stats.collision[1])+.8:(metrics?.size[i]||stats.collision[i])/2+.8));
+ if(!stats.mounted&&blueprint){const grip=metrics.normalize([0,0,0]);muzzle=muzzle.map((v,i)=>v-grip[i]+[.76,1.1,.3][i]);}
+ if(!blueprint&&mode==='bow')muzzle=[-.72,1.26,1.48];
+ return {placementSize:blueprint?.movement==='static'?metrics.size:null,id:mode,name:stats.name,blueprintId:blueprint?mode:null,mode:mode==='foot'&&!blueprint?'foot':stats.mounted?(stats.movement==='fly'?'plane':'car'):stats.weapon==='none'?'foot':['blade','knife','hammer','punch'].includes(stats.weapon)?'sword':'bow',stats,muzzle,color:blueprint?.palette?.[0]||'#ffcf55'};}
 function newMatch(){return {roundNumber:1,complete:false,rounds:[],totals:{}};}
 function newRound(id,time,status='active',mapId=mapForRound(id)){return {id,mapId,status,startsAt:time,endsAt:time+ROUND_MS,results:[],intermissionEndsAt:null};}
 function ensureRound(room){room.match??=newMatch();if(!room.round)room.round=newRound(1,room.time);const r=room.round;if(!MAP_CYCLE.includes(r.mapId))r.mapId='island';delete r.scores;delete r.previousResults;if(r.status==='finished'&&!room.match.complete&&!r.intermissionEndsAt)r.intermissionEndsAt=r.endsAt+INTERMISSION_MS;for(const p of Object.values(room.players))if(p.roundId===undefined)p.roundId=r.id;return r;}
