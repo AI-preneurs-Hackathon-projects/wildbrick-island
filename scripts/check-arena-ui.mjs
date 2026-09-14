@@ -81,7 +81,7 @@ check('first play shows three illustrated cards; Skip saves once and Help reopen
  localStorage.removeItem('brickwild-tour-v1');ui.showEntry();const before=joins;document.querySelector('#start').click();const tour=document.querySelector('#tutorial');assert.ok(tour.open);assert.equal(joins,before);assert.match(tour.textContent,/Move and look/);assert.match(tour.querySelector('img').src,/move.png/);
  document.querySelector('#tour-next').click();assert.match(tour.textContent,/Speak it/);document.querySelector('#tour-next').click();assert.match(tour.textContent,/Refuel/);document.querySelector('#tour-next').click();assert.equal(joins,before+1);assert.equal(tour.open,false);assert.equal(localStorage.getItem('brickwild-tour-v1'),'seen');
  ui.showEntry();document.querySelector('#start').click();assert.equal(joins,before+2);assert.equal(tour.open,false);ui.openMenu('hotkeys');document.querySelector('#tour-again').click();assert.ok(tour.open);document.querySelector('#tour-skip').click();assert.equal(tour.open,false);globalThis.matchMedia=()=>({matches:true});ui.openTour();assert.match(tour.textContent,/left joystick/);assert.doesNotMatch(tour.textContent,/WASD/);document.querySelector('#tour-skip').click();delete globalThis.matchMedia;assert.equal(state.paused,false);
- ui.openMenu('hotkeys');document.querySelector('#type-fallback').click();assert.equal(document.activeElement,document.querySelector('#creation-description'));ui.closeMenu();
+ ui.openMenu('hotkeys');assert.equal(document.querySelector('#type-fallback'),null);ui.closeMenu();
 });
 check('Enter starts once, advances the tour and resumes; text entry and repeat stay safe',()=>{
  ui.showEntry();state.started=false;localStorage.removeItem('brickwild-tour-v1');const before=joins;

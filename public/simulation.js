@@ -11,7 +11,7 @@ import {BUILDS,createState,GATES,RINGS,TARGETS,CRATES,completion,nearestTarget} 
 import {customMode,validateBlueprint} from './blueprint.js';
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export async function createSimulation(obstacles,onEvent){
- const scenery=new Map(obstacles.map((o,i)=>[i,{...o,y:o.y??o.h/2}]));
+ const originalScenery=obstacles.map(o=>({...o,y:o.y??o.h/2})),scenery=new Map(originalScenery.map((o,i)=>[i,{...o}]));
  let s=createState();let checkAccumulator=0;
  const movementBoxes=()=>[...scenery.values()].filter(isMovementBlocker).concat([...placements.values()]);
  const placements=new Map();let placementId=0,aimBoxesCache=null,aimTargetKey=null;
@@ -54,6 +54,7 @@ export async function createSimulation(obstacles,onEvent){
  function respawn(){s.x=0;s.z=17;s.y=0;s.vertical=0;s.jumpRemaining=0;s.flightAltitude=0;s.yaw=Math.PI;s.speed=0;s.vy=0;s.grounded=true;s.autoRun=false;emit('notice',{text:'Back at the plaza. Keep building!'});}
  function returnToFoot(){s.custom=null;s.building=null;setMode('foot');s.speed=0;s.vertical=0;s.autoRun=false;}
  function reset(){s=createState();setMode('foot');emit('reset');}
+ function resetChallenges(){s.gates=[];s.rings=[];s.targets=[];s.crates=[];s.bricks=0;s.won=false;s.destroyed||={};const challengeIds=new Set([...RINGS.map((_,i)=>'ring:'+i),...CRATES.map((_,i)=>'crate:'+i)]);for(const id of challengeIds)delete s.destroyed[id];for(const [i,o]of originalScenery.entries())if(challengeIds.has(o.id))scenery.set(i,{...o});aimBoxesCache=null;aimTargetKey=null;emit('challenges-reset');}
  function placeCreation(dimensions){
   const [w,h,d]=dimensions.map(v=>clamp(v,.1,10));
   for(const radius of [Math.max(w,d)/2+4,12,18])for(let i=0;i<12;i++){
@@ -76,5 +77,5 @@ export async function createSimulation(obstacles,onEvent){
   if(s.mode==='plane')RINGS.forEach((p,i)=>{if(!s.rings.includes(i)&&passedRing(previous,s,i,creationStats(s.custom?.blueprint||s.mode,s.custom?.dimensions).collision[1])){s.rings.push(i);s.bricks+=20;emit('ring',{id:i});}});
   if(!s.won&&completion(s)){s.won=true;emit('win');}
  }
- return {get state(){return s;},aim:aimSolution,build,buildCustom,action,jump,hitTarget,respawn,reset,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
+ return {get state(){return s;},aim:aimSolution,build,buildCustom,action,jump,hitTarget,respawn,reset,resetChallenges,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
 }

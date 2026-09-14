@@ -15,11 +15,11 @@ async function check(name,run){
 }
 const $=id=>document.getElementById(id);
 function setup(joinImpl=async()=>true){
- const state=createState(),joins=[];let starts=0,leaves=0,arenaUI,entry;
+ const state=createState(),joins=[];let starts=0,leaves=0,resets=0,arenaUI,entry;
  const exit=()=>{leaves++;state.arena=false;state.mode='foot';arenaUI.reset();ui.resetPlayUI();ui.update(state);};
- const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome(){exit();state.started=false;ui.showEntry();},leaveArena:exit});
+ const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},resetPractice(){resets++;for(const key of ['gates','targets','crates','rings'])state[key]=[];state.bricks=0;state.won=false;ui.update(state);},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome(){exit();state.started=false;ui.showEntry();},leaveArena:exit});
  arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name,room)=>{joins.push({name,room});return joinImpl();},leave:exit,toast(){}});
- return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get entry(){return entry;}};
+ return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get resets(){return resets;},get entry(){return entry;}};
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
@@ -30,7 +30,8 @@ await check('both modes require a name and recover from whitespace input',async(
 await check('Explore keeps newer speech controls and shows the full Practice route without Arena or rewards',async()=>{
  const app=setup();name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);
  assert.match($('practice-route').textContent,/Scenic route/);assert.match($('practice-route').textContent,/Right on target/);assert.match($('practice-route').textContent,/Smash & grab/);assert.match($('practice-route').textContent,/Sky is the limit/);assert.equal(document.querySelector('.brick-counter'),null);
- app.state.gates.push('gate-1');app.ui.update(app.state);assert.equal($('practice-gates').textContent,'1/4');
+ app.state.gates.push('gate-1');app.ui.update(app.state);assert.equal($('practice-gates').textContent,'1/4');assert.ok($('practice-creations'));
+ Object.assign(app.state,{gates:[0,1,2,3],targets:[0,1,2],crates:[0,1,2],rings:[0,1,2,3,4],won:true,bricks:226});app.ui.update(app.state);assert.equal($('practice-route').classList.contains('complete'),true);assert.equal($('practice-reset').classList.contains('hidden'),false);$('practice-reset').click();assert.equal(app.resets,1);assert.equal($('practice-reset').classList.contains('hidden'),true);
 });
 await check('failed authentication preserves sign-in and Back to Explore clears the lobby and errors',async()=>{
  const app=setup(async()=>{app.arenaUI.error('Sign in',401);return false;});name('Sky');$('start').click();await app.entry;
