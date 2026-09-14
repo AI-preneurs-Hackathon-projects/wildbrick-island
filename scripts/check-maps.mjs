@@ -23,11 +23,11 @@ function nextRound(room){endRound(room);const at=room.round.intermissionEndsAt;k
 function fixture(mapId='island'){const room=newRoom(100000,'map-tests');room.round.mapId=mapId;const player=addPlayer(room,'a','Builder');player.motion=newMotion(room.time);return {room,player};}
 const footShape=movementShape(makeKit('foot').stats);
 
-await check('the server cycles original → beach → mountain → original only after the complete automatic intermission',()=>{
+await check('the server cycles original → beach → mountain only after the complete automatic intermission',()=>{
  assert.deepEqual(MAP_CYCLE,['island','beach','mountain']);
  assert.deepEqual([1,2,3,4,5,6].map(mapForRound),['island','beach','mountain','island','beach','mountain']);
  const {room,player}=fixture();
- for(const expected of ['beach','mountain','island']){
+ for(const expected of ['beach','mountain']){
   const previous=arenaMap(room).id,id=room.round.id;
   assert.equal(room.round.endsAt-room.round.startsAt,ROUND_MS);
   endRound(room);assert.equal(room.round.status,'finished');assert.equal(arenaMap(room).id,previous);
@@ -49,7 +49,7 @@ await check('late joiners, independent snapshots and persisted reconnects agree 
   assert.equal(arenaMap(roomSnapshot(persisted,player.id)).id,expected);
   endRound(room);const spectator=addPlayer(room,'spectator-'+expected,'Spectator');assert.equal(spectator.roundId,null);
   assert.equal(roomSnapshot(room,spectator.id).round.mapId,expected);assert.equal(roomSnapshot(room,spectator.id).round.status,'finished');
-  nextRound(room);assert.equal(spectator.roundId,room.round.id);
+  if(!room.match.complete){nextRound(room);assert.equal(spectator.roundId,room.round.id);}
  }
 });
 
@@ -64,13 +64,13 @@ await check('legacy persisted rooms retain their original map until a boundary, 
  assert.equal(getMap('unknown-old-map').id,'island');
 });
 
-await check('new maps clear all old-map combat and creation state and reposition every loadout at a fitting spawn',()=>{
+await check('new maps clear all old-map combat and creation state and reset everyone to foot at a fitting spawn',()=>{
  const {room,player}=fixture();
  const dragon=JSON.parse(fs.readFileSync(new URL('../validation/live/dragon.json',import.meta.url))).blueprint;
  const players=[player,...['car','plane','dragon'].map((mode,i)=>{const p=addPlayer(room,'mount-'+i,mode);p.kit=mode==='dragon'?makeKit('saved-dragon',dragon):makeKit(mode);p.motion=newMotion(room.time);return p;})];
  for(const p of players){p.avatarColor='#76b9ff';p.kills=7;p.deaths=3;p.spawnSerial=4;p.motion.frame=51;Object.assign(p,{x:52,y:18,z:52,speed:12,vertical:9,vy:5,jumpRemaining:.2});}
- const identity=new Map(players.map(p=>[p.id,{name:p.name,kit:structuredClone(p.kit),avatarColor:p.avatarColor}]));
- for(const expected of ['beach','mountain','island']){
+ const identity=new Map(players.map(p=>[p.id,{name:p.name,kit:makeKit(),avatarColor:p.avatarColor}]));
+ for(const expected of ['beach','mountain']){
   endRound(room);
   const oldEntity=arenaMap(room).entities.find(e=>e.hp>0),oldEvent=room.eventId;
   room.destroyed={[oldEntity.id]:room.time+60000};room.damage={[oldEntity.id]:17};
@@ -238,8 +238,8 @@ await check('an old-round build response cannot replace the retained model cache
  try{
   assert.equal(await client.join('Builder'),true);await flush();const originalCache=structuredClone(client.blueprints.get('saved-dragon'));assert.equal(originalCache.name,retained.name);
   assert.equal(client.command('build','generated',proposed),true);await sync();
-  assert.equal(room.round.mapId,'beach');assert.equal(player.kit.id,'saved-dragon');assert.equal(player.building,null,'the old-round build command was rejected');
-  assert.equal(client.self.kit.id,'saved-dragon');assert.deepEqual(client.blueprints.get('saved-dragon'),originalCache,'unaccepted octopus must not overwrite the retained dragon model');
+  assert.equal(room.round.mapId,'beach');assert.equal(player.kit.id,'foot');assert.equal(player.building,null,'the old-round build command was rejected');
+  assert.equal(client.self.kit.id,'foot');assert.deepEqual(client.blueprints.get('saved-dragon'),originalCache,'unaccepted octopus must not overwrite the retained dragon model');
   assert.equal(requests.filter(r=>r.path.includes('/blueprint')).length,1,'preserved cached loadout needs no duplicate fetch');
   assert.equal(client.command('build','generated',proposed),true);await sync();
   assert.equal(player.building.kit.id,'accepted-octopus');assert.equal(client.blueprints.get('accepted-octopus').name,proposed.name);

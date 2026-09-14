@@ -32,12 +32,12 @@ for(const [x,z,c] of [[-11,-10,0x79b8d2],[11,-10,0xffcd61],[-11,10,0xe7a594],[11
 function ridge(id,x,z,w,d,levels){
   const parts=[];let top=0;
   for(let i=0;i<levels;i++){
-    const h=i===0?2.3:2.15,ww=w-i*2.1,dd=d-i*1.7;
-    parts.push(primitive(x+(i%2)*.45,top+h/2,z-(i%2)*.25,ww,h,dd,
+    const h=1.6,ww=w-i*2.2,dd=d-i*1.9;
+    parts.push(primitive(x,top+h/2,z,ww,h,dd,
       [P.stone,P.darkStone,P.lightStone][i%3]));top+=h;
   }
-  parts.push(primitive(x+((levels-1)%2)*.45,top+.14,z-((levels-1)%2)*.25,
-    w-(levels-1)*2.1,.28,d-(levels-1)*1.7,P.snow,true));
+  parts.push(primitive(x,top+.14,z,
+    w-(levels-1)*2.2,.28,d-(levels-1)*1.9,P.snow,true));
   solid(id,'rock',1700,P.stone,parts);
 }
 // Broken ridge lines leave the four cardinal entrances and outer routes open.
