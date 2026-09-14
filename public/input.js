@@ -1,4 +1,4 @@
-import {ACTION_BINDINGS,keyAction,typingTarget,gameplayBlocked} from './action-bindings.js?v=47';
+import {ACTION_BINDINGS,keyAction,typingTarget,gameplayBlocked} from './action-bindings.js?v=48';
 // Left hand: WASD/Shift and Q/E/R/F camera. Right hand: arrow actions.
 export function createInput({onBuild,onDrop=()=>onBuild?.('foot'),onAction=()=>{},onJump=()=>{},onPause=()=>{},onMic=()=>{},onHotkeys=()=>{},onControls=()=>{},onCollection=()=>{},onSnapshot=()=>{},onSlot=()=>false,onPickup=()=>false,onHome,getState}){
  const keys=new Set(),touchPointers=new Map(),stick={x:0,z:0};let yaw=Math.PI,pitch=.46,drag=null,joyPointer=null,up=false,down=false,fire=false,fireTap=false,fireFrame=false,composing=false;

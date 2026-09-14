@@ -1,4 +1,4 @@
-import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=47';
+import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=48';
 import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=37';
 import {BUILDS} from './rules.js';
 import {creationControls} from './guidance.js';
@@ -24,7 +24,7 @@ export function createUI(actions){
   <div id="practice-map-name" class="arena-map-name">Wildbrick Island</div>
   <div class="top-right"><button id="open-arena" class="arena-top-button">Arena</button><button id="snapshot" class="icon-button" aria-label="Take a snapshot" aria-keyshortcuts="0" title="Snapshot · 0">${icon('camera')}</button><button id="sound" class="icon-button" aria-label="Mute sound">${icon('sound')}</button><button id="help" class="hotkeys-button" aria-label="Show help" aria-keyshortcuts="h" title="Hotkeys · H">${icon('help')}<span>Help</span></button><button id="pause" class="icon-button" aria-label="Pause game">${icon('pause')}</button></div>
   <div id="toast" role="status" aria-live="polite"></div>
-  <div id="generation" class="generation hidden" role="status" aria-live="polite"><span class="generation-mark">${icon('spark')}</span><div><strong id="generation-title">Designing your creation…</strong><p id="generation-text"></p><small class="generation-cancel-hint">Press X to cancel</small></div><button id="cancel-design" aria-label="Cancel or dismiss generation" aria-keyshortcuts="X" title="Cancel or close · X">${icon('close')}</button></div>
+  <div id="generation" class="generation hidden" role="status" aria-live="polite"><span class="generation-mark">${icon('spark')}</span><div><strong id="generation-title">Designing your creation…</strong><p id="generation-text"></p><small class="generation-cancel-hint">Press X to cancel</small></div></div>
   <div id="build-progress" class="build-progress hidden"><span>${icon('spark')} <strong id="building-name"></strong></span><small>Close to cancel</small><button id="cancel-build" type="button">Close</button><div class="progress-track"><div id="build-fill"></div></div></div>
   <div class="bottom-left"><div id="mode-pill" class="mode-pill">${icon('foot')} <span>On foot</span></div><div id="joystick" class="joystick" aria-label="Touch movement joystick"><div class="joy-cross"></div><div id="joy-knob"></div></div></div>
   <div class="build-dock"><div id="voice-status" class="voice-status" role="status" aria-live="polite" tabindex="0" aria-label="Speech transcript and status">What will you imagine?</div><div id="voice-options" class="voice-options hidden"><button id="type-voice" type="button">Type an idea</button></div><div class="dock-row"><button id="mic" class="mic-button" aria-label="Describe a creation aloud (Left arrow)" aria-keyshortcuts="ArrowLeft" title="Speak · Left arrow" aria-pressed="false">${icon('mic')}<span>Speak / Build</span><kbd>←</kbd></button></div><div class="dock-caption">Describe anything <span>·</span> OpenAI designs the bricks</div></div>
@@ -52,11 +52,12 @@ export function createUI(actions){
  on('#exit-vehicle',()=>{if(!gameplayBlocked(actions.state())&&!actions.state().building&&!document.querySelector('dialog[open]'))(actions.drop||(()=>actions.build('foot')))();});
  on('#pause',()=>openMenu('pause'));on('#help',()=>toggleMenu('hotkeys'));on('#close-menu',closeMenu);
  on('#practice-reset',()=>actions.resetPractice?.());on('#practice-creations summary',e=>{e.preventDefault();toggleCollection();});on('#movement-controls summary',e=>{e.preventDefault();toggleControls();});
- on('#cancel-design',()=>{actions.cancelDesign?.();generationError=false;$('#generation').classList.add('hidden');});on('#cancel-build',()=>actions.cancelBuild?.());
+ on('#cancel-build',()=>actions.cancelBuild?.());
  $('#menu').addEventListener('cancel',e=>{e.preventDefault();closeMenu();});
  function closeMenu(){$('#menu').close();actions.pause(false);}
  function toggleMenu(mode='pause'){if($('#menu').open&&menuMode===mode)closeMenu();else if(mode==='pause'&&$('#menu').open)closeMenu();else openMenu(mode);}
  function toggleControls(){const controls=$('#movement-controls'),opening=!controls.open;if(opening)closeCollection();controls.open=opening;}
+ function closeGeneration(){actions.cancelDesign?.();generationError=false;$('#generation').classList.add('hidden');}
  function renderCollection(){const list=$('#creation-dropdown-list'),recent=actions.recent();list.innerHTML=recent.length?recent.map((b,i)=>`<button class="recent-creation" data-creation-slot="${i}" aria-keyshortcuts="${i+1}">${icon('spark')}<span>${escapeHTML(b.name)}</span><kbd>${i+1}</kbd></button>`).join(''):'<p>Speak your first idea to start your collection.</p>';list.querySelectorAll('[data-creation-slot]').forEach(b=>b.onclick=()=>{closeCollection();actions.rebuild(Number(b.dataset.creationSlot));});}
  function closeCollection(){$('#practice-creations').open=false;}
  function toggleCollection(){if(!started)return;const collection=$('#practice-creations'),opening=!collection.open;if(opening){$('#movement-controls').open=false;renderCollection();}collection.open=opening;}
@@ -95,7 +96,7 @@ export function createUI(actions){
   if(e.code!=='KeyX'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.keyCode===229||typingTarget(e.target))return;
   const generation=$('#generation');
   if(generation.classList.contains('hidden')||document.querySelector('dialog[open]'))return;
-  e.preventDefault();$('#cancel-design').click();
+  e.preventDefault();closeGeneration();
  });
  // Enter advances entry/tour actions; native focused controls and text fields keep their behavior.
  window.addEventListener('keydown',e=>{
@@ -132,4 +133,4 @@ export function createUI(actions){
  function buildComplete(){if(designStarted||$('#mic').classList.contains('listening'))return;lastHeard='';$('#voice-status').textContent='';$('#voice-status').title='';}
  return {playerColor:()=>selectedColor,playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,toggleControls,toggleCollection,closeCollection,voiceState,buildComplete,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
-export {createVoice} from './voice-controller.js?v=47';
+export {createVoice} from './voice-controller.js?v=48';
