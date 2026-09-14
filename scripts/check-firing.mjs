@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {JSDOM} from 'jsdom';
 import * as THREE from '../public/vendor/three.module.js';
 import {newRoom,addPlayer,makeKit,applyInput,advanceRoom,roomSnapshot} from '../public/arena-core.js';
+import {newMotion,packFrame} from '../public/movement-stream.js';
 import {WORLD_ENTITIES} from '../public/world-data.js';
 import {poseWeaponHands} from '../public/weapon-pose.js';
 import {character} from '../public/models.js';
@@ -84,5 +85,43 @@ await check('Practice shots ignore camera orbit and legacy tilt, and stop at act
  const events=[],sim=await createSimulation([{id:'wall',x:0,y:2,z:4,w:4,h:4,d:.4}],e=>events.push(e));Object.assign(sim.state,{started:true,x:0,y:0,z:0,yaw:0});sim.build('bow');for(let i=0;i<120;i++)sim.update(1/60,{});
  sim.action({cameraYaw:Math.PI,weaponPitch:0});const shot=events.findLast(e=>e.type==='shoot');assert.ok(shot.impact);near(shot.to.z,3.8);near(sim.state.yaw,0);assert.equal(shot.target,null);
  sim.update(1,{});sim.state.cooldown=0;sim.action({cameraYaw:Math.PI,weaponPitch:-.65});const down=events.findLast(e=>e.type==='shoot');near(down.to.y,shot.to.y);assert.ok(down.impact);assert.ok(down.to.z>down.from.z);sim.dispose();
+});
+// New held-fire acceptance is current-time work, never historical catch-up.
+function acceptedFixture(weapon='bow'){
+ const {r,p}=setup(weapon==='bow'?makeKit('bow'):makeKit('test',{...fixture,movement:'carry',traits:{...fixture.traits,weapon}}));p.motion=newMotion(r.time);const origin=r.time;let seq=0;
+ const send=(at,input={},command,extra={})=>{advanceRoom(r,origin+at);const packet={seq:++seq,motionEpoch:0,roundId:r.round.id,frames:[],input,command,...extra};applyInput(r,p.id,packet,r.time);return packet;};
+ return {r,p,origin,send,shots:()=>r.events.filter(e=>e.type==='shot')};
+}
+await check('fresh command-free held fire shoots now even with no future room advance',()=>{
+ for(const weapon of ['bow','automatic'])for(const gap of [0,100,600,1500,1600,1720,1750]){
+  const n=acceptedFixture(weapon);n.send(gap,{fire:true});assert.equal(n.shots().length,1,'a fresh eligible hold must not depend on a later request');const e=n.shots()[0];assert.equal(e.time,n.origin+gap);assert.equal(e.projectile.born,e.time);assert.equal(e.commandId,null);
+  const shotCount=n.shots().length;n.send(gap+1720,{fire:false});assert.equal(n.shots().length,shotCount,'expired historical hold is not replayed');advanceRoom(n.r,n.r.time+2000);assert.equal(n.shots().length,shotCount,'accepted release/outage cannot fire');
+ }
+});
+await check('fixed accepted holds retain expiry and cooldown across staggered or aligned advances',()=>{
+ for(const weapon of ['bow','automatic'])for(const phase of [[],[200,400,600,800,1000,1200,1400,1600]]){
+  const n=acceptedFixture(weapon);n.send(0,{fire:true});for(const at of phase)advanceRoom(n.r,n.origin+at);n.send(1720,{fire:false});const shots=n.shots();assert.equal(shots[0].time,n.origin);assert.ok(shots.every(e=>e.time<n.origin+750));for(let i=1;i<shots.length;i++)assert.ok(shots[i].time-shots[i-1].time>=n.p.kit.stats.interval*1000-1e-7);assert.equal(n.r.projectiles.length,0,'no already-expired projectile survives the later advance');
+ }
+ for(const release of [100,749,750,751]){const n=acceptedFixture('automatic');n.send(0,{fire:true});n.send(release,{fire:false});const cursor=n.r.eventId;advanceRoom(n.r,n.origin+5000);assert.equal(n.r.events.filter(e=>e.id>cursor&&e.type==='shot').length,0);}
+});
+await check('current held-fire attempts preserve protection, heat, cooldown, death, building and command guards',()=>{
+ for(const block of ['protected','heat','cooldown','dead','building','unarmed','old-epoch','old-round']){
+  const n=acceptedFixture();if(block==='protected')n.p.protectedUntil=n.origin+5000;if(block==='heat')n.p.overheatedUntil=n.origin+5000;if(block==='cooldown')n.p.nextShot=n.origin+5000;if(block==='dead')n.p.health=0;if(block==='building')n.p.building={kit:makeKit('bow'),starts:n.origin,ends:n.origin+5000};if(block==='unarmed')n.p.kit.stats.damage=0;
+  n.send(0,{fire:true},undefined,block==='old-epoch'?{motionEpoch:99}:block==='old-round'?{roundId:99}:{});assert.equal(n.shots().length,0,block);
+ }
+ const n=acceptedFixture();const first=n.send(0,{fire:false},{id:1,type:'fire'});assert.equal(n.shots().length,1);n.send(0,{fire:false});advanceRoom(n.r,n.origin+2000);applyInput(n.r,n.p.id,first,n.r.time);assert.equal(n.shots().length,1,'old sequence cannot replay a shot');
+ n.send(2000,{fire:true},{id:1,type:'fire'});assert.equal(n.shots().length,1,'duplicate command is not recast as fresh held fire');n.send(2000,{fire:false});advanceRoom(n.r,n.origin+4000);assert.equal(n.shots().length,1);
+ n.send(4000,{fire:true});n.send(4000,{fire:true});assert.equal(n.shots().length,2,'same-time fresh updates obey cooldown');
+});
+await check('held-fire acceptance uses the moved authoritative pose and supplied contact solver',()=>{
+ const n=acceptedFixture(),oldZ=n.p.z;let calls=0;const packet={seq:1,motionEpoch:0,roundId:n.r.round.id,frames:[packFrame(1,{z:1})],input:{fire:true}};
+ applyInput(n.r,n.p.id,packet,n.r.time,null,(room,p)=>{calls++;assert.equal(p.motion.frame,1);assert.ok(p.z>oldZ);return solveWeaponAim(room,p);});assert.equal(calls,1);assert.deepEqual(n.shots()[0].muzzle,solveWeaponAim(n.r,n.p).muzzle);assert.equal(n.shots()[0].time,n.r.time);
+ // A failed CAS attempt is discarded; re-running from the same committed state
+ // is deterministic and adds no external side effect or extra accepted shot.
+ const left=acceptedFixture(),right=acceptedFixture();left.send(0,{fire:true});right.send(0,{fire:true});assert.deepEqual(left.r,right.r);
+});
+await check('fresh held melee keeps windup and release never creates another strike',()=>{
+ const n=acceptedFixture();n.p.kit=makeKit('foot');Object.assign(n.p,{x:0,y:0,z:10,yaw:0});const target=addPlayer(n.r,'target','Target',n.r.time);Object.assign(target,{x:0,y:0,z:11.7,protectedUntil:0});target.motion=newMotion(n.r.time);
+ n.send(0,{fire:true});const swings=()=>n.r.events.filter(e=>e.type==='swing');assert.equal(swings().length,1);assert.equal(target.health,100);const windup=n.p.melee.at;n.send(1,{fire:false});advanceRoom(n.r,windup-1);assert.equal(target.health,100);advanceRoom(n.r,windup+40);near(target.health,100-n.p.kit.stats.damage*(1-target.kit.stats.armor));advanceRoom(n.r,n.origin+5000);assert.equal(swings().length,1);assert.equal(n.r.events.filter(e=>e.type==='hit').length,1);
 });
 console.log(`\n${checks} firing, shot playback and impact checks passed.`);

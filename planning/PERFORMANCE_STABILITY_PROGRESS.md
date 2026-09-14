@@ -1,6 +1,16 @@
 # Arena performance and stability checkpoint
 
-## Current result — movement candidate rejected, runtime restored
+## Current follow-up — fresh held-fire acceptance
+
+Baseline frozen at `6ae537f61114aefebea7cb653ce7d81dee899f5f`. Fetch confirmed main remains `538e075feb407c9985f1bfc79ee904cfb9948ccf`, already integrated; no new merge was needed. Existing unrelated files, including the new local input-timing follow-up, are preserved. The baseline movement/failure checks pass.
+
+Independent fixed-accepted-input traces distinguish current input from expired history: fire accepted at t=0 followed by release at t=1720 yields zero bow/automatic shots with no intermediate advance, but one bow/four automatic shots with intermediate advances. Moving catch-up to the earliest second restores historical effects but publishes overdue bursts and changes projectile expiry/heat, so that approach is rejected without implementation.
+
+Selected timing-only correction: after a new packet passes sequence/epoch/round checks and its movement is accepted, a **command-free** `fire:true` update may make one ordinary shoot attempt at current room time. Keep the command branch, shared cooldown/heat/protection/health/contact rules and frame credit unchanged. Do not recover expired windows, simulate historical targets or promise request-phase-invariant automatic shot totals. A duplicate/invalid command must not be recast as a held-fire command.
+
+Acceptance defined before implementation: a fresh eligible update cannot vanish solely because no future request advances its input window; event/projectile birth time must equal current authoritative time and contact use the post-movement authoritative pose. No new effect from old sequence/epoch/round, cooldown/heat/protection/death/building, accepted release or an outage; commands remain deduplicated. Existing frame limits and bounded work remain intact. Validate this independently before retrying movement scheduling. Compare baseline/timing-only/combined separately; old movement/shot rejection thresholds are not relaxed to admit a scheduler.
+
+## Historical result — movement candidate rejected, runtime restored
 
 Yerzhan authorized autonomous baseline/implementation/verification in the follow-up, superseding the historical owner-baseline pause. Latest main `538e075feb407c9985f1bfc79ee904cfb9948ccf` was merged separately as `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`. That frozen baseline retains diagnostics `284503a` and prior integration `e25bfe2`. Full baseline checks pass; neither historical failing test remains an exception.
 
@@ -229,3 +239,17 @@ PLAYWRIGHT_MODULE=file:///private/tmp/brickwild-browser-run/node_modules/playwri
 ```
 
 The last command serves frozen baseline assets explicitly and fails on missing baseline files rather than mixing them with live candidate assets. The local preview was verified listening at `127.0.0.1:5194`; the driver supplies its synthetic test route. This is an automated command, not a persistent manual Arena endpoint.
+
+## Fresh held-fire correction — independent validation
+
+The timing-only runtime change is four lines in `applyInput`: one call to the existing `shoot` path plus a comment. It runs only for a new, command-free accepted held-fire packet, after movement acceptance. No catch-up loop, input-expiry constant, cooldown, damage, frame budget, request scheduling, renderer or storage rule changes. Projectile caps can still reject the attempt; “fresh hold” is not a guarantee of a projectile while a gameplay guard blocks it.
+
+The added regression fails on baseline (zero effects immediately after eligible fresh acceptance) and passes with the correction (one current-time effect). Sixteen firing/playback checks and 29 movement/network regressions pass. New assertions cover fixed accepted input with extra advancement phases, 0/100/600/1500/1600/1720/1750 ms gaps, release before/at/after expiry, old sequence/epoch/round, heat/protection/cooldown/death/building, current moved muzzle and supplied aim solver, and melee windup/contact after release. The deterministic clone assertion supports pure-core replay; it is not evidence of real D1 CAS contention. Existing store mutation advances the room before invoking the callback; the change adds no external side effect inside that callback.
+
+The 35-second-per-version real localhost HTTP test now uses sustained held fire on both active clients, not only a single explicit fire command. Baseline produced 0 / 0 effects immediately from fresh command-free acceptance; timing-only produced 11 / 5. Observed total effects were 10 / 10 versus 16 / 12, all respecting the unchanged authoritative cadence. These wall-clock counts demonstrate the exercised path, not a deterministic performance ratio. Accepted response loss, a separate real 12-second timeout/late response, 503, command-ID effect deduplication and cleanup passed. Post-join wall durations including cleanup were 36,632.7 / 36,631.8 ms; final timers, requests, seats and sockets were zero. Scope remains isolated Node HTTP + actual core, not Worker/D1.
+
+The original deterministic matrix showed unchanged movement and 7 / 9 shots on both baseline and timing-only; it correctly rejected a movement-improvement claim for timing-only. An isolated combined trial (timing fix plus the old scheduler patch) passed the unchanged comparison criteria: 1600 ms stops 369 / 369 → 271 / 283, and moving/firing effects 7 / 9 → 9 / 9. Current-time eligibility tests, rather than equal totals alone, establish why the extra valid effects are allowed. Rendered and soak acceptance of that scheduler remain separate gates.
+
+Timing-only desktop acceptance completed with the original tap phase preserved and an additional five-second held-fire phase (1,320 frames/run). At 100 ms both versions delivered 12 held-phase shot events and 77 total visible muzzle-attachment samples; at 1600 ms both delivered six held-phase events and 21 samples. Maximum attachment error was zero; page/console/request error arrays were empty. Baseline/candidate screenshots were inspected. This profile demonstrates preserved rendering, not the causal timing benefit. An earlier held-only trial had no visible baseline muzzle-flash samples at 1600 ms, exposing an existing stale-view-clock limitation; it was not counted as acceptance. The retained driver reports tap and held-phase samples separately and keeps its original attachment assertions.
+
+Full timing-only `npm run check`, `npm run build`, package and voice-package checks passed. Independently reviewed: current-time pose/aim, guarded eligible attempt, pure-core replay boundary and no command recasting. Timing evidence is in `validation/performance-stability/input-timing/`; candidate source hashes identify this separate correction before its commit. Rollback is a focused revert of the timing correction commit, after reverting any dependent scheduler. The next authorized step is the separately committed bounded scheduler, contingent on its unchanged gameplay comparison, real HTTP and round-spanning soak gates.

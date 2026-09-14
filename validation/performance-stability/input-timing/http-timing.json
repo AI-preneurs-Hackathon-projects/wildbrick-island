@@ -1,0 +1,2070 @@
+{
+  "scope": "Actual localhost Node HTTP/fetch, two active real clients and authoritative core, 1600 ms target RTT. Response socket destroyed after mutation, separate response delayed beyond 12 s client timeout, and transient503 while moving and holding fire. Each current-time accepted hold is measured separately from command effects. Node timing is observational; fixed virtual comparison establishes exact tick counts. Not Worker/D1/build reservation/hosted validation.",
+  "results": [
+    {
+      "version": "baseline",
+      "wallMs": 36632.687666,
+      "targetActiveMs": 35000,
+      "stats": [
+        {
+          "requests": 23,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 20,
+          "acceptedFrames": 843,
+          "abortedResponses": 1,
+          "lostResponses": 1,
+          "lateResponses": 0,
+          "commandPackets": 3,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1,
+            "2": 1
+          },
+          "freshHeldEffects": 0,
+          "effectTimes": [
+            109473.040042,
+            112666.302417,
+            114429.90691633332,
+            126519.77741633332,
+            127053.11074966658,
+            128243.44795833333,
+            128776.78129166659,
+            129971.73220833333,
+            130505.06554166658,
+            133955.29704133337
+          ]
+        },
+        {
+          "requests": 16,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 14,
+          "acceptedFrames": 610,
+          "abortedResponses": 1,
+          "lostResponses": 0,
+          "lateResponses": 1,
+          "commandPackets": 1,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1
+          },
+          "freshHeldEffects": 0,
+          "effectTimes": [
+            112830.69975,
+            113429.90691633332,
+            115157.99695833333,
+            127244.97050033332,
+            127778.30383366658,
+            128971.73725033332,
+            129505.07058366657,
+            130698.65050033333,
+            131231.98383366666,
+            132955.29704133337
+          ]
+        }
+      ],
+      "events": [
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 4,
+            "command": 2,
+            "type": "swing"
+          },
+          {
+            "id": 5,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 6,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 7,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 8,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 9,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 10,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 11,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 12,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 13,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 14,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 15,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 16,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 17,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 18,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 19,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 20,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 21,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 22,
+            "command": null,
+            "type": "swing"
+          }
+        ],
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 4,
+            "command": 2,
+            "type": "swing"
+          },
+          {
+            "id": 5,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 9,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 10,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 11,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 12,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 13,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 14,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 15,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 16,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 17,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 18,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 19,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 20,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 21,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 22,
+            "command": null,
+            "type": "swing"
+          }
+        ]
+      ],
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T14:06:29.432Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100004.054292,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101628.30824999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103257.010375,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103361.974167,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104360.29791699999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 105092.58066699999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105742.53654199999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106102.29641699999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106821.666833,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107807.673875,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 107824.95645799999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108562.309792,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109202.29258299999,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 109480.460375,
+              "code": 1,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 109480.49945799999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109549.505375,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 111742.558458,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111759.04724999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112757.072,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113473.77029199999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114110.80945799999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114486.43974999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 115205.670417,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 116204.22395799999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 116938.580292,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 117587.916917,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 117930.93004199999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 118667.60154199999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 119659.04824999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 120392.07845799999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 121041.10466699999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 121396.90624999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 122113.170375,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 123104.120417,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 123120.599708,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 123850.26508299999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 124496.40324999999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 124837.94891699999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 125568.30875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 126557.97779199999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 126575.091875,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127292.65125,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 127937.52820799999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 128294.255292,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129014.846542,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 129999.463458,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130015.71083299999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 130752.264125,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 131387.713583,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 131746.632,
+              "code": 2
+            },
+            {
+              "type": "request-failure",
+              "at": 132467.715417,
+              "code": 5,
+              "status": 503
+            },
+            {
+              "type": "status",
+              "at": 132467.728333,
+              "code": 3
+            },
+            {
+              "type": "status",
+              "at": 134724.67033300002,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134724.76662500002,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135734.041042,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136467.855833,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137118.415208,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137460.685667,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 138193.07862500002,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 138267.269875,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 23,
+              "retained": 23,
+              "p50": 1606.059083,
+              "p95": 1611.039333000008,
+              "p99": 1623.6814169999998,
+              "windowMax": 1623.6814169999998,
+              "lifetimeMax": 1623.6814169999998
+            },
+            "snapshotAgeMs": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 968.0623329999944,
+              "p95": 2716.4202919999952,
+              "p99": 3626.822250000012,
+              "windowMax": 3967.016749999995,
+              "lifetimeMax": 3967.016749999995
+            },
+            "pendingFrames": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 90,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2044,
+              "retained": 2044,
+              "p50": 17.21312499998021,
+              "p95": 17.454667000012705,
+              "p99": 18.273874999998952,
+              "windowMax": 22.708333000002312,
+              "lifetimeMax": 22.708333000002312
+            },
+            "snapshotGapMs": {
+              "count": 19,
+              "retained": 19,
+              "p50": 1728.031959,
+              "p95": 3983.1916250000213,
+              "p99": 3983.1916250000213,
+              "windowMax": 3983.1916250000213,
+              "lifetimeMax": 3983.1916250000213
+            },
+            "ackAdvance": {
+              "count": 19,
+              "retained": 19,
+              "p50": 38,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 19,
+              "retained": 19,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 23,
+            "request-end": 23,
+            "snapshot": 20,
+            "tick": 2045,
+            "status": 152,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            21,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            3,
+            2,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            864,
+            991,
+            190,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 21,
+            "503": 1
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T14:06:29.434Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 101628.416375,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 103256.272833,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103257.132625,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104257.79579199999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 104990.13887499999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105621.786125,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106000.639917,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106719.09141699999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107720.58224999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108458.201875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109099.0725,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109460.89412499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110184.78479199999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111178.36325,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111916.045917,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112550.08033299999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112909.313375,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113648.132208,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114640.184125,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 116134.67575,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 125759.42099999999,
+              "code": 2,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 128015.457875,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 128020.15766699999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 129032.13775,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129758.00041699999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 130375.167875,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130752.287,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 131472.007875,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 132476.911708,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 133209.092458,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 133839.348625,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 134197.313625,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134930.210208,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135921.770625,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136655.691667,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137290.190333,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137648.252333,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 138267.651542,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 16,
+              "retained": 16,
+              "p50": 1606.3304579999822,
+              "p95": 12003.745750000002,
+              "p99": 12003.745750000002,
+              "windowMax": 12003.745750000002,
+              "lifetimeMax": 12003.745750000002
+            },
+            "snapshotAgeMs": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 1346.2545419999951,
+              "p95": 12616.0055,
+              "p99": 14031.772750000004,
+              "windowMax": 14370.172542,
+              "lifetimeMax": 14370.172542
+            },
+            "pendingFrames": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 90,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2044,
+              "retained": 2044,
+              "p50": 17.21091600001091,
+              "p95": 17.469917000009445,
+              "p99": 18.27470799999719,
+              "windowMax": 22.69999999999709,
+              "lifetimeMax": 22.69999999999709
+            },
+            "snapshotGapMs": {
+              "count": 12,
+              "retained": 12,
+              "p50": 1728.6630000000005,
+              "p95": 14381.448334,
+              "p99": 14381.448334,
+              "windowMax": 14381.448334,
+              "lifetimeMax": 14381.448334
+            },
+            "ackAdvance": {
+              "count": 12,
+              "retained": 12,
+              "p50": 38,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 12,
+              "retained": 12,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 16,
+            "request-end": 16,
+            "snapshot": 13,
+            "tick": 2045,
+            "status": 712,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            15,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            2,
+            1,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            629,
+            1288,
+            128,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 15
+          }
+        }
+      ],
+      "beforeLeave": {
+        "timers": 3,
+        "serverTimers": 1,
+        "clientTimers": 2,
+        "requests": 1,
+        "maxRequests": 2,
+        "sockets": 2,
+        "players": 2
+      },
+      "afterLeave": {
+        "timers": 0,
+        "serverTimers": 0,
+        "clientTimers": 0,
+        "requests": 0,
+        "maxRequests": 3,
+        "sockets": 0,
+        "players": 0
+      }
+    },
+    {
+      "version": "candidate",
+      "wallMs": 36631.78537500001,
+      "targetActiveMs": 35000,
+      "stats": [
+        {
+          "requests": 23,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 20,
+          "acceptedFrames": 842,
+          "abortedResponses": 1,
+          "lostResponses": 1,
+          "lateResponses": 0,
+          "commandPackets": 3,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1,
+            "2": 1
+          },
+          "freshHeldEffects": 11,
+          "effectTimes": [
+            109443.62733299998,
+            112627.41287500001,
+            114353.95624999999,
+            116079.68941600001,
+            117806.68974999999,
+            119533.27454099999,
+            121258.93183300001,
+            122985.425958,
+            124712.78395799999,
+            126440.657125,
+            126973.99045833325,
+            128166.87849999999,
+            128700.21183333325,
+            129893.85787500002,
+            130427.19120833327,
+            133878.537416
+          ]
+        },
+        {
+          "requests": 16,
+          "syncInFlight": 0,
+          "maxSyncInFlight": 1,
+          "mutations": 14,
+          "acceptedFrames": 609,
+          "abortedResponses": 1,
+          "lostResponses": 0,
+          "lateResponses": 1,
+          "commandPackets": 1,
+          "oldSeqRejected": 0,
+          "commandEffects": {
+            "1": 1
+          },
+          "freshHeldEffects": 5,
+          "effectTimes": [
+            112775.13675,
+            113387.28958333332,
+            114504.18183300001,
+            115113.02274933334,
+            127156.54962500001,
+            127666.87849999992,
+            128881.964125,
+            129393.85787499994,
+            130609.01229099999,
+            131122.14679099995,
+            132337.86079099998,
+            132911.87074933335
+          ]
+        }
+      ],
+      "events": [
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 4,
+            "command": 2,
+            "type": "swing"
+          },
+          {
+            "id": 5,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 6,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 7,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 8,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 9,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 10,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 11,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 12,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 13,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 14,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 15,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 16,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 17,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 18,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 19,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 20,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 21,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 22,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 23,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 24,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 25,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 26,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 27,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 28,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 29,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 30,
+            "command": null,
+            "type": "swing"
+          }
+        ],
+        [
+          {
+            "id": 3,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 4,
+            "command": 2,
+            "type": "swing"
+          },
+          {
+            "id": 5,
+            "command": 1,
+            "type": "swing"
+          },
+          {
+            "id": 14,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 15,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 16,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 17,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 18,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 19,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 20,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 21,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 22,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 23,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 24,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 25,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 26,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 27,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 28,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 29,
+            "command": null,
+            "type": "swing"
+          },
+          {
+            "id": 30,
+            "command": null,
+            "type": "swing"
+          }
+        ]
+      ],
+      "diagnostics": [
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T14:07:09.327Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 100003.16524999999,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 101609.888916,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103218.152291,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103338.88187499999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104344.09512499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 105077.432333,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105711.51775,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 106074.22145799999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106796.21516599998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107790.922541,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108523.033791,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109156.53325000001,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 109446.787083,
+              "code": 1,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 109446.81012499999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109531.56820800001,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 111703.94283300001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111718.53354100001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112707.677791,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113444.99795799999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114079.95204099998,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 114441.734875,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 115160.71375,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 116157.11712499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 116893.896791,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 117527.96012500001,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 117886.067625,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 118621.3485,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 119619.12862499998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 120347.913833,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 120999.34724999999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 121341.812875,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 122076.83799999999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 123071.438708,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 123805.20541600001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 124443.428625,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 124803.60191599999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 125518.03912499998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 126516.084041,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 126533.35733299999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127259.795625,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 127909.75062500002,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 128250.37945799998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 128983.679083,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 129981.35699999999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 130715.39029099999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 131364.81824999998,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 131708.428416,
+              "code": 2
+            },
+            {
+              "type": "request-failure",
+              "at": 132425.34783299998,
+              "code": 5,
+              "status": 503
+            },
+            {
+              "type": "status",
+              "at": 132425.379125,
+              "code": 3
+            },
+            {
+              "type": "status",
+              "at": 134681.748125,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134691.050791,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135682.107208,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136417.66725,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137054.509958,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137412.631333,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 138139.300666,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 138228.06275,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 23,
+              "retained": 23,
+              "p50": 1605.3927080000285,
+              "p95": 1607.6769169999752,
+              "p99": 1607.8508750000037,
+              "windowMax": 1607.8508750000037,
+              "lifetimeMax": 1607.8508750000037
+            },
+            "snapshotAgeMs": {
+              "count": 2046,
+              "retained": 2046,
+              "p50": 972.0033339999791,
+              "p95": 2713.8628339999996,
+              "p99": 3636.2119999999995,
+              "windowMax": 3974.515959000011,
+              "lifetimeMax": 3974.515959000011
+            },
+            "pendingFrames": {
+              "count": 2046,
+              "retained": 2046,
+              "p50": 89,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 17.221457999985432,
+              "p95": 17.460250000003725,
+              "p99": 18.044582999980776,
+              "windowMax": 24.966291000018828,
+              "lifetimeMax": 24.966291000018828
+            },
+            "snapshotGapMs": {
+              "count": 19,
+              "retained": 19,
+              "p50": 1727.2779579999915,
+              "p95": 3982.517041999992,
+              "p99": 3982.517041999992,
+              "windowMax": 3982.517041999992,
+              "lifetimeMax": 3982.517041999992
+            },
+            "ackAdvance": {
+              "count": 19,
+              "retained": 19,
+              "p50": 38,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "correctionM": {
+              "count": 19,
+              "retained": 19,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 23,
+            "request-end": 23,
+            "snapshot": 20,
+            "tick": 2046,
+            "status": 151,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 1,
+          "requestFailures": [
+            21,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            3,
+            2,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            863,
+            995,
+            188,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 21,
+            "503": 1
+          }
+        },
+        {
+          "version": 1,
+          "startedAt": "2026-09-14T14:07:09.327Z",
+          "capacity": 2048,
+          "active": true,
+          "longTaskSupported": null,
+          "recentEvents": [
+            {
+              "type": "status",
+              "at": 101609.952708,
+              "code": 1
+            },
+            {
+              "type": "status",
+              "at": 103217.70170800001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 103218.18041599999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 104226.38070800001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 104942.66991600001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 105560.846208,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 105955.287958,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 106675.60750000001,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 107671.794375,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 108404.75779099998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 109055.07699999999,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 109412.201875,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 110130.315416,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 111120.08508299998,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 111137.364458,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 111854.67404099999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 112504.891458,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 112861.70337500001,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 113581.778708,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 114581.83033299999,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 116087.60608299999,
+              "code": 3
+            },
+            {
+              "type": "request-failure",
+              "at": 125703.02300000002,
+              "code": 2,
+              "status": 0
+            },
+            {
+              "type": "status",
+              "at": 127959.974583,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 127960.09304099999,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 128966.48162499999,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 129702.51045799998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 130340.931041,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 130698.15737499998,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 131414.956208,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 132389.37125,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 132423.8185,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 133156.114458,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 133808.276291,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 134149.432833,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 134877.49612499998,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 135853.1655,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 135869.819583,
+              "code": 2
+            },
+            {
+              "type": "prediction",
+              "at": 136607.667166,
+              "code": 1
+            },
+            {
+              "type": "prediction",
+              "at": 137258.818083,
+              "code": 3
+            },
+            {
+              "type": "prediction",
+              "at": 137597.183375,
+              "code": 2
+            },
+            {
+              "type": "status",
+              "at": 138228.459041,
+              "code": 0
+            }
+          ],
+          "metrics": {
+            "requestMs": {
+              "count": 16,
+              "retained": 16,
+              "p50": 1605.7009580000304,
+              "p95": 12002.584375000006,
+              "p99": 12002.584375000006,
+              "windowMax": 12002.584375000006,
+              "lifetimeMax": 12002.584375000006
+            },
+            "snapshotAgeMs": {
+              "count": 2046,
+              "retained": 2046,
+              "p50": 1343.231541999965,
+              "p95": 12626.881790999993,
+              "p99": 14025.74541599999,
+              "windowMax": 14365.107166000002,
+              "lifetimeMax": 14365.107166000002
+            },
+            "pendingFrames": {
+              "count": 2046,
+              "retained": 2046,
+              "p50": 89,
+              "p95": 90,
+              "p99": 90,
+              "windowMax": 90,
+              "lifetimeMax": 90
+            },
+            "tickGapMs": {
+              "count": 2045,
+              "retained": 2045,
+              "p50": 17.220750000007683,
+              "p95": 17.462834000005387,
+              "p99": 18.06937499999185,
+              "windowMax": 24.952292000001762,
+              "lifetimeMax": 24.952292000001762
+            },
+            "snapshotGapMs": {
+              "count": 12,
+              "retained": 12,
+              "p50": 1727.4159579999978,
+              "p95": 14381.391166000016,
+              "p99": 14381.391166000016,
+              "windowMax": 14381.391166000016,
+              "lifetimeMax": 14381.391166000016
+            },
+            "ackAdvance": {
+              "count": 12,
+              "retained": 12,
+              "p50": 39,
+              "p95": 89,
+              "p99": 89,
+              "windowMax": 89,
+              "lifetimeMax": 89
+            },
+            "correctionM": {
+              "count": 12,
+              "retained": 12,
+              "p50": 0,
+              "p95": 0,
+              "p99": 0,
+              "windowMax": 0,
+              "lifetimeMax": 0
+            }
+          },
+          "events": {
+            "request-start": 16,
+            "request-end": 16,
+            "snapshot": 13,
+            "tick": 2046,
+            "status": 710,
+            "frame": 0,
+            "long-task": 0,
+            "resources": 0,
+            "visibility": 0,
+            "context-lost": 0,
+            "context-restored": 0
+          },
+          "inFlight": 0,
+          "maxInFlight": 2,
+          "requestFailures": [
+            15,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "statusTransitions": [
+            1,
+            1,
+            2,
+            1,
+            0
+          ],
+          "predictionReasons": [
+            0,
+            630,
+            1286,
+            130,
+            0,
+            0
+          ],
+          "httpStatuses": {
+            "0": 1,
+            "200": 15
+          }
+        }
+      ],
+      "beforeLeave": {
+        "timers": 3,
+        "serverTimers": 1,
+        "clientTimers": 2,
+        "requests": 1,
+        "maxRequests": 2,
+        "sockets": 2,
+        "players": 2
+      },
+      "afterLeave": {
+        "timers": 0,
+        "serverTimers": 0,
+        "clientTimers": 0,
+        "requests": 0,
+        "maxRequests": 3,
+        "sockets": 0,
+        "players": 0
+      }
+    }
+  ]
+}

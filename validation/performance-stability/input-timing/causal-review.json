@@ -1,0 +1,16 @@
+{
+  "scope": "Read-only pure authoritative-core trace; no HTTP, Worker, D1, rendering or wall benchmark. Earliest-window trial imported modified source through a data URL; no repository source was edited.",
+  "acceptedInputs": [{"atMs":0,"seq":1,"fire":true,"frames":[],"command":null},{"atMs":1720,"seq":2,"fire":false,"frames":[],"command":null}],
+  "mutationOrder": "advanceRoom(room, acceptedTime) before applyInput; two separated authoritative players with motion streams and disabled static obstacles/drops",
+  "extraAdvanceTimesMs": [200,400,600,800,1000,1200,1400,1600],
+  "baselineLatestWindow": {
+    "withoutExtraAdvances": {"bowShotTimesMs":[],"automaticShotTimesMs":[],"automaticHeat":0},
+    "withExtraAdvances": {"bowShotTimesMs":[33.3],"automaticShotTimesMs":[33.3,233.3,433.3,633.3],"automaticHeat":0.24073333333333263}
+  },
+  "rejectedEarliestWindowTrial": {
+    "withoutExtraAdvances": {"bowShotTimesMs":[33.3],"automaticShotTimesMs":[33.3,233.3,433.3,633.3],"automaticHeat":0.3343333333333331,"automaticLiveProjectiles":1,"bowLiveProjectileExpiresMs":1588.8888888888905,"roomTimeMs":1720},
+    "withExtraAdvances": {"automaticHeat":0.24073333333333263,"automaticLiveProjectiles":0},
+    "rejection": "Creates retrospective automatic-fire burst and changes tail cooling/projectile expiry; an expired bow projectile survives at room time 1720. Not a safe scoped correction."
+  },
+  "currentTimeCorrectionBoundary": "A new accepted pure state packet with fire:true may make one ordinary shoot attempt at current room time, after movement acceptance and under existing attack guards. This avoids complete loss of that new accepted hold update. It does not recover expired input windows or prove exact automatic-fire phase invariance."
+}

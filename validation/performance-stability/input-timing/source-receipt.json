@@ -1,0 +1,21 @@
+{
+  "baselineSHA": "6ae537f61114aefebea7cb653ce7d81dee899f5f",
+  "mainSHA": "538e075feb407c9985f1bfc79ee904cfb9948ccf",
+  "scope": "Timing-only current-time held-fire acceptance; source hashes identify candidate before commit. No movement improvement claimed.",
+  "sha256": {
+    "public/arena-core.js": "89c202357da2d5eda6bb3afad0c0c157a49bb9bcb75de1eb3a76557936a13d3d",
+    "scripts/check-firing.mjs": "944b287783320822067193f8c1da3fec97dbca743f1815d431471f6a8a2c5d7d",
+    "scripts/check-arena-http.mjs": "62bf3df2876931ae7195cd626e799f99e950bbfa41194b70f49ab52bf04bae2a",
+    "scripts/lib/arena-http-fixture.mjs": "8554cdbd4014f79bd8e498b744ffce95e777ea961ff1cf98392581591c8514a6",
+    "scripts/diagnose-arena-desktop.mjs": "1c3fd18259cabd857d45465de82a7dce8b10e47eef8f1af33b20dd6cc5346fec"
+  },
+  "checks": [
+    "16 firing checks",
+    "29 network movement checks",
+    "full npm run check",
+    "npm run build",
+    "package and voice package checks",
+    "actual HTTP cancellation/loss comparison",
+    "1440x900 rendered baseline/candidate100/1600ms"
+  ]
+}

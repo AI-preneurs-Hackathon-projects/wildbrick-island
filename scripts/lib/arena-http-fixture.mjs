@@ -7,10 +7,11 @@ import * as defaultCore from '../../public/arena-core.js';
 import {newMotion} from '../../public/movement-stream.js';
 import {WORLD_ENTITIES} from '../../public/world-data.js';
 
-export async function arenaHttpFixture({clientFactory=createArenaClient,core=defaultCore,latency=1600,diagnostics=[],onEvent=()=>{}}={}){
- const origin=performance.now(),now=()=>100000+performance.now()-origin;
+export async function arenaHttpFixture({clientFactory=createArenaClient,core=defaultCore,latency=1600,jitter=0,seed=452067,diagnostics=[],onEvent=()=>{}}={}){
+ const origin=performance.now(),now=()=>100000+performance.now()-origin,randomStates=[seed>>>0,(seed^0x9e3779b9)>>>0];
+ const random=i=>((randomStates[i]=(Math.imul(randomStates[i],1664525)+1013904223)>>>0)/4294967296);
  const room=core.newRoom(now(),'local-http'),serverTimers=new Set(),clientTimers=new Set(),sockets=new Set(),faults=[[],[]];
- const stats=[0,1].map(()=>({requests:0,syncInFlight:0,maxSyncInFlight:0,mutations:0,acceptedFrames:0,abortedResponses:0,lostResponses:0,lateResponses:0,commandPackets:0,oldSeqRejected:0,commandEffects:{}}));
+ const stats=[0,1].map(()=>({requests:0,syncInFlight:0,maxSyncInFlight:0,mutations:0,acceptedFrames:0,abortedResponses:0,lostResponses:0,lateResponses:0,commandPackets:0,oldSeqRejected:0,commandEffects:{},freshHeldEffects:0,effectTimes:[]}));
  let joins=0,requests=0,maxRequests=0,eventCursor=0;const owners=new Map();
  room.nextDrop=1e15;for(const e of WORLD_ENTITIES)room.destroyed[e.id]=1e15;
  function later(fn,ms){const t=setTimeout(()=>{serverTimers.delete(t);fn();},ms);serverTimers.add(t);return t;}
@@ -20,31 +21,31 @@ export async function arenaHttpFixture({clientFactory=createArenaClient,core=def
   const index=Number(req.headers['x-local-peer']),s=stats[index];if(!s){res.writeHead(400).end();return;}
   let text='';for await(const chunk of req){text+=chunk;if(text.length>100000){res.writeHead(413).end();return;}}
   const packet=JSON.parse(text||'{}'),kind=req.url.split('/').at(-1),sync=kind==='sync'||kind==='build',fault=sync?faults[index].shift():null;
-  const rtt=Array.isArray(latency)?latency[index]:latency;
+  const rtt=Array.isArray(latency)?latency[index]:latency,up=Math.max(0,rtt/2+(random(index)*2-1)*jitter),down=Math.max(0,rtt/2+(random(index)*2-1)*jitter);
   s.requests++;requests++;maxRequests=Math.max(maxRequests,requests);if(sync){s.syncInFlight++;s.maxSyncInFlight=Math.max(s.maxSyncInFlight,s.syncInFlight);}if(packet.command)s.commandPackets++;
   let ended=false;const done=()=>{if(ended)return;ended=true;requests--;if(sync)s.syncInFlight--;};res.on('close',()=>{if(!res.writableEnded)s.abortedResponses++;done();});res.on('finish',done);
   later(()=>{
-   let code=fault?.status||200,data={};core.advanceRoom(room,now());
+   let code=fault?.status||200,data={};const at=now();core.advanceRoom(room,at);
    try{
     if(code!==200)data={error:'Local injected status'};
     else if(kind==='join'){
-     const p=core.addPlayer(room,'http-'+(++joins),'Local peer',now());p.motion=newMotion(now());owners.set(p.id,index);Object.assign(p,{x:index?6:0,z:10,yaw:0,protectedUntil:0});room.revision++;
+     const p=core.addPlayer(room,'http-'+(++joins),'Local peer',at);p.motion=newMotion(at);owners.set(p.id,index);Object.assign(p,{x:index?6:0,z:10,yaw:0,protectedUntil:0});room.revision++;
      data={room:'LOCAL',session:p.id,token:'local-only',snapshot:structuredClone(core.roomSnapshot(room,p.id))};
     }else if(kind==='leave')core.removePlayer(room,packet.session);
     else{
      const p=room.players[packet.session],before=p?.motion?.frame||0,spawn=p?.spawnSerial;
      if(p&&packet.seq<=p.lastSeq)s.oldSeqRejected++;
-     core.applyInput(room,packet.session,packet,now(),packet.command?.type==='build'?core.makeKit(packet.command.mode):null);s.mutations++;
+     const beforeInputEvent=room.eventId;core.applyInput(room,packet.session,packet,at,packet.command?.type==='build'?core.makeKit(packet.command.mode):null);s.mutations++;if(!packet.command&&packet.input?.fire)s.freshHeldEffects+=room.events.filter(e=>e.id>beforeInputEvent&&e.player===packet.session&&['shot','swing'].includes(e.type)).length;
      if(p&&spawn===p.spawnSerial)s.acceptedFrames+=p.motion.frame-before;
      room.revision++;data={snapshot:structuredClone(core.roomSnapshot(room,packet.session,packet.afterEvent))};
     }
    }catch(e){code=e.status||500;data={error:'Local authoritative rejection'};}
-   for(const e of room.events)if(e.id>eventCursor){const owner=owners.get(e.player);if(owner!==undefined&&e.commandId&&['shot','swing'].includes(e.type)){const effects=stats[owner].commandEffects;effects[e.commandId]=(effects[e.commandId]||0)+1;}eventCursor=Math.max(eventCursor,e.id);}
+   for(const e of room.events)if(e.id>eventCursor){const owner=owners.get(e.player);if(owner!==undefined&&['shot','swing'].includes(e.type)){const stat=stats[owner];if(e.commandId){const effects=stat.commandEffects;const key=[e.player,e.roundId,e.spawnSerial,e.commandId].join(':');effects[key]=(effects[key]||0)+1;}stat.effectTimes.push(e.time);if(stat.effectTimes.length>64)stat.effectTimes.shift();}eventCursor=Math.max(eventCursor,e.id);}
    if(fault?.loseAfterAccept&&code===200){s.lostResponses++;res.destroy();return;}
    // The mutation has already committed. Client cancellation cannot roll it back.
-   const delay=fault?.responseDelay??rtt/2;
+   const delay=fault?.responseDelay??down;
    later(()=>{if(res.destroyed){s.lateResponses++;return;}res.writeHead(code,{'content-type':'application/json'});res.end(JSON.stringify(data));},delay);
-  },fault?.requestDelay??rtt/2);
+  },fault?.requestDelay??up);
  });
  server.on('connection',socket=>{sockets.add(socket);socket.on('close',()=>sockets.delete(socket));});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const url=`http://127.0.0.1:${server.address().port}`;

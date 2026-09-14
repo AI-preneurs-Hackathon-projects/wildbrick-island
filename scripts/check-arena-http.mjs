@@ -20,16 +20,18 @@ for(const version of baseline?['baseline','candidate']:['candidate']){
    if(stage===0&&elapsed>5000){n.fault(0,{loseAfterAccept:true});n.clients[0].command('fire');stage++;}
    if(stage===1&&elapsed>10000){n.fault(1,{responseDelay:13000});stage++;}
    if(stage===2&&elapsed>26000){n.fault(0,{status:503});stage++;}
-   const z=Math.floor(elapsed/1000)%2?.4:-.4;await n.step(elapsed%6000<5000?[{z},{z}]:[{},{}],at-last);last=at;await sleep(1000/60);
+   const z=elapsed%6000<5000?(Math.floor(elapsed/1000)%2?.4:-.4):0,fire=elapsed>=8000&&elapsed<30000;await n.step([{z,fire},{z,fire}],at-last);last=at;await sleep(1000/60);
   }
   assert.ok(n.clients.every(c=>c.connected));assert.ok(n.stats[0].lostResponses===1);assert.ok(n.stats[1].abortedResponses>=1);assert.ok(n.stats[1].lateResponses>=1);
   assert.ok(ds[1].export().requestFailures[2]>=1,'actual fetch timeout observed');
   assert.ok(n.stats.every(s=>s.maxSyncInFlight<=2));assert.ok(ds.every(d=>d.export().metrics.pendingFrames.lifetimeMax<=90));
   assert.ok(Object.keys(n.stats[0].commandEffects).length>0,'explicit fire accepted');for(const s of n.stats)assert.ok(Object.values(s.commandEffects).every(count=>count===1),'one authoritative effect per command ID');
   for(const es of events){assert.equal(new Set(es.map(e=>e.id)).size,es.length,'no duplicate delivered attack');}
+  for(const s of n.stats)for(let i=1;i<s.effectTimes.length;i++)assert.ok(s.effectTimes[i]-s.effectTimes[i-1]>=core.makeKit('foot').stats.interval*1000-1e-5,'HTTP attacks obey authoritative cadence');
   const beforeLeave=n.resources;await n.leave();assert.equal(n.resources.timers,0);assert.equal(n.resources.requests,0);assert.equal(n.resources.players,0);assert.equal(n.resources.sockets,0);assert.ok(ds.every(d=>d.export().inFlight===0));
   results.push({version,wallMs:performance.now()-started,targetActiveMs:35000,stats:n.stats,events,diagnostics:ds.map(d=>d.export()),beforeLeave,afterLeave:n.resources});
   console.log(JSON.stringify({version,stats:n.stats,cleanup:n.resources}));
  }catch(e){await n.leave();throw e;}
 }
-await fs.writeFile(output,JSON.stringify({scope:'Actual localhost Node HTTP/fetch, two active real clients and authoritative core, 1600 ms target RTT. Response socket destroyed after mutation, separate response delayed beyond 12 s client timeout, and transient503. Node timing is observational; fixed virtual comparison establishes exact tick counts. Not Worker/D1/build reservation/hosted validation.',results},null,2)+'\n');
+assert.ok(results.at(-1).stats.every(s=>s.freshHeldEffects>0),'both real clients exercise fresh held-fire acceptance');
+await fs.writeFile(output,JSON.stringify({scope:'Actual localhost Node HTTP/fetch, two active real clients and authoritative core, 1600 ms target RTT. Response socket destroyed after mutation, separate response delayed beyond 12 s client timeout, and transient503 while moving and holding fire. Each current-time accepted hold is measured separately from command effects. Node timing is observational; fixed virtual comparison establishes exact tick counts. Not Worker/D1/build reservation/hosted validation.',results},null,2)+'\n');

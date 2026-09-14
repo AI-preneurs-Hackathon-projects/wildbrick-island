@@ -66,7 +66,7 @@ First hand Yerzhan that unchanged-behavior baseline to play. Use one moving/shoo
 
 Only after that baseline test should we select one small prediction/recovery change. The expected improvement would be fewer/shorter **network-induced movement pauses**, not faster character speed or a blanket FPS increase. No specific queue/timeout change is approved by the current evidence. Do not raise the freshness timeout alone; do not combine recovery work with remote interpolation or rendering optimization.
 
-## Current autonomous result
+## Historical autonomous result — rejected first scheduler
 
 The movement-overlap candidate was implemented, compared and rejected: fewer movement pauses came with fewer authoritative held-fire shots. Runtime edits were reverted. The existing progress document and `validation/performance-stability/movement-attempt/` hold the precise failed hypothesis and evidence. No owner test is requested; Practice cannot certify this network change. Future proposals must state the exact next experiment and measurable acceptance before work, while this follow-up authorizes autonomous baseline capture rather than a mandatory owner pause.
 
@@ -82,3 +82,7 @@ The movement-overlap candidate was implemented, compared and rejected: fewer mov
 | Not verified | Hardware/hosted/manual gaps and any known failing tests |
 | Rollback | Focused revert commit, preserving other work |
 | Next | One proposed next task, with an automated baseline before implementation; owner confirmation is optional |
+
+## Current input-timing follow-up
+
+Yerzhan additionally authorized a narrow authoritative input-timing correction and autonomous retry of the movement scheduler. Baseline is `6ae537f61114aefebea7cb653ce7d81dee899f5f`; latest fetched main remains `538e075feb407c9985f1bfc79ee904cfb9948ccf`. Keep timing-only and combined comparisons/commits separable. A fresh accepted held-fire attempt at current authoritative pose/time is a firing-reliability benefit; it must not be described as a movement gain. The scheduler must still pass the original movement, firing, authority, real HTTP and lifecycle gates. Owner playtesting is optional confirmation after these autonomous checks, never a replacement for them. See the existing progress document for live evidence and limitations.
