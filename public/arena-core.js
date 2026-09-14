@@ -11,7 +11,7 @@ import {creationStats,clamp} from './combat.js';
 import {blueprintMetrics} from './blueprint-metrics.js';
 import {SUPPORT_DROPS} from './supply-catalog.js';
 import {arenaMap,MAP_CYCLE,mapForRound,nextMap} from './map-catalog.js';
-export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750,ROUND_MS=5*60*1000,INTERMISSION_MS=30000;
+export const DEFAULT_ARENA="ISLAND",RESPAWN_MS=12000,INPUT_STALE_MS=750,ROUND_MS=5*60*1000,INTERMISSION_MS=15000;
 export function makeKit(mode='foot',blueprint=null){const metrics=blueprint?blueprintMetrics(blueprint):null,stats=creationStats(blueprint||mode,metrics?.size);
  let muzzle=blueprint?.traits?metrics.normalize(blueprint.traits.emitter):[0,Math.max(1.4,stats.collision[1]*.65),stats.collision[2]/2+.15];
  // Clamp normalized model coordinates before translating to the stored hand grip.
