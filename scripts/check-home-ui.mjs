@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=41/);assert.match(shell,/main\.js\?v=41/);
+assert.match(shell,/style\.css\?v=42/);assert.match(shell,/main\.js\?v=42/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -26,7 +26,7 @@ function setup(joinImpl=async()=>true){
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
- const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','snapshot','help','pause','mode-pill','mic','action'])assert.equal($(id).closest('#hud'),$('hud'));assert.equal($('jump-equipped'),null);assert.equal($('snapshot').getAttribute('aria-label'),'Take a snapshot');app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
+ const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','snapshot','help','pause','mode-pill','mic','action'])assert.equal($(id).closest('#hud'),$('hud'));assert.equal($('jump-equipped'),null);assert.equal($('snapshot').getAttribute('aria-label'),'Take a snapshot');assert.equal($('snapshot').getAttribute('aria-keyshortcuts'),'0');app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
  name('  River  ');$('start').click();assert.equal($('arena-lobby').open,true);$('arena-create').click();await app.entry;await Promise.resolve();assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');$('snapshot').click();assert.equal(app.snapshots,1);assert.equal(app.ui.playerName(),'River');assert.equal(app.joins[0].name,'River');assert.equal(app.joins[0].create,true);assert.match(app.joins[0].room,/^[A-Z2-9]{6}$/);
 });
