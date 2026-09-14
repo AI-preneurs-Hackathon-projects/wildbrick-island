@@ -10,19 +10,24 @@ await fs.mkdir(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',args:['--use-gl=angle','--use-angle=swiftshader']});
 const results=[],errors=[],failures=[];
 try{
- const runs=process.env.STABILITY_BASELINE&&process.env.STABILITY_TRADEOFF==='1'?[100,1600,[600,1600]].flatMap(latency=>[{version:'baseline',latency},{version:'candidate',latency}]):process.env.STABILITY_BASELINE?[{version:'baseline',latency:100},{version:'candidate',latency:100},{version:'baseline',latency:1600},{version:'candidate',latency:1600}]:[{version:'disabled',latency:100},{version:'enabled',latency:100}];
+ const runs=process.env.STABILITY_REMOTE==='1'?['100','variable100-300','600','asymmetric-jitter','1600'].filter(p=>!process.env.STABILITY_REMOTE_PROFILE||p===process.env.STABILITY_REMOTE_PROFILE).flatMap(latency=>(process.env.STABILITY_REMOTE_VERSION?[process.env.STABILITY_REMOTE_VERSION]:['baseline','candidate']).map(version=>({version,latency,remote:true,seconds:Number(process.env.STABILITY_REMOTE_SECONDS)||24}))):process.env.STABILITY_BASELINE&&process.env.STABILITY_TRADEOFF==='1'?[100,1600,[600,1600]].flatMap(latency=>[{version:'baseline',latency},{version:'candidate',latency}]):process.env.STABILITY_BASELINE?[{version:'baseline',latency:100},{version:'candidate',latency:100},{version:'baseline',latency:1600},{version:'candidate',latency:1600}]:[{version:'disabled',latency:100},{version:'enabled',latency:100}];
  for(const run of runs){
   const enabled=run.version!=='disabled';run.heldFire=process.env.STABILITY_HELD_FIRE==='1';run.tradeoff=process.env.STABILITY_TRADEOFF==='1';
-  const page=await browser.newPage({viewport:{width:1440,height:900}});
+  const page=await browser.newPage({viewport:{width:1440,height:900},...(process.env.STABILITY_RECORD==='1'?{recordVideo:{dir:output+'/video',size:{width:1440,height:900}}}:{})});
   page.on('pageerror',e=>errors.push(String(e)));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('requestfailed',r=>failures.push({url:r.url(),reason:r.failure()?.errorText}));page.on('response',r=>{if(r.status()>=400)failures.push({url:r.url(),status:r.status()});});
   if(run.version==='baseline')await page.route(origin+'/**',async r=>{const pathname=decodeURIComponent(new URL(r.request().url()).pathname),file=path.resolve(process.env.STABILITY_BASELINE,'public','.'+pathname);if(!file.startsWith(path.resolve(process.env.STABILITY_BASELINE,'public')+'/'))return r.fulfill({status:404,body:'Outside frozen public tree'});try{const body=await fs.readFile(file);return r.fulfill({body,contentType:pathname.endsWith('.js')?'text/javascript':undefined});}catch{return r.fulfill({status:404,body:'Missing frozen baseline asset'});}});
   await page.route('**/api/**',r=>r.abort());
   const fixture=(await fs.readFile(new URL('./lib/performance-fixture.mjs',import.meta.url),'utf8')).replaceAll('../../public/','/');
+  const remoteFixture=(await fs.readFile(new URL('./lib/remote-view-fixture.mjs',import.meta.url),'utf8')).replace('./performance-fixture.mjs','/__performance-fixture.js');
+  await page.route('**/__remote-view-fixture.js',r=>r.fulfill({contentType:'text/javascript',body:remoteFixture}));
+  const remoteRenderer=await fs.readFile(new URL('./lib/render-remote-fixture.mjs',import.meta.url),'utf8');
+  await page.route('**/__render-remote-fixture.js',r=>r.fulfill({contentType:'text/javascript',body:remoteRenderer}));
   await page.route('**/__performance-fixture.js',r=>r.fulfill({contentType:'text/javascript',body:fixture}));
   await page.route('**/__stability',r=>r.fulfill({contentType:'text/html',body:'<!doctype html><html><head><meta charset="utf-8"><link rel="icon" href="data:,"><title>Local Arena diagnostics</title><style>body{margin:0}aside{position:absolute;top:12px;left:12px;background:white;padding:12px;font:16px sans-serif}</style></head><body><aside>Local two-client diagnostic · in-memory transport · 1440×900</aside></body></html>'}));
   await page.goto(origin+'/__stability');
   const result=await page.evaluate(async ({enabled,run})=>{
    const THREE=await import('/vendor/three.module.js'),{createArenaView}=await import('/arena-view.js'),{createArenaDiagnostics}=await import('/arena-diagnostics.js'),{performanceFixture}=await import('/__performance-fixture.js');
+   if(run.remote)return (await import('/__render-remote-fixture.js')).renderRemoteFixture(run);
    let seed=452067;Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
    const ds=[createArenaDiagnostics({capacity:256}),createArenaDiagnostics({capacity:256})],browserCapture=createArenaDiagnostics({capacity:256});
    const scene=new THREE.Scene();scene.background=new THREE.Color('#b9d9ed');scene.add(new THREE.HemisphereLight(0xffffff,0x556644,3));
@@ -46,8 +51,9 @@ try{
    // Preserve pixels for the screenshot, then explicitly release the fixture.
    window.finishFixture=async()=>{await n.leave();view.clear();ground.geometry.dispose();ground.material.dispose();renderer.dispose();ds.forEach(d=>d.stop());browserCapture.stop();return n.resources;};return result;
   },{enabled,run});
+  if(run.remote){await page.screenshot({path:output+'/'+run.version+'-'+run.latency+'.png'});const resources=await page.evaluate(()=>window.finishFixture());assert.equal(resources.timers,0);assert.equal(resources.players,0);for(const p of result.peers){assert.ok(p.attachments>0);assert.ok(p.attachmentErrorM<1e-7);}results.push(result);const video=page.video();await page.close();if(video)await video.saveAs(output+'/'+run.version+'-'+run.latency+'.webm');continue;}
   await page.screenshot({path:output+'/'+run.version+'-'+run.latency+'.png'});result.resourcesAfterLeave=await page.evaluate(()=>window.finishFixture());assert.equal(result.resourcesAfterLeave.timers,0);assert.ok(result.events.shot>0);assert.ok(result.attachmentSamples>0);assert.ok(result.maxAttachmentError<1e-7);results.push(result);await page.close();
  }
  assert.deepEqual(errors,[]);assert.deepEqual(failures,[]);
-}finally{await browser.close();await fs.writeFile(output+'/results.json',JSON.stringify({scope:'Sequential desktop 1440×900 SwiftShader synthetic scene; 960 tap frames,1320 held-phase frames or1680 crossing-combat/death-respawn frames, two moving/firing clients, in-process transport. Not a hardware or hosted benchmark.',results,errors,failures},null,2)+'\n');}
-console.log(JSON.stringify({output,frames:results.map(r=>r.browser.metrics.frameGapMs),errors,failures},null,2));
+}finally{await browser.close();await fs.writeFile(output+'/results.json',JSON.stringify({scope:process.env.STABILITY_REMOTE==='1'?'Sequential desktop 1440×900, two full Arena actor views on simplified lit ground, seeded actual-client/core simulated transport. Remote trajectory trace; not a hardware or hosted benchmark.':'Sequential desktop 1440×900 SwiftShader synthetic scene; 960 tap frames,1320 held-phase frames or1680 crossing-combat/death-respawn frames, two moving/firing clients, in-process transport. Not a hardware or hosted benchmark.',results,errors,failures},null,2)+'\n');}
+console.log(JSON.stringify({output,frames:results.map(r=>r.browser?.metrics.frameGapMs),errors,failures},null,2));

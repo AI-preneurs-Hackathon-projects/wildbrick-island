@@ -1,0 +1,40 @@
+{
+  "startingSHA": "19f12afe1bfb8068e6c2c4af896ac4a63f766fa1",
+  "main": "dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66",
+  "serialBaselineAndRemoval": "42fa6da54b5ef61481b8fe24ad42d86d405fb270",
+  "retainedPresentationCandidate": null,
+  "rejectedCandidate": "rejected-interpolation.patch applied to serial baseline",
+  "checks": {
+    "fullSuite": "pass",
+    "build": "pass; 67 assets",
+    "package": "pass",
+    "voicePackage": "pass",
+    "remoteGate": "fail; six criteria",
+    "realHttp": "pass; 36625.726083ms including cleanup"
+  },
+  "unrelatedFilesPreserved": 25,
+  "runtimeHashes": {
+    "public/arena-client.js": "6fb26940cc0f19699aa3bfff4fe179062ad86c04e7e3374c1057eb72b17a3d3e",
+    "public/arena-core.js": "89c202357da2d5eda6bb3afad0c0c157a49bb9bcb75de1eb3a76557936a13d3d",
+    "public/arena-view.js": "405d7eb7a0640b769e06a3bc3fe89910aab5e497027402b757337b213fac0ce0"
+  },
+  "evidenceHashes": {
+    "assessment.json": "2cab28554dec5ea8ea03e4e13cb8f5734b4ba16e15d5219a1a223010d698168e",
+    "candidate-fixed-summary.json": "97a0aaa7f80375f4e71c335cbf2b201f49e000b911bd2de1e5ea5e1b3a82b6f1",
+    "candidate-variable100-300.webm": "654d2a9b8287f084c32ddd95322523fe3e49cba76c32f037961b65a05e73c8a8",
+    "rendered-recording-summary.json": "34c53f8ed9ed14d4d32c6c77435e13cf744e514e3fe28127996b98385226c990",
+    "rejected-interpolation.patch": "eee7d0f3c8db064fd572269118389951ba43622b4fd80ff223b845039c122953",
+    "candidate-variable100-300.png": "12fbe508fb27798580d0aa4cee2e7f0d7697c25b169b4819dc99af7d60c74f57",
+    "baseline-variable100-300.png": "15eaa2b40e712aceabd50f4b3af9002e1b90a45b09963bd145ce8719126fcdaf",
+    "candidate-fixed-trace.json.gz": "28200bef46c053a478e6cd9099ec7a32d65f94fe5b050334d3c90edad4015cf2",
+    "baseline-variable100-300.webm": "53cfe17cbd294adbe1a06670afc05d4beee9f8a08750c5956c9c3d760dd8af7b",
+    "voice-package.log": "0907358a6a1cc2a87b5cf44391666890af69ddba989b766c11d0dc0ffc77dbff",
+    "serial-http.json": "f36dd34d1cfd513207c29074c85b6d05f0c7ece36570548079a758a1f0145338",
+    "check.log": "652379c6dc3c5abba8bce75104fc538323557805bb7a8bb60902fe8d826044d6",
+    "rejected-transform-check.mjs.txt": "326588671fbbe9a6db8cd4b630512ab7bab536dd8b5fbcf5bfc4fc3afa9aa9c1",
+    "package.log": "4f124ce3838d87963f99bb032a5d059bc649fedaaca0e5359714ae162b05fdb1",
+    "baseline-summary.json": "0125faa8e810854fbc7de5990d6759a0bf6cb1d61f3fde7bfc39c9a9b0d98c8b",
+    "baseline-trace.json.gz": "a80e911099cbbac1fd77c47f86d24acddc981f73733aaa6bc756aa93bdf60384",
+    "build.log": "5ec41607a2513dea77252bb1c0f6e88f13e29771fa75bbc1a03087308779f190"
+  }
+}

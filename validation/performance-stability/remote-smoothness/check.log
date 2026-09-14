@@ -1,0 +1,1049 @@
+
+> brickwild@3.0.0 check
+> node scripts/check.mjs && node scripts/check-generations.mjs && node scripts/check-adventure.mjs && node scripts/check-live-replays.mjs && node scripts/check-arena.mjs && node scripts/check-arena-ui.mjs && node scripts/check-firing.mjs && node scripts/check-rounds.mjs && node scripts/check-round-refinements.mjs && node scripts/check-maps.mjs && node scripts/check-support.mjs && node scripts/check-join-recovery.mjs && node scripts/check-control-fixes.mjs && node scripts/check-item-effects.mjs && node scripts/check-home-ui.mjs && node scripts/check-snapshot.mjs && node scripts/check-movement.mjs && node scripts/check-network-movement.mjs && node scripts/check-generation-budget.mjs && node scripts/check-current-replays.mjs && node scripts/check-hit-registration.mjs && node scripts/check-hit-registration-network.mjs && node scripts/check-emitter-space.mjs && node scripts/check-handheld-aiming.mjs && node scripts/check-aiming-harness.mjs && node scripts/check-aim-attachment.mjs && node scripts/check-control-separation.mjs && node scripts/check-combat-balance.mjs && node scripts/check-camera-pitch.mjs && npm run check:voice && npm run check:diagnostics && npm run check:movement-continuity
+
+PASS all JavaScript parses and local module references resolve
+PASS module URL checks accept cache queries and still reject absent files
+PASS entrypoint and vendored engine assets exist
+PASS voice synonyms and safe whole-word matching
+PASS movement is blocked before play and while paused
+PASS camera-relative walking, right strafe and diagonal normalization
+PASS running continues during construction; duplicate requests are rejected
+PASS car stops at solid scenery and reversing remains usable
+PASS gate scoring requires car and never awards twice
+PASS plane rises only on input and holds selected altitude
+PASS all flight rings score once after crossing the aperture
+PASS dismount falls to ground and explicit jump remains usable
+PASS bow range, facing, line of sight and rewards
+PASS follow camera ignores scenery
+PASS sword requires proximity and awards each crate once
+PASS all 15 challenges complete exactly once with expected rewards
+PASS Practice reset clears challenge progress and makes the route playable again
+PASS respawn restores a recoverable location
+
+18 checks passed.
+PASS blueprint validator rejects unknown code, unbounded geometry and cyclic joints
+PASS generic geometry assembles and animates with finite bounded matrices
+PASS missing connection is explicit and never falls back to a prefab
+PASS server sends full free-form prompt and validates the structured response
+PASS server rejects foreign origins, refusals and malformed generated designs
+PASS custom flying creation builds while moving, flies and fires its ability
+PASS generated scenery gets a query-only cover box in a clear placement
+PASS voice forwards an arbitrary transcript exactly once
+PASS cancelled generation cannot replace a later creation
+
+9 generation checks passed. OpenAI responses in these tests are mocked; no live generation was claimed.
+PASS saved adventures restore exact rewards and deduplicate rebuilds
+PASS tampered saves cannot inject geometry, rewards, duplicate objectives or invalid IDs
+PASS creation-aware guidance advances through suitable activities
+PASS normalized carried geometry keeps the authored grip at the moving hand
+PASS equipment can jump without losing its ability; invalid hits grant nothing
+PASS out-of-order cancelled generation cannot replace the newer result
+PASS timeout abort reasons always produce useful error feedback
+PASS voice joins final segments and ignores callbacks from cancelled sessions
+PASS chunked request bodies are capped before OpenAI is called
+PASS server bounds simultaneous designs and propagates cancellation upstream
+PASS a retry supersedes only the same player’s stuck design
+PASS connection verification checks model access without exposing credentials
+PASS denied or unsupported voice leads to typed input without submitting audio text
+PASS root-coordinate blueprints preserve resting parts and rotate about their authored pivot
+PASS mounted rider rests on solid geometry and generated wheels rotate about their axle
+
+15 adventure checks passed. These are automated checks with synthetic fixtures, not browser or live OpenAI tests.
+PASS actual dragon blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+PASS actual octopus blueprint: finite animated geometry, moving assembly, automatic car, objective, saved rebuild
+PASS actual teapot blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+PASS actual arena-dragon blueprint: finite animated geometry, moving assembly, automatic plane, objective, saved rebuild
+
+4 saved live-output replay checks passed. These are Node integration checks, not browser/device tests or new live API calls.
+PASS weapon and armor choices have bounded, distinct tradeoffs
+PASS punches wind up, hit once, miss at range, and retries cannot repeat damage
+PASS punches follow the current body facing at every angle even when the camera faces away
+PASS projectile contact produces one confirmed hit event at its contact point
+PASS server geometry bounds match renderer and muzzle stays on creation
+PASS 40 players share a room and snapshots expose no input/session secrets
+PASS fast vehicles stop at houses without impacts, damage or relocation
+PASS heavy mounts stop at trees and safe ground landings do not eject pilots
+PASS all five flight markers admit a correctly aligned plane
+PASS mounts cannot jump; prediction cannot damage or change a loadout
+PASS cover restoration waits for occupants without moving them; time is monotonic
+PASS moving assembly completes a custom mount with shield and trusted flame
+PASS mount health absorbs damage, then the pilot is exposed; one death counts once
+PASS bow reaches distant rivals, projectiles respect cover, melee has no projectile
+PASS melee uses height, facing and line of sight, including placed scenery
+PASS automatic fire overheats and stale inputs stop firing and movement
+PASS one player claims each landed pickup; buffs last ten seconds
+PASS sky drops cycle health, defense and speed without any equipment
+PASS support pickups retain effects and never replace a creation; legacy gear is removed
+PASS weapons and vehicles remain buildable with no equipment lifetime
+PASS generated scenery is placed once with shared bounded shot cover
+(node:58900) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS SQLite compare-and-swap preserves simultaneous room joins and monotonic revisions
+PASS three authenticated HTTP clients see the same room and bound identity
+PASS ten and more clients join the same coded arena without a seat rejection
+PASS concurrent authenticated syncs advance intermission once and show only connected round members
+PASS session cap is atomic during concurrent joins
+PASS server ignores forged positions, damage, scores and stale build commands
+PASS creation uploads validate geometry and deduplicate retry without another write
+PASS authenticated HTTP movement stream acknowledges bounded frames and rejects malformed frames
+PASS expired room seats give a terminal rejoin error and leave removes membership
+
+30 arena checks passed: pure simulation and actual SQLite-backed API checks. No browser, device or production-network performance claim.
+PASS R/F pitch only the camera and never enter weapon or movement input
+PASS arena entry and health/leaderboard UI bind the joined room and escape names
+PASS arena keyboard and held touch attack remain separate from jump and movement
+PASS a quick pointer or keyboard tap is latched once and its click cannot enqueue a second attack
+PASS camera drag changes view without changing weapon tilt
+PASS remote originals and generated creations assemble and dispose without destroying shared world geometry
+PASS only health, defense and speed parachutes are rendered, including with legacy snapshots
+PASS camera obstruction fades only the landmark without moving the camera
+PASS arrow actions combine movement, attack and speech without moving the camera
+PASS Hotkeys opens and closes by button, H and Escape; presets are absent
+PASS typing, modifiers, menus and focus loss do not trigger gameplay shortcuts
+PASS empty-handed punching animates arms; a confirmed hit flashes and flinches without displacement
+PASS first play shows five current gameplay cards; Skip saves once and Help reopens them
+PASS Enter starts once, advances the tour and resumes; text entry and repeat stay safe
+PASS Your creations is an inline five-item dropdown in both modes
+PASS Option and C toggle inline dropdowns; 1–5 choose the five newest creations
+PASS pause menu exits to home without a standalone Arena exit
+PASS round countdown, intermission scoreboard and automatic next round stay in Arena
+PASS Arena lobby lists coded-room players and waits for the arena creator to start
+PASS Arena HUD hides range/interval, keeps connection errors, and final-scoreboard Exit goes home
+PASS expired arena keeps vitals, exposes Rejoin, and hides Lower while the player is on foot
+
+21 arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.
+PASS every ranged weapon follows the character despite sideways and backward camera orbit
+PASS ground, target and world-cover contacts retain the shot ID and exact position
+PASS legacy pitch inputs cannot tilt a weapon or launch an emitter beneath the ground
+PASS the island target receives impact feedback on its front surface
+PASS short shots remain visible before a single confirmed impact; misses do not invent hits
+PASS rendered ranged attacks keep actors facing and align a carried emitter with its shot origin
+PASS anatomical right hand holds one-handed weapons and fires; bow uses left grip and right draw
+PASS shared Practice hand posing preserves gait and restores it after a punch
+PASS Arena walking and sprinting alternate arms opposite legs, including the free carrying arm
+PASS a shot born and hit between snapshots draws a tracer then a marker at the actual contact
+PASS Practice shots ignore camera orbit and legacy tilt, and stop at actual contacts
+PASS fresh command-free held fire shoots now even with no future room advance
+PASS fixed accepted holds retain expiry and cooldown across staggered or aligned advances
+PASS current held-fire attempts preserve protection, heat, cooldown, death, building and command guards
+PASS held-fire acceptance uses the moved authoritative pose and supplied contact solver
+PASS fresh held melee keeps windup and release never creates another strike
+
+16 firing, shot playback and impact checks passed.
+PASS first join starts one five-minute deadline; later joins and snapshots share it
+PASS coded lobby waits for its creator, starts manually, and locks new seats once active
+PASS exact deadline freezes only connected round participants and stops combat
+PASS automatic intermission retains seats and avatars, clears loadouts, and resets scores exactly once
+PASS old movement, fire and restart retries cannot affect the next round
+PASS intermission survives reconnect, excludes late spectators, and includes them in the next round
+PASS fifteen-second boundary waits fully; stale sessions expire even during intermission; duplicate names remain distinct
+
+7 authoritative round checks passed.
+PASS both new maps have one unambiguous colored floor surface across every painted overlap
+PASS every mountain ridge level can be reached and landed on with an ordinary jump
+PASS three rounds accumulate independent scores exactly once, clear creations, and end without a fourth round
+PASS automatic support collection waits for contact, landing and a clear path
+PASS support bricks collect automatically on contact without replacing equipment
+PASS Down only descends; Enter drops then picks up once without repeat duplicates
+PASS jumping on foot never offers Lower, while the flight Lower button descends without dropping equipment
+PASS temporary gameplay effects stay outside health and round scores use distinct visible panels
+PASS Arena health notifications use the centered notification area, and the final board shows round and cumulative scores
+PASS the server cycles original → beach → mountain only after the complete automatic intermission
+PASS late joiners, independent snapshots and persisted reconnects agree on the current authoritative map
+PASS legacy persisted rooms retain their original map until a boundary, then start the new cycle without relocating early
+PASS new maps clear all old-map combat and creation state and reset everyone to foot at a fitting spawn
+PASS movement, projectile cover and support drops use only the selected map descriptor
+PASS small loose ground squares can be crossed without jumping in both prediction and authoritative motion
+PASS the beach and mountain central routes admit continuous on-foot, car and flight traversal
+PASS substantial colored props still stop horizontal motion and support landing on top in every map
+PASS sky ring apertures remain traversable while their actual rim remains solid
+PASS a live client discards queued old-map prediction, loads the authoritative map and a reconnect joins that same map
+PASS map preparation precedes new-map events so a delayed transition retains the confirmed punch animation
+PASS an old-round build response cannot replace the retained model cache, and a later accepted build loads server-identified geometry
+PASS replacing all three rendered worlds removes old geometry and preserves unrelated scene objects
+(node:59033) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS SQLite-backed API rejects stale map clients and late joins while accepting an updated reconnect
+
+14 map rotation, collision, client transition, rendering and SQLite API checks passed.
+PASS higher jump lands on a low prop, stands, walks across, jumps again and falls off its edge
+PASS jump height is bounded, airborne repeat is refused, ceilings stop ascent and destroy support causes falling
+PASS all prebuilt props block at their actual height; gates and gaps remain passable
+PASS shared prediction and server agree through a jump and solid prop landing
+PASS all offered spawns avoid solid prebuilt objects and restored cover waits for occupied space
+PASS Practice and Arena share framing and full sky look for the same character or mount
+
+6 support and solid-map checks passed.
+PASS a stranded request cannot hold subsequent room joins behind its promise
+(node:59035) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS concurrent retries and a lost join response reuse one authenticated seat
+PASS leaving during a pending room join prevents a late seat from reappearing
+PASS client timeout shows a retryable message and retry preserves one player
+PASS canceling a late join does not strand a new attempt or remove its player
+PASS equipping a creation does not show the old directions popup
+PASS ArrowUp and Space jump without starting punch animations or attacks
+PASS Practice bottom-right keeps equipment actions and has no separate Jump control
+PASS independently pressing attack and jump still combines both actions
+PASS Arena jump alone changes height without attack events, damage or animated striking
+PASS generated hammer head strikes forward around its right-hand grip at every facing
+PASS larger ring apertures admit planes and saved flying mounts from either side at actual ring angles
+PASS ring progress requires traversing the opening, not flying beside the rim or hovering nearby
+PASS dropping preserves a damaged creation, requires an intentional nearby pickup and cannot duplicate it
+PASS finishing a replacement build leaves the old item on the map, while cancel keeps it equipped
+PASS pickup rejects dead players, occupied hands, walls and mounts that do not fit
+PASS dropped items survive owner departure and persisted reconnects, then clear at map rotation
+PASS dropped models render for observers and disappear after an authoritative pickup
+PASS hammer head faces along the strike and hammer swings have no path graphic
+PASS a defeated avatar collapses into its own bricks, persists until respawn and fades over three seconds
+PASS completed builds clear the speech transcript and tooltip without erasing a newer recording
+PASS pickup is offered explicitly in the HUD with a keycap and weapon range/timing are absent from health
+PASS both modes require a name and recover from whitespace input
+PASS Explore keeps newer speech controls and shows the full Practice route without Arena or rewards
+PASS failed authentication preserves sign-in and Exit to home returns to the home screen
+PASS pause exit returns home in online, reconnecting, expired, offline and dead states
+PASS leaving during pending join prevents the old completion reopening the lobby
+PASS name survives reload and respects server limits; unavailable storage does not block either mode
+PASS first-play tour respects Explore choice and does not join Arena on completion
+PASS avatar recoloring leaves other characters and shared world materials intact
+PASS avatar offers eight persistent colors without starting a game
+PASS Explore pause exit returns home and permits a different mode and name
+
+10 home and Arena exit checks passed.
+PASS snapshots contain only the rendered game view plus the BrickWild top-left mark; gameplay UI and screen sharing are excluded.
+  3,600 frames; largest step 0.1633 m
+PASS Explore walking through actual island scenery has no recovery jumps
+  3,600 frames; largest step 0.1575 m
+PASS arena walking past actual island edges has no recovery jumps
+PASS swept blocking slides at walls and corners for foot, car, plane and generated mounts
+PASS authoritative and predicted blocking agree; flight clears roofs and lowering stops on them
+PASS mount assembly beside a building preserves pose and previous equipment
+PASS 20 FPS prediction retains elapsed movement time
+PASS contact with another player never pushes, slows or damages either
+PASS delayed network positions blend while damage and respawns apply immediately
+PASS a late jump snapshot cannot draw the pilot below ground on landing
+PASS camera follows smoothly through scenery without obstruction corrections
+PASS trees and buildings still shield rivals from projectiles
+
+11 movement regressions passed. Simulation and presentation math only; no rendered-browser claim.
+PASS all original and generated modes stop immediately and stay still without input
+PASS sequenced movement rejects gaps and retries; frame budget prevents speed cheating
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 50ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 250ms simulated round trips
+  largest displayed step 0.1167 m; released drift 0.00000000 m
+PASS real client/server movement stays continuous across 600ms simulated round trips
+PASS moving plane assembly, manual rise, hover and dismount stay controlled over delayed sync
+PASS lost sync response retries acknowledged frames without repeating movement or rolling back
+PASS jump is replayed once, returns to its start height, and does not bounce again
+PASS kit changes and large ordinary corrections cannot teleport an idle display
+PASS HTTP 401 holds the last position and requires deliberate rejoin
+PASS HTTP 410 holds the last position and requires deliberate rejoin
+PASS a join response arriving after Leave cannot reactivate or relocate the player
+PASS only actual arena respawn increments teleport epoch; pre-death frames cannot move it
+PASS a rebuilt legacy rover survives delayed snapshots without relocating or fetching a new blueprint
+PASS a one-frame attack survives 250ms latency and a lost response without duplicate damage or effects
+PASS a one-frame attack survives 600ms latency and a lost response without duplicate damage or effects
+PASS one 0ms press draws one punch through 250ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 250ms latency and a lost acknowledgement
+PASS one 0ms press draws one punch through 600ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 600ms latency and a lost acknowledgement
+PASS one 0ms press draws one punch through 1200ms latency and a lost acknowledgement
+PASS one 300ms press draws one punch through 1200ms latency and a lost acknowledgement
+PASS deliberate held attacks repeat at the weapon interval without preview/acknowledgement doubles
+PASS leaving reconnecting or expired Arena stops sync and clears its player immediately
+PASS late blueprint authentication failure cannot reopen Arena after leaving
+PASS non-JSON join failure reports the response problem without promising reconnect retries
+PASS local and authoritative firing ignore camera orbit, including immediate preview
+PASS automatic intermission stays joined through lost responses and starts the next round once
+PASS Exit during intermission clears the session and late sync cannot rejoin at the next round
+
+29 direct movement and network regressions passed. Latency/failures are simulated; no production network or rendered-device claim.
+PASS durable generation slots, per-requester rate and global minute budget are atomic
+PASS compact version 4 bounds and legacy version limits remain distinct
+PASS fresh uniform one-based references repair without weakening saved or mixed-index validation
+(node:59102) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS captured compact final-compact-none/dragon: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/armed-car: assembly movement, joints, emitter, damage and saved blueprint
+PASS captured compact final-compact-none/octopus: assembly movement, joints, emitter, damage and saved blueprint
+3 current live-output arena replays passed; no new API calls or rendered gameplay.
+TAP version 13
+# Subtest: bow: body-centered exact overlap and point-blank contact in eight facings
+ok 1 - bow: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 52.704
+  type: 'test'
+  ...
+# Subtest: bow: target behind receives no ordinary forward hit
+ok 2 - bow: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.944375
+  type: 'test'
+  ...
+# Subtest: automatic: body-centered exact overlap and point-blank contact in eight facings
+ok 3 - automatic: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 64.149417
+  type: 'test'
+  ...
+# Subtest: automatic: target behind receives no ordinary forward hit
+ok 4 - automatic: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.575584
+  type: 'test'
+  ...
+# Subtest: flame: body-centered exact overlap and point-blank contact in eight facings
+ok 5 - flame: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 86.6425
+  type: 'test'
+  ...
+# Subtest: flame: target behind receives no ordinary forward hit
+ok 6 - flame: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.462458
+  type: 'test'
+  ...
+# Subtest: pulse: body-centered exact overlap and point-blank contact in eight facings
+ok 7 - pulse: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 85.478666
+  type: 'test'
+  ...
+# Subtest: pulse: target behind receives no ordinary forward hit
+ok 8 - pulse: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.334292
+  type: 'test'
+  ...
+# Subtest: foot: body-centered exact overlap and point-blank contact in eight facings
+ok 9 - foot: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 83.707333
+  type: 'test'
+  ...
+# Subtest: foot: target behind receives no ordinary forward hit
+ok 10 - foot: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.393208
+  type: 'test'
+  ...
+# Subtest: sword: body-centered exact overlap and point-blank contact in eight facings
+ok 11 - sword: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 82.220084
+  type: 'test'
+  ...
+# Subtest: sword: target behind receives no ordinary forward hit
+ok 12 - sword: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.243333
+  type: 'test'
+  ...
+# Subtest: knife: body-centered exact overlap and point-blank contact in eight facings
+ok 13 - knife: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 82.588375
+  type: 'test'
+  ...
+# Subtest: knife: target behind receives no ordinary forward hit
+ok 14 - knife: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.291083
+  type: 'test'
+  ...
+# Subtest: hammer: body-centered exact overlap and point-blank contact in eight facings
+ok 15 - hammer: body-centered exact overlap and point-blank contact in eight facings
+  ---
+  duration_ms: 83.602625
+  type: 'test'
+  ...
+# Subtest: hammer: target behind receives no ordinary forward hit
+ok 16 - hammer: target behind receives no ordinary forward hit
+  ---
+  duration_ms: 3.253625
+  type: 'test'
+  ...
+# Subtest: bow: normal body-centered forward shots in eight facings
+ok 17 - bow: normal body-centered forward shots in eight facings
+  ---
+  duration_ms: 9.29475
+  type: 'test'
+  ...
+# Subtest: automatic: normal body-centered forward shots in eight facings
+ok 18 - automatic: normal body-centered forward shots in eight facings
+  ---
+  duration_ms: 9.99625
+  type: 'test'
+  ...
+# Subtest: flame: normal body-centered forward shots in eight facings
+ok 19 - flame: normal body-centered forward shots in eight facings
+  ---
+  duration_ms: 8.653875
+  type: 'test'
+  ...
+# Subtest: generated pulse contacts a feasible body-axis target without requiring camera aim
+ok 20 - generated pulse contacts a feasible body-axis target without requiring camera aim
+  ---
+  duration_ms: 2.191
+  type: 'test'
+  ...
+# Subtest: foot: surface reach has a strict boundary, including large mounted bodies
+ok 21 - foot: surface reach has a strict boundary, including large mounted bodies
+  ---
+  duration_ms: 25.599542
+  type: 'test'
+  ...
+# Subtest: sword: surface reach has a strict boundary, including large mounted bodies
+ok 22 - sword: surface reach has a strict boundary, including large mounted bodies
+  ---
+  duration_ms: 25.349917
+  type: 'test'
+  ...
+# Subtest: knife: surface reach has a strict boundary, including large mounted bodies
+ok 23 - knife: surface reach has a strict boundary, including large mounted bodies
+  ---
+  duration_ms: 24.74125
+  type: 'test'
+  ...
+# Subtest: hammer: surface reach has a strict boundary, including large mounted bodies
+ok 24 - hammer: surface reach has a strict boundary, including large mounted bodies
+  ---
+  duration_ms: 24.392459
+  type: 'test'
+  ...
+# Subtest: melee cone, exact overlap exception and vertical limits stay bounded
+ok 25 - melee cone, exact overlap exception and vertical limits stay bounded
+  ---
+  duration_ms: 13.538875
+  type: 'test'
+  ...
+# Subtest: melee samples current positions at windup completion while retaining accepted body yaw
+ok 26 - melee samples current positions at windup completion while retaining accepted body yaw
+  ---
+  duration_ms: 3.163625
+  type: 'test'
+  ...
+# Subtest: bow: nearest launch-path player/cover wins and one shot cannot damage twice
+ok 27 - bow: nearest launch-path player/cover wins and one shot cannot damage twice
+  ---
+  duration_ms: 5.781542
+  type: 'test'
+  ...
+# Subtest: automatic: nearest launch-path player/cover wins and one shot cannot damage twice
+ok 28 - automatic: nearest launch-path player/cover wins and one shot cannot damage twice
+  ---
+  duration_ms: 10.415166
+  type: 'test'
+  ...
+# Subtest: flame: nearest launch-path player/cover wins and one shot cannot damage twice
+ok 29 - flame: nearest launch-path player/cover wins and one shot cannot damage twice
+  ---
+  duration_ms: 7.47
+  type: 'test'
+  ...
+# Subtest: pulse: nearest launch-path player/cover wins and one shot cannot damage twice
+ok 30 - pulse: nearest launch-path player/cover wins and one shot cannot damage twice
+  ---
+  duration_ms: 7.169875
+  type: 'test'
+  ...
+# Subtest: a cover tie at the launch origin blocks overlapping players
+ok 31 - a cover tie at the launch origin blocks overlapping players
+  ---
+  duration_ms: 1.719375
+  type: 'test'
+  ...
+# Subtest: melee respects cover to the nearest target surface, including overlap and large targets
+ok 32 - melee respects cover to the nearest target surface, including overlap and large targets
+  ---
+  duration_ms: 6.543792
+  type: 'test'
+  ...
+# Subtest: bow: range endpoint may contact; expiry alone never causes a hit
+ok 33 - bow: range endpoint may contact; expiry alone never causes a hit
+  ---
+  duration_ms: 4.504959
+  type: 'test'
+  ...
+# Subtest: automatic: range endpoint may contact; expiry alone never causes a hit
+ok 34 - automatic: range endpoint may contact; expiry alone never causes a hit
+  ---
+  duration_ms: 5.377125
+  type: 'test'
+  ...
+# Subtest: flame: range endpoint may contact; expiry alone never causes a hit
+ok 35 - flame: range endpoint may contact; expiry alone never causes a hit
+  ---
+  duration_ms: 5.565875
+  type: 'test'
+  ...
+# Subtest: pulse: range endpoint may contact; expiry alone never causes a hit
+ok 36 - pulse: range endpoint may contact; expiry alone never causes a hit
+  ---
+  duration_ms: 5.16625
+  type: 'test'
+  ...
+# Subtest: ranged altitude separation and airborne contact use the actual body volume
+ok 37 - ranged altitude separation and airborne contact use the actual body volume
+  ---
+  duration_ms: 10.014166
+  type: 'test'
+  ...
+# Subtest: ranged contact covers foot and mounted targets and generated mounted shooters
+ok 38 - ranged contact covers foot and mounted targets and generated mounted shooters
+  ---
+  duration_ms: 99.695666
+  type: 'test'
+  ...
+# Subtest: heavy armor and defense apply once to immediate contact without changing base damage
+ok 39 - heavy armor and defense apply once to immediate contact without changing base damage
+  ---
+  duration_ms: 1.683333
+  type: 'test'
+  ...
+# Subtest: jump and fall during windup can enter and leave contact without a historical sweep
+ok 40 - jump and fall during windup can enter and leave contact without a historical sweep
+  ---
+  duration_ms: 3.309583
+  type: 'test'
+  ...
+# Subtest: spawn protection distinguishes rejected attacks and blocked contacts from misses
+ok 41 - spawn protection distinguishes rejected attacks and blocked contacts from misses
+  ---
+  duration_ms: 3.211375
+  type: 'test'
+  ...
+# Subtest: damage values, armor, defense, mount destruction, KO and respawn remain authoritative
+ok 42 - damage values, armor, defense, mount destruction, KO and respawn remain authoritative
+  ---
+  duration_ms: 12.45575
+  type: 'test'
+  ...
+# Subtest: cooldown, command retries and heat cannot produce extra launch contacts
+ok 43 - cooldown, command retries and heat cannot produce extra launch contacts
+  ---
+  duration_ms: 9.11475
+  type: 'test'
+  ...
+# Subtest: immediate authoritative shot precedes exactly one contact and replays toward the contact
+ok 44 - immediate authoritative shot precedes exactly one contact and replays toward the contact
+  ---
+  duration_ms: 7.335375
+  type: 'test'
+  ...
+1..44
+# tests 44
+# suites 0
+# pass 44
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1016.119291
+(node:59114) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS 50ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 50ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 50ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 150ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT bow: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT foot: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+PASS 300ms injected RTT pulse: 2 authenticated fixture clients, CAS retry, lost response, immediate preview, 1 damage event and 1 scene-graph marker per client
+No production requests, state resets, paid generation, browser pixels or live network measurements.
+TAP version 13
+# Subtest: armed-car: serialized handheld kit fires from the renderer's authored emitter in eight facings
+ok 1 - armed-car: serialized handheld kit fires from the renderer's authored emitter in eight facings
+  ---
+  duration_ms: 28.65225
+  type: 'test'
+  ...
+# Subtest: octopus: serialized handheld kit fires from the renderer's authored emitter in eight facings
+ok 2 - octopus: serialized handheld kit fires from the renderer's authored emitter in eight facings
+  ---
+  duration_ms: 14.658541
+  type: 'test'
+  ...
+# Subtest: dragon: serialized handheld kit fires from the renderer's authored emitter in eight facings
+ok 3 - dragon: serialized handheld kit fires from the renderer's authored emitter in eight facings
+  ---
+  duration_ms: 10.908
+  type: 'test'
+  ...
+# Subtest: carried emitter bounds apply in model space before the hand translation
+ok 4 - carried emitter bounds apply in model space before the hand translation
+  ---
+  duration_ms: 0.288917
+  type: 'test'
+  ...
+# Subtest: mounted emitter coordinates and ordinary point-blank cover ordering remain intact
+ok 5 - mounted emitter coordinates and ordinary point-blank cover ordering remain intact
+  ---
+  duration_ms: 4.875292
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 63.993125
+TAP version 13
+# Subtest: Red Twin-Gun Roadster derived carried pulse: feasible body-forward contact in eight facings and three camera orbits
+ok 1 - Red Twin-Gun Roadster derived carried pulse: feasible body-forward contact in eight facings and three camera orbits
+  ---
+  duration_ms: 190.132917
+  type: 'test'
+  ...
+# Subtest: Wheeltop Mecha Octopus derived carried pulse: feasible body-forward contact in eight facings and three camera orbits
+ok 2 - Wheeltop Mecha Octopus derived carried pulse: feasible body-forward contact in eight facings and three camera orbits
+  ---
+  duration_ms: 213.948583
+  type: 'test'
+  ...
+# Subtest: accepted shot rotates around the grip, not an unrotated emitter
+ok 3 - accepted shot rotates around the grip, not an unrotated emitter
+  ---
+  duration_ms: 1.370916
+  type: 'test'
+  ...
+# Subtest: closed-form final angle handles below/at/above cap, both sides, and valid extreme emitters
+ok 4 - closed-form final angle handles below/at/above cap, both sides, and valid extreme emitters
+  ---
+  duration_ms: 5.138958
+  type: 'test'
+  ...
+# Subtest: empty focus, behind, dead and vertically separated bodies never become a radial lock-on
+ok 5 - empty focus, behind, dead and vertically separated bodies never become a radial lock-on
+  ---
+  duration_ms: 204.51375
+  type: 'test'
+  ...
+# Subtest: focus query and muzzle path are distinct; each physical obstruction is respected
+ok 6 - focus query and muzzle path are distinct; each physical obstruction is respected
+  ---
+  duration_ms: 17.644625
+  type: 'test'
+  ...
+# Subtest: nearest protected rival and stable cover/body ties are blocking, never a damage exception
+ok 7 - nearest protected rival and stable cover/body ties are blocking, never a damage exception
+  ---
+  duration_ms: 4.241958
+  type: 'test'
+  ...
+# Subtest: focus transitions are deterministic; destroyed cover and departed targets are removed immediately
+ok 8 - focus transitions are deterministic; destroyed cover and departed targets are removed immediately
+  ---
+  duration_ms: 1.894375
+  type: 'test'
+  ...
+# Subtest: unchanged spread is sampled once after base aim and cannot move the emitter or retarget a projectile
+ok 9 - unchanged spread is sampled once after base aim and cannot move the emitter or retarget a projectile
+  ---
+  duration_ms: 3.99825
+  type: 'test'
+  ...
+# Subtest: moving before server firing uses current world; injected client aim/victim/damage is ignored on retries
+ok 10 - moving before server firing uses current world; injected client aim/victim/damage is ignored on retries
+  ---
+  duration_ms: 3.5665
+  type: 'test'
+  ...
+# Subtest: mounted saved car, octopus and dragon keep fixed emitters and zero correction in every facing
+ok 11 - mounted saved car, octopus and dragon keep fixed emitters and zero correction in every facing
+  ---
+  duration_ms: 25.054541
+  type: 'test'
+  ...
+# Subtest: queries have bounded linear work and do not mutate world, kit, seed or ordering
+ok 12 - queries have bounded linear work and do not mutate world, kit, seed or ordering
+  ---
+  duration_ms: 1.936333
+  type: 'test'
+  ...
+# Subtest: fresh, serialized and pre-correction stored kits pose their actual emitter on the authoritative origin; saved rebuild corrects legacy data
+ok 13 - fresh, serialized and pre-correction stored kits pose their actual emitter on the authoritative origin; saved rebuild corrects legacy data
+  ---
+  duration_ms: 92.280125
+  type: 'test'
+  ...
+# Subtest: confirmed shot pose and replay win over changed focus without repeating prediction animation or damage
+ok 14 - confirmed shot pose and replay win over changed focus without repeating prediction animation or damage
+  ---
+  duration_ms: 2.200084
+  type: 'test'
+  ...
+# Subtest: guide uses first launch contact and spread; menus, KO, round end and leave clear stale prediction
+ok 15 - guide uses first launch contact and spread; menus, KO, round end and leave clear stale prediction
+  ---
+  duration_ms: 2.746459
+  type: 'test'
+  ...
+# Subtest: actual fixed cannon instance axis follows the solved barrel, and late ACK does not restart its firing pose
+ok 16 - actual fixed cannon instance axis follows the solved barrel, and late ACK does not restart its firing pose
+  ---
+  duration_ms: 2.012083
+  type: 'test'
+  ...
+# Subtest: spread brackets bound independent pitch/yaw samples; immediate replay faces its contact path
+ok 17 - spread brackets bound independent pitch/yaw samples; immediate replay faces its contact path
+  ---
+  duration_ms: 3.328833
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 821.571833
+PASS fixture route, 28 original harness cases, 2 presentation cases, 4 control cases and 8 melee-balance cases: fixed/converged pulse at 2/5/10/20m, cap saturation, mirrored origin, both cover paths, protection, focus transitions, camera orbit, legacy rebuild and mounted fixed barrels. No-op renderer: NO pixels or hosted multiplayer evidence.
+TAP version 13
+# Subtest: local held weapon preserves its grip baseline while strafing, advancing and turning (fresh and legacy)
+ok 1 - local held weapon preserves its grip baseline while strafing, advancing and turning (fresh and legacy)
+  ---
+  duration_ms: 28.571834
+  type: 'test'
+  ...
+# Subtest: remote cached aim stays attached throughout snapshot interpolation
+ok 2 - remote cached aim stays attached throughout snapshot interpolation
+  ---
+  duration_ms: 3.7035
+  type: 'test'
+  ...
+# Subtest: old command acknowledgement replays its projectile without replacing a newer preview
+ok 3 - old command acknowledgement replays its projectile without replacing a newer preview
+  ---
+  duration_ms: 2.302375
+  type: 'test'
+  ...
+# Subtest: attached flash and prospective guide move with the gun; the historical projectile does not
+ok 4 - attached flash and prospective guide move with the gun; the historical projectile does not
+  ---
+  duration_ms: 1.759834
+  type: 'test'
+  ...
+# Subtest: kit, round and respawn lifecycles reject an old ACK; matching ACK and duplicate never restart expired hold
+ok 5 - kit, round and respawn lifecycles reject an old ACK; matching ACK and duplicate never restart expired hold
+  ---
+  duration_ms: 5.657166
+  type: 'test'
+  ...
+# Subtest: Practice reuses the attached pose while retaining the captured shot and legacy grip baseline
+ok 6 - Practice reuses the attached pose while retaining the captured shot and legacy grip baseline
+  ---
+  duration_ms: 5.118709
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 51.627958
+TAP version 13
+# Subtest: Down remains descent while Enter contextually drops or picks up once
+ok 1 - Down remains descent while Enter contextually drops or picks up once
+  ---
+  duration_ms: 129.464167
+  type: 'test'
+  ...
+# Subtest: Enter drops an equipped item and picks up only while on foot
+ok 2 - Enter drops an equipped item and picks up only while on foot
+  ---
+  duration_ms: 16.319417
+  type: 'test'
+  ...
+# Subtest: descent and midair dismount preserve kit until Enter, hover, position and safe falling
+ok 3 - descent and midair dismount preserve kit until Enter, hover, position and safe falling
+  ---
+  duration_ms: 23.750333
+  type: 'test'
+  ...
+# Subtest: building and blocked states suppress the contextual Enter item action
+ok 4 - building and blocked states suppress the contextual Enter item action
+  ---
+  duration_ms: 24.243583
+  type: 'test'
+  ...
+# Subtest: modifiers, focus loss and combined movement/attack release cleanly without duplicate actions
+ok 5 - modifiers, focus loss and combined movement/attack release cleanly without duplicate actions
+  ---
+  duration_ms: 13.56325
+  type: 'test'
+  ...
+# Subtest: 0 takes one snapshot in Practice and Arena and is blocked by menus and typing
+ok 6 - 0 takes one snapshot in Practice and Arena and is blocked by menus and typing
+  ---
+  duration_ms: 30.35
+  type: 'test'
+  ...
+# Subtest: touch movement/lower/drop/pickup stay independent; shared hints and Enter aria shortcuts agree
+ok 7 - touch movement/lower/drop/pickup stay independent; shared hints and Enter aria shortcuts agree
+  ---
+  duration_ms: 20.9215
+  type: 'test'
+  ...
+# Subtest: R/F camera pitch produces the exact same authoritative shot direction as no camera pitch
+ok 8 - R/F camera pitch produces the exact same authoritative shot direction as no camera pitch
+  ---
+  duration_ms: 33.617792
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 310.909167
+TAP version 13
+# Subtest: candidate grants the requested punch and sword advantage while retaining distinct knife and hammer identities
+ok 1 - candidate grants the requested punch and sword advantage while retaining distinct knife and hammer identities
+  ---
+  duration_ms: 0.59225
+  type: 'test'
+  ...
+# Subtest: actual legal-cadence contact KOs include windup, default/heavy armor and defense
+ok 2 - actual legal-cadence contact KOs include windup, default/heavy armor and defense
+  ---
+  duration_ms: 33.490875
+  type: 'test'
+  ...
+# Subtest: armor, shield and mount absorption and automatic heat remain real simulation rules
+ok 3 - armor, shield and mount absorption and automatic heat remain real simulation rules
+  ---
+  duration_ms: 44.778916
+  type: 'test'
+  ...
+# Subtest: generated traits only select trusted families; saved ranged families stay unchanged
+ok 4 - generated traits only select trusted families; saved ranged families stay unchanged
+  ---
+  duration_ms: 0.430125
+  type: 'test'
+  ...
+# Subtest: old persisted stats survive reload and retries; normal rebuilding and round reset adopt the candidate
+ok 5 - old persisted stats survive reload and retries; normal rebuilding and round reset adopt the candidate
+  ---
+  duration_ms: 10.211417
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 93.113208
+TAP version 13
+# Subtest: R/F move the camera rig in opposite directions, independently of weapon aim
+ok 1 - R/F move the camera rig in opposite directions, independently of weapon aim
+  ---
+  duration_ms: 42.614042
+  type: 'test'
+  ...
+# Subtest: long camera holds stay within the existing drag limits and recover immediately on reversal
+ok 2 - long camera holds stay within the existing drag limits and recover immediately on reversal
+  ---
+  duration_ms: 28.4
+  type: 'test'
+  ...
+# Subtest: key release, explicit clearing and window blur stop camera movement without a stuck hold
+ok 3 - key release, explicit clearing and window blur stop camera movement without a stuck hold
+  ---
+  duration_ms: 8.741583
+  type: 'test'
+  ...
+# Subtest: typing, editable content, dialogs and IME block camera controls and discard an earlier hold
+ok 4 - typing, editable content, dialogs and IME block camera controls and discard an earlier hold
+  ---
+  duration_ms: 8.760708
+  type: 'test'
+  ...
+# Subtest: pause, KO, completed rounds and inactive play block and release camera controls
+ok 5 - pause, KO, completed rounds and inactive play block and release camera controls
+  ---
+  duration_ms: 5.762083
+  type: 'test'
+  ...
+# Subtest: Q/E orbit still works while R/F pitch and movement/fire remain independent
+ok 6 - Q/E orbit still works while R/F pitch and movement/fire remain independent
+  ---
+  duration_ms: 4.511083
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 103.551417
+
+> brickwild@3.0.0 check:voice
+> node scripts/check-voice.mjs && node scripts/check-transcription.mjs && node scripts/check-voice-ui.mjs && node scripts/check-voice-harness.mjs && node scripts/check-voice-availability.mjs
+
+PASS native success submits one final result and preserves a valid result on late error
+PASS missing native and speech errors offer typing while allowing a fresh native retry
+PASS native constructor/start failure and startup/stop stalls are bounded
+PASS native duration limit, invalid final and canceled callbacks never duplicate
+PASS WebM and MP4 recording capture final chunk before a single upload and dispatch
+PASS unsupported MIME, recorder constructor/start/error, denied permission and device loss release resources
+PASS byte overflow, empty audio, wrong final MIME, mixed container and unexpected stop cannot upload
+PASS 30 second bound stops capture; stopping stall discards instead of sending incomplete audio
+PASS cancel during permission and permission stall stop late streams before a recorder starts
+PASS cancel during capture/stopping ignores retained old recorder events
+PASS cancel during upload aborts fetch and late response cannot generate
+PASS cancel after response but before JSON completion and newer attempt defeat old results
+PASS transcription timeout, invalid/overlong response and errors do not automatically retry
+PASS double Record, rapid toggles and native versus recorded race create at most once
+PASS cancel on ready and pagehide remove all work without a generation
+15 voice lifecycle groups passed; synthetic browser/recorder/fetch only, no microphone or paid calls.
+PASS auth, method, origin, MIME and attempt validation happen before provider/config access
+(node:59499) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS missing key/model, unsupported server model and missing/broken durable budget fail closed
+PASS stream limits reject absent/false length, malformed/empty audio, unsupported container without upstream
+PASS valid WebM/MP4 creates only fixed multipart request, normalizes text and releases slot
+PASS concurrent/retried same attempt is admitted once across handler instances and lost response
+PASS shared global 4 slots, requester 8/minute and 30/minute budget are not doubled
+PASS provider 4xx/5xx, malformed/empty/overlong/huge text return sanitized errors with no retry
+PASS abort before/during upload and upload deadline prevent provider request
+PASS provider timeout/disconnect propagates AbortSignal, releases admission and has no retry
+PASS provider response stream remains bounded by cancellation and no late success
+PASS actual Worker dispatch routes audio before generation JSON parser and never relaxes generation limit
+11 transcription endpoint groups passed; isolated SQLite admissions and mocked provider, no paid calls.
+PASS no speech offers only a centered Type an idea button, then opens a clean editor
+PASS Speak can retry after no speech without reopening the typing fallback
+PASS Arena uses the same speech retry and text-build path as Practice
+PASS Left Arrow callback stops an active recording and dispatches once
+PASS Help, pause, text edit and pagehide cancel active media and retain typing
+PASS invalid overlong transcript is editable intact and active newer speech survives old build completion
+PASS canceling voice never displays a cancellation message
+PASS main integration retains all transition cancellations without editing reserved input modules
+8 voice UI/integration groups passed; jsdom DOM, not rendered microphone acceptance.
+PASS actual no-upload harness wiring: no-speech typing fallback and native success/failure routes (jsdom only)
+TAP version 13
+# Subtest: unconfigured, unauthorized, failed and malformed status never request microphone or upload audio
+ok 1 - unconfigured, unauthorized, failed and malformed status never request microphone or upload audio
+  ---
+  duration_ms: 9.634541
+  type: 'test'
+  ...
+# Subtest: configured status is fetched without cache before any permission prompt or recorder startup
+ok 2 - configured status is fetched without cache before any permission prompt or recorder startup
+  ---
+  duration_ms: 0.531167
+  type: 'test'
+  ...
+# Subtest: explicit cancellation and the Speak toggle abort pending readiness checks and ignore late availability
+ok 3 - explicit cancellation and the Speak toggle abort pending readiness checks and ignore late availability
+  ---
+  duration_ms: 0.479083
+  type: 'test'
+  ...
+# Subtest: readiness network and JSON stalls expire without microphone capture or automatic retry
+ok 4 - readiness network and JSON stalls expire without microphone capture or automatic retry
+  ---
+  duration_ms: 0.266125
+  type: 'test'
+  ...
+# Subtest: a late status from a canceled attempt cannot supersede a new recording attempt
+ok 5 - a late status from a canceled attempt cannot supersede a new recording attempt
+  ---
+  duration_ms: 0.357333
+  type: 'test'
+  ...
+# Subtest: synchronous cancellation from presentation callbacks cannot open microphone permission afterward
+ok 6 - synchronous cancellation from presentation callbacks cannot open microphone permission afterward
+  ---
+  duration_ms: 0.149417
+  type: 'test'
+  ...
+# Subtest: configuration can be enabled after an unavailable attempt while Speak retries native speech
+ok 7 - configuration can be enabled after an unavailable attempt while Speak retries native speech
+  ---
+  duration_ms: 0.227542
+  type: 'test'
+  ...
+# Subtest: successful native speech remains independent of recorded voice readiness
+ok 8 - successful native speech remains independent of recorded voice readiness
+  ---
+  duration_ms: 0.143292
+  type: 'test'
+  ...
+# Subtest: readiness endpoint and actual Worker route enforce auth, method and same-origin before configuration
+ok 9 - readiness endpoint and actual Worker route enforce auth, method and same-origin before configuration
+  ---
+  duration_ms: 1.456
+  type: 'test'
+  ...
+# Subtest: readiness reports only a sanitized boolean without contacting provider or touching database
+ok 10 - readiness reports only a sanitized boolean without contacting provider or touching database
+  ---
+  duration_ms: 1.644791
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19.8105
+
+> brickwild@3.0.0 check:diagnostics
+> node scripts/check-arena-diagnostics.mjs
+
+PASS creator lobby stays immobile and diagnostics distinguish waiting from network stalls
+PASS bounded retained window, lifetime maximum, immutable export and sanitized input
+PASS browser observer cleanup cancels RAF, disconnects long tasks and removes listeners
+PASS observation preserves every packet/outcome at 0ms RTT with two active clients
+PASS observation preserves every packet/outcome at 100ms RTT with two active clients
+PASS observation preserves every packet/outcome at 600ms RTT with two active clients
+PASS observation preserves every packet/outcome at 1600ms RTT with two active clients
+PASS throwing diagnostic sink cannot break join, prediction or leave
+PASS transient failures remain recoverable; 401/410 remain terminal and leave drains timers
+PASS request diagnostics classify timeout, canceled and invalid JSON without raw errors
+10 diagnostics checks passed; virtual transport and observer lifecycle, no rendered or hosted acceptance.
+
+> brickwild@3.0.0 check:movement-continuity
+> node scripts/check-arena-movement-continuity.mjs
+
+PASS accepted mutation survives response loss; client aborts and retries without duplicate movement
+PASS a lost accepted fire response produces exactly one authoritative effect per command ID
+PASS abort before simulated delivery prevents acceptance; abort after acceptance does not undo mutation
+PASS terminal-401
+PASS terminal-410
+PASS round-transition
+PASS leave-pending
+PASS uplink-outage-expiry
+PASS deliberate leave and rejoin rejects old pending responses and resets the movement stream
+PASS restored serial scheduler keeps requests and prediction bounded without claiming a stop gain
+PASS delayed serial movement respects a real authoritative blocker and accepted release
+PASS a delayed serial ACK preserves motion and queued command delivery
+PASS serial retries honor429 backoff
+PASS comparison rejects a movement gain that loses authoritative held-fire effects
+14 movement continuity checks passed. Virtual transport, not real HTTP/server acceptance.

@@ -1,0 +1,5 @@
+
+> brickwild@3.0.0 build
+> node scripts/build.mjs
+
+Built self-contained Worker with 67 assets. API secrets are read only at runtime.

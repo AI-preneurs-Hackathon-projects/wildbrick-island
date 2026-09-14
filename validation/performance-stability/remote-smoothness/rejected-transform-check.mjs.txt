@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {createRemoteMotionView} from '../public/remote-motion-view.js';
+const snapshot={epoch:'room-a',time:1000,round:{id:1,mapId:'island',status:'active'}},p={id:'r',x:0,y:0,z:0,yaw:3.1,health:100,spawnSerial:0,kit:{id:'bow',stats:{speed:7}},motion:{frame:1,at:1000}};
+const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+const v=createRemoteMotionView();let now=0;const draw=(p,s,dt)=>v.update(p,s,now+=dt*1000);draw(p,snapshot,0);
+for(let i=0;i<12;i++)draw(p,snapshot,1/60);
+const q={...p,x:1,yaw:-3.1,motion:{frame:13,at:1200}};close(draw(q,snapshot,0).x,0);
+const halfway=draw(q,snapshot,.1);close(halfway.x,.5);assert.ok(Math.abs(halfway.yaw-Math.PI)<.01,'short yaw path across wrap');
+// Unrelated room advances / repeated actor samples cannot restart interpolation.
+close(draw(q,{...snapshot,time:9000},.1).x,1);
+close(draw(p,snapshot,.1).x,1,'old actor frames cannot rewind');
+for(let i=0;i<600;i++)close(draw(q,snapshot,1/60).x,1);
+const changed={...q,x:2,motion:{frame:20,at:1300}};draw(changed,snapshot,0);close(draw(changed,snapshot,.22).x,2);
+for(const mutate of [s=>s.epoch='other',s=>s.round.id++,s=>s.round.mapId='other',s=>s.round.status='finished']){const world=structuredClone(snapshot);mutate(world);close(draw({...changed,x:3},world,0).x,3);v.clear();draw(p,snapshot,0);}
+for(const change of [{spawnSerial:1},{health:0},{kit:{id:'car',stats:{speed:20}}},{id:'new-peer'}, {x:40}]){v.clear();draw(p,snapshot,0);const remote={...q,...change,x:change.x??4};close(draw(remote,snapshot,0).x,remote.x);}
+v.clear();close(draw({...p,x:9},snapshot,0).x,9);
+v.clear();draw(p,snapshot,0);draw(q,snapshot,.2);close(draw(q,snapshot,10).x,1);
+console.log('Remote transforms: bounded endpoint, duplicate/old samples, yaw wrap, stale hold, lifecycle and teleport resets pass.');

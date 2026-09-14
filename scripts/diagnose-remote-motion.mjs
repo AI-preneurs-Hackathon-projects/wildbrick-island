@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import {assessRemoteComparison} from './lib/remote-view-assessment.mjs';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import {JSDOM} from 'jsdom';
+import {remoteViewFixture,remoteProfiles} from './lib/remote-view-fixture.mjs';
+const args=process.argv.slice(2),get=(k,d)=>{const i=args.indexOf(k);return i<0?d:args[i+1];},root=pathToFileURL(path.resolve(get('--root','.'))+'/');
+const core=await import(new URL('public/arena-core.js',root)),THREE=await import(new URL('public/vendor/three.module.js',root)),{createArenaClient}=await import(new URL('public/arena-client.js',root)),{createArenaView}=await import(new URL('public/arena-view.js',root));
+const dom=new JSDOM('');globalThis.document=dom.window.document;dom.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
+const results=[];for(const profile of remoteProfiles)results.push(await remoteViewFixture({core,THREE,createArenaClient,createArenaView,profile}));
+const assessment=get('--control',null)?assessRemoteComparison(JSON.parse(fs.readFileSync(get('--control'))),{results}):null;
+fs.writeFileSync(get('--output','/private/tmp/remote-motion.json'),JSON.stringify({scope:'Actual two clients/core/Three scene transforms with simulated transport and stub canvas; not rasterized GPU or hosted evidence.',assessment,results})+'\n');if(args.includes('--require-pass')&&!assessment?.passed)process.exitCode=1;console.log(JSON.stringify(results.map(r=>({profile:r.profile,peers:r.peers})),null,2));

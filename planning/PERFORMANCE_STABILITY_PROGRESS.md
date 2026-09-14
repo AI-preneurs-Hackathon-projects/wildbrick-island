@@ -1,8 +1,70 @@
 # Arena performance and stability checkpoint
 
-## Current work — remote presentation after removing provisional overlap
+## Current result — serial restored; interpolation rejected
+
+**Retained runtime change:** `42fa6da54b5ef61481b8fe24ad42d86d405fb270` restores the serial client from `3e3724e` and preserves its independent current-time firing correction. This removes an unaccepted overlap tradeoff; it is not a new speedup. Latest main remains `dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66`, already integrated via `6d7220a`; start of this follow-up was `19f12af`. The serial commit is the frozen before/after presentation baseline. No Hadrien code was dropped, no branch reset, and all 25 initially unrelated files are byte-identical. A new unrelated `planning/MAP_COLOR_AND_SKY_ART_MASTER_PROMPT.md` appeared during verification and was left untouched.
+
+**No remote interpolation/runtime improvement is retained.** The candidate genuinely improved stable 100 ms remote motion but failed the declared variable/moderate-delay criteria. Its exact patch, transform tests and measured traces remain evidence, outside the shipped public assets. Production `arena-view.js` is restored byte-for-byte to the frozen baseline. No solo-rendering, local-prediction or hosted-reconnect gain is claimed.
+
+### What failed, with absolute measurements
+
+Two actual clients, shared authoritative core and actual Three Arena views; seed 452067; 60 Hz; four-second stationary warmup plus 24-second measurement, including movement, turns, reversal, a one-second stop per cycle and moving bow fire. Both peers have exactly 21,000 ms intended moving time and remain alive. Values are peer 1 / peer 2, serial renderer → rejected interpolation. Slow time is displayed displacement below 25% of intended held movement speed; it includes the common underlying network pauses, so it is not labeled entirely renderer-caused. Display delay is best-fit lag against the received target sequence, not end-to-end network latency or a substitute for endpoint tests.
+
+| Injected RTT profile | p99 remote step, m/frame | Low-motion time, ms | Fitted receipt lag, ms | Authority error p95, m |
+| --- | ---: | ---: | ---: | ---: |
+| 100 | 0.179 / 0.179 → 0.097 / 0.102 | 3317 / 3267 → 1683 / 1783 | 50.0 / 50.0 → 116.7 / 116.7 | 1.237 / 1.418 → 1.527 / 1.678 |
+| variable100-300 | 0.282 / 0.274 → 0.202 / 0.233 | 7667 / 8000 → 7683 / 7717 | 50.0 / 50.0 → 116.7 / 116.7 | 2.150 / 1.819 → 2.444 / 2.183 |
+| 600 | 0.546 / 0.546 → 0.233 / 0.233 | 13550 / 13917 → 14533 / 15200 | 50.0 / 50.0 → 116.7 / 116.7 | 3.055 / 6.019 → 3.010 / 6.020 |
+| asymmetric-jitter | 0.457 / 0.470 → 0.223 / 0.255 | 12567 / 12733 → 13817 / 13900 | 50.0 / 50.0 → 116.7 / 116.7 | 2.802 / 3.382 → 2.800 / 3.850 |
+| 1600 | 0.411 / 0.416 → 0.313 / 0.318 | 17950 / 18217 → 18450 / 18617 | 50.0 / 50.0 → 116.7 / 116.7 | 4.060 / 5.040 → 4.060 / 5.040 |
+
+Stable 100 ms: p99 steps shrink 46.1% / 43.2%, p99 velocity changes shrink 63.4% / 63.3%, and low-motion time shrinks 49.2% / 45.4%. Added fitted delay is 66.7 ms. These are real results of a **rejected candidate**, not current branch behavior.
+
+Variable 100–300 ms: step reductions are 28.5% / 15.0%, missing the required 25% for peer 2; low-motion time changes by +16.7 / −283.3 ms, missing the required 10% reduction for both. At 600 ms, peer 2 adds 1,283 ms low-motion time, beyond the 1,050 ms allowance (5% of moving time). Both asymmetric peers exceed that allowance. At 1600 ms stress, p99 velocity change worsens from 6.67 / 6.78 to 9.42 / 7.81 m/s per frame; stress is explicitly not the justification. All six automated acceptance failures are retained in `assessment.json`.
+
+### Mechanism and rejected implementation
+
+The existing renderer exponentially approaches each received remote transform. The attempted replacement keeps only two position/yaw endpoints, retargets from the displayed pose, uses shortest-angle interpolation, and never extrapolates. Actor frame/pose/lifecycle identity suppresses duplicate room updates. Root, body orientation, equipment and flash use a common visual pose, while the authoritative snapshot and receipt-time hit/projectile playback remain separate.
+
+The first candidate shortened transitions after closely spaced arrivals; it failed the variable-delay gate. The corrected attempt retains the observed transition duration through short bursts, capped at 220 ms. Independent review also caught that accumulated/clamped frame time would not honor a real receipt deadline after a long pause; the corrected patch uses an injectable monotonic clock and passes a long-pause endpoint check.
+
+Even then, remote accepted-frame gaps at variable 100–300 ms RTT have p50 333 / 317 ms and p95 400 / 583 ms. At 600 ms RTT, p50 is about 717 ms. Finishing within 220 ms then holding leaves substantial stationary intervals. Slower interpolation would exceed the declared endpoint limit; continuing beyond known endpoints would require extrapolation. The review found no evidence-backed correction within this experiment's constraints. This is not a proof that every remote smoothing algorithm is impossible. The cap and benefit criteria were not relaxed to admit this candidate.
+
+### Verification, recordings and scope
+
+- Local predicted trajectories, received and authoritative trajectories, every fixture network/gameplay counter and event count are exactly identical before/after for all five profiles and both peers. The change did not alter firing, movement credit, queues or attack delivery to manufacture a visual gain.
+- Rejected transform tests pass duplicate/old frame rejection, yaw wrap, stale endpoint holding, teleport, room/round/map, health/spawn/kit/identity resets, clear/rejoin and long-pause settling. These do not establish an accepted performance result.
+- The existing desktop driver rendered five full baseline profiles. Its initial fixed camera did not keep both actors visible at every final position. The camera was widened identically for the short matched recording: both peers are visible in both side-by-side views. Actual Arena body/weapon/label/flash rendering is used on simplified lit ground; this is not the full game UI or a playable Arena endpoint.
+- Matched variable-delay recordings contain four seconds warmup plus six seconds active movement/fire, 1440×900, with no page/console/request errors. Screenshots were inspected; attached bow emitters pass in both views. The recording is illustrative, not the statistical acceptance window. Full-frame transform traces cover the 24-second comparison. Files: `baseline-variable100-300.webm`, `candidate-variable100-300.webm`; the latter is explicitly rejected, not retained behavior.
+- Environment: macOS 26.6.2 arm64, Node 22.22, desktop Chrome 152.0.7977.83, ANGLE SwiftShader. Node trajectory checks use actual Three scene transforms with a stub canvas; desktop checks rasterize them. Simulated transport is not HTTP/Worker/D1 or hosted evidence. No hardware GPU/FPS claim.
+- Final settled `npm run check`, `npm run build`, `node scripts/check-package.mjs` and `node scripts/check-voice-package.mjs` pass (67 public assets, unchanged migrations/hosting identity). The focused remote assessment tests reject gains that trade away lag, error, input duration or gameplay outcomes.
+- After removing overlap, the bounded real localhost HTTP check ran 36,625.7 ms including cleanup, with 35,000 ms active input: accepted mutation followed by socket loss, a response delayed past the real 12-second fetch timeout, transient 503 and held firing. Maximum pending sync is 1 / 1; request/socket/seat/client-timer/server-timer counts end at zero. This is a Node HTTP/core adapter, not Worker/D1. No new 30-minute soak was needed; no presentation lifecycle change is retained. Existing round/lifecycle, expiry and old-ACK regressions remain in the full suite.
+
+### Reproduction and rollback
+
+```sh
+node scripts/check-remote-view-assessment.mjs
+node scripts/diagnose-remote-motion.mjs --output /private/tmp/remote-current.json
+```
+
+To reproduce the rejected comparison, archive `42fa6da54b5ef61481b8fe24ad42d86d405fb270` into an isolated directory, apply `validation/performance-stability/remote-smoothness/rejected-interpolation.patch` there, and pass that directory using `--root`. Run the serial baseline first. Add `--control /private/tmp/remote-before.json --require-pass` for the candidate; its gate intentionally exits 1. Keep the shared checkout unchanged. Compressed raw traces and readable summaries contain both versions; the source patch identifies the uncommitted/rejected candidate exactly.
+
+The existing driver accepts `STABILITY_REMOTE=1`, `STABILITY_REMOTE_PROFILE=variable100-300`, `STABILITY_REMOTE_SECONDS=6`, `STABILITY_RECORD=1`, and `STABILITY_BASELINE` pointing at the isolated serial tree. It uses the existing local preview on 5194 and external Playwright at `/private/tmp/brickwild-browser-run/node_modules/playwright/index.mjs`. To reproduce both versions, run from an isolated patched candidate tree while using the current diagnostic scripts. Do not offer the Vite URL as a manual Arena server.
+
+Rollback of the retained network removal is `git revert 42fa6da54b5ef61481b8fe24ad42d86d405fb270`; that would intentionally restore the rejected overlap tradeoff and is not recommended by this evidence. The later evidence commit changes only tests/runners/docs/artifacts. No presentation rollback is necessary: its runtime patch was already removed. Nothing was pushed, deployed or merged to main.
+
+**One next bounded alternative:** test a tightly limited remote-velocity extrapolation interval against stopping/reversal positional error, rather than extending interpolation delay or reviving request overlap. This changes the no-extrapolation hypothesis and requires its own explicit overshoot limits; it has not been implemented or claimed successful here.
+
+
+## Historical setup — remote presentation after removing provisional overlap
 
 Yerzhan authorizes restoring serial requests and attempting one bounded remote transform improvement. Main fetched unchanged at `dd5dab9`, already integrated; starting HEAD `19f12af`. Restore only `public/arena-client.js` to the independent firing-fix source `3e3724e`; preserve firing core, diagnostics, authority and failure regression coverage. Scheduler-specific tests now assert one pending sync and the restored 369/720 stress stops, not a performance gain. Removal is removal of an unaccepted tradeoff. Verify and commit this baseline before presentation changes. No crossing-contact scheduler defense or new transport work.
+
+Serial baseline `42fa6da54b5ef61481b8fe24ad42d86d405fb270` passes the full suite and all 14 continuity groups. Actual remote accepted-frame sample spacing p50: about 217 ms at 100 ms RTT, 317–333 ms with variable 100–300 ms RTT, 717 ms at 600 ms and 600–650 ms under asymmetric jitter. Room revisions do not establish actor freshness; use accepted frame plus transform/lifecycle identity.
+
+Prospective presentation criteria, before candidate measurement: at both normal 100 ms and variable 100–300 ms, reduce per-peer p99 frame displacement and velocity-change magnitude by at least 25%, and reduce low-motion duration (below 25% of intended held movement speed) by at least 10%. At 600 ms/asymmetric jitter, do not increase low-motion duration by more than 5% of moving time. Added best-fit receipt-relative display lag must be <=100 ms; authoritative position-error p95 increase <=0.5 m in normal/moderate profiles. Endpoint settling is bounded to 220 ms from the newest transform; no extrapolation. Stress 1600 ms is reported separately, not the justification. Local transforms, authority/outcomes, event delivery and attachments must remain identical/coherent. These are remote presentation metrics, not subjective feel or hosted latency.
+
+Selected experiment: a two-endpoint remote transition from the currently displayed pose to the newest accepted transform over the measured arrival interval capped at 220 ms. Retarget only on fresh actor motion/pose, with shortest-path yaw and lifecycle resets. This trades a small bounded display delay for smaller snapshot-driven surges; no authoritative snapshot buffering or hit/projectile event delay.
 
 ## Historical result — scheduler acceptance remained provisional; no new runtime improvement
 

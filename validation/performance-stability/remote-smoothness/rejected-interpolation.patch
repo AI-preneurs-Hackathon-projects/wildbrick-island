@@ -1,0 +1,78 @@
+--- a/public/arena-view.js
++++ b/public/arena-view.js
+@@ -1,3 +1,4 @@
++import {createRemoteMotionView} from './remote-motion-view.js';
+ import {solveWeaponAim,weaponPath} from './aiming.js';
+ import {poseRangedModel,createWeaponGuide} from './aim-presentation.js';
+ import {createBrickCollapse} from './brick-collapse.js';
+@@ -16,13 +17,13 @@
+ const colors=['#ff784f','#65d8cc','#aa87ff','#f4cd52','#76b9ff','#ff89bc','#b4df6a','#f59f68'];
+ const shotGeo=new THREE.SphereGeometry(.14,7,5),fireGeo=new THREE.SphereGeometry(.28,8,6),auraGeo=new THREE.SphereGeometry(1,14,10);
+ function disposeOriginal(g){g.traverse(o=>{if(o.geometry&&!o.geometry.userData.shared)o.geometry.dispose();if(o.material?.userData.arenaOwned)o.material.dispose();});g.removeFromParent();}
+-export function createArenaView(scene,camera){
++export function createArenaView(scene,camera,{clock=()=>performance.now()}={}){
+  const playback=createShotPlayback();const root=new THREE.Group();root.visible=false;scene.add(root);const guide=createWeaponGuide(scene);const collapse=createBrickCollapse(root);const actors=new Map(),shots=new Map(),drops=new Map(),placed=new Map(),items=new Map(),effects=[];let viewTime=0,worldSnapshot=null,worldBoxes=[];const attacks=new Map(),reactions=new Map();
+  function kitModel(kit,cache){if(kit.blueprintId){const blueprint=cache.get(kit.blueprintId)||SUPPLY_BLUEPRINTS.get(kit.blueprintId);if(!blueprint)return null;try{return createGeneratedModel(blueprint);}catch{return null;}}const model=kit.id==='foot'?{group:new THREE.Group()}:({car,plane,bow,sword}[kit.mode]||(()=>({group:new THREE.Group()})))();const parts=model.group.children.map((mesh,i)=>({mesh,end:mesh.position.clone(),rotation:mesh.quaternion.clone(),scale:mesh.scale.clone(),delay:i/model.group.children.length*.55,index:i}));return {...model,assemble(progress){for(const p of parts){const t=THREE.MathUtils.clamp((progress-p.delay)/(1-p.delay),0,1),ease=1-Math.pow(1-t,3),angle=p.index*2.399;p.mesh.position.set(Math.sin(angle)*(3+p.index%3),2.5+p.index%5*.4,Math.cos(angle)*(3+p.index%3)).lerp(p.end,ease);p.mesh.quaternion.setFromAxisAngle(new THREE.Vector3(0,1,0),(1-ease)*Math.PI*2).multiply(p.rotation);p.mesh.scale.copy(p.scale).multiplyScalar(.4+.6*ease);}},dispose(){disposeOriginal(model.group);}};}
+  function createActor(p,i){const g=new THREE.Group(),pilot=character(avatarColor(p.avatarColor)),canvas=document.createElement('canvas');canvas.width=256;canvas.height=100;const texture=new THREE.CanvasTexture(canvas),label=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,depthTest:false}));label.scale.set(3.7,1.45,1);label.renderOrder=5;const aura=new THREE.Mesh(auraGeo,new THREE.MeshBasicMaterial({color:colors[i%colors.length],transparent:true,opacity:.16,wireframe:true,depthWrite:false}));pilot.group.traverse(m=>{if(m.isMesh){m.material=m.material.clone();m.material.userData.arenaOwned=true;}});
+  const arc=new THREE.Mesh(new THREE.RingGeometry(.8,1,16,1,-.8,1.6),new THREE.MeshBasicMaterial({color:0xfff3d4,side:THREE.DoubleSide,transparent:true,opacity:.6,depthWrite:false}));arc.rotation.x=-Math.PI/2;arc.rotation.z=Math.PI/2;arc.position.set(0,1.4,.6);arc.visible=false;
+  const flash=new THREE.Mesh(new THREE.SphereGeometry(.3,8,6),new THREE.MeshBasicMaterial({color:0xffcf55,transparent:true,opacity:.95,depthWrite:false}));flash.visible=false;flash.name='muzzle-flash';
+- g.name='arena-player:'+p.id;g.add(pilot.group,aura,label);root.add(g);const a={g,pilot,label,canvas,texture,aura,arc,flash,model:null,modelId:null,pending:null,pendingId:null,lastLabel:'',position:new THREE.Vector3(p.x,p.y,p.z)};g.add(arc,flash);actors.set(p.id,a);return a;}
++ g.name='arena-player:'+p.id;g.add(pilot.group,aura,label);root.add(g);const a={g,pilot,label,canvas,texture,aura,arc,flash,model:null,modelId:null,pending:null,pendingId:null,lastLabel:'',motion:createRemoteMotionView(),position:new THREE.Vector3(p.x,p.y,p.z)};g.add(arc,flash);actors.set(p.id,a);return a;}
+  function renderKit(a,p,cache,time,solution){
+   const {yaw:aimYaw,pitch:aimPitch}=solution;const action=attacks.get(p.id),elapsed=action?(time-action.time)/1000:100,pose=combatPose(p.kit.stats.weapon,elapsed),strike=pose.strike;
+ if(a.modelId!==p.kit.id||(!a.model&&p.kit.blueprintId&&cache.has(p.kit.blueprintId))){a.model?.dispose();a.model=kitModel(p.kit,cache);a.modelId=p.kit.id;if(a.model){a.model.group.name='creation';a.g.add(a.model.group);}}
+@@ -46,13 +47,13 @@
+   const canopy=new THREE.Group();for(let i=-2;i<=2;i++)brick(canopy,i*.48,2.6-Math.abs(i)*.17,0,.5,.15,1.9,i%2?C.cream:color,false);for(const x of [-.55,.55])box(canopy,x,1.4,0,.04,2,.04,C.cream);g.add(canopy);g.userData.canopy=canopy;root.add(g);return g;
+  }
+  function removeDrop(g){disposeOriginal(g);}
+- function update(snapshot,local,cache,dt,time,options={}){viewTime=time;root.visible=!!snapshot;guide.clear();if(!snapshot)return;const boxes=snapshot===worldSnapshot?worldBoxes:(worldSnapshot=snapshot,worldBoxes=solidBoxes(snapshot)),live=new Set();snapshot.players.forEach((remote,i)=>{const p=remote.id===snapshot.self&&local?local:remote;live.add(p.id);const a=actors.get(p.id)||createActor(p,i);if(p.health>0&&a.dead)collapse.fade(p.id);const dying=p.health<=0&&!a.dead;a.g.visible=true;a.position.lerp(new THREE.Vector3(p.x,p.y,p.z),p.id===snapshot.self?1:1-Math.exp(-dt*12));a.g.position.copy(a.position);a.g.rotation.y=p.id===snapshot.self?p.yaw:a.g.rotation.y+Math.atan2(Math.sin(p.yaw-a.g.rotation.y),Math.cos(p.yaw-a.g.rotation.y))*(1-Math.exp(-dt*14));const own=p.id===snapshot.self;if(own||a.aimSnapshot!==snapshot||a.aimFixed!==options.fixedAim){a.aim=solveWeaponAim(snapshot,p,{boxes,fixed:options.fixedAim});a.aimSnapshot=snapshot;a.aimFixed=options.fixedAim;}a.bodyYaw=p.yaw;a.roundId=snapshot.round?.id;a.spawnSerial=p.spawnSerial||0;
++ function update(snapshot,local,cache,dt,time,options={}){viewTime=time;root.visible=!!snapshot;guide.clear();if(!snapshot){for(const a of actors.values())a.motion.clear();return;}const boxes=snapshot===worldSnapshot?worldBoxes:(worldSnapshot=snapshot,worldBoxes=solidBoxes(snapshot)),live=new Set();snapshot.players.forEach((remote,i)=>{const p=remote.id===snapshot.self&&local?local:remote;live.add(p.id);const a=actors.get(p.id)||createActor(p,i);if(p.health>0&&a.dead)collapse.fade(p.id);const dying=p.health<=0&&!a.dead;a.g.visible=true;const own=p.id===snapshot.self,visual=own?p:{...p,...a.motion.update(p,snapshot,clock())};a.position.set(visual.x,visual.y,visual.z);a.g.position.copy(a.position);a.g.rotation.y=visual.yaw;if(own||a.aimSnapshot!==snapshot||a.aimFixed!==options.fixedAim){a.aim=solveWeaponAim(snapshot,p,{boxes,fixed:options.fixedAim});a.aimSnapshot=snapshot;a.aimFixed=options.fixedAim;}a.bodyYaw=visual.yaw;a.roundId=snapshot.round?.id;a.spawnSerial=p.spawnSerial||0;
+    let action=attacks.get(p.id);if(action&&((action.kitId&&action.kitId!==p.kit.id)||(action.roundId!==undefined&&action.roundId!==a.roundId)||(action.spawnSerial!==undefined&&action.spawnSerial!==a.spawnSerial)||p.health<=0||snapshot.round?.status==='finished')){attacks.delete(p.id);action=null;}
+-   const held=action&&time<action.poseUntil&&action.kitId===p.kit.id,display=equippedAim(p,a.aim,held?action.correction:a.aim.correction);
+-   renderKit(a,p,cache,time,display);if(own&&options.showGuide!==false&&p.health>0&&!p.building&&snapshot.round?.status!=='finished'&&a.aim.active){display.launchContact=projectileContact(snapshot,{owner:p.id,weapon:p.kit.stats.weapon},display.anchor,display.muzzle,boxes,p.yaw);guide.update(weaponPath(snapshot,p,display,boxes),camera);}
++   const held=action&&time<action.poseUntil&&action.kitId===p.kit.id,display=equippedAim(visual,a.aim,held?action.correction:a.aim.correction);
++   renderKit(a,visual,cache,time,display);if(own&&options.showGuide!==false&&p.health>0&&!p.building&&snapshot.round?.status!=='finished'&&a.aim.active){display.launchContact=projectileContact(snapshot,{owner:p.id,weapon:p.kit.stats.weapon},display.anchor,display.muzzle,boxes,p.yaw);guide.update(weaponPath(snapshot,p,display,boxes),camera);}
+    if(dying)collapse.scatter(p.id,a.pilot.group);a.dead=p.health<=0;a.g.visible=!a.dead;
+    const height=Math.max(3,p.kit.stats.collision[1]+1.8);a.label.position.set(0,height,0);a.label.visible=p.id!==snapshot.self;const label=[p.name,Math.ceil(p.health),Math.ceil(p.mountHealth),p.kills].join(':');if(label!==a.lastLabel){a.lastLabel=label;const ctx=a.canvas.getContext('2d');ctx.clearRect(0,0,256,100);ctx.fillStyle='#16392e';ctx.fillRect(0,0,256,100);ctx.font='bold 25px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fffaf0';ctx.fillText(p.name,128,30,238);ctx.fillStyle='#40594f';ctx.fillRect(12,44,232,17);ctx.fillStyle='#81de86';ctx.fillRect(12,44,232*p.health/100,17);if(p.mountHealth>0){ctx.fillStyle='#73caff';ctx.fillRect(12,70,232*p.mountHealth/Math.max(1,p.kit.stats.mountMax),10);}a.texture.needsUpdate=true;}a.aura.visible=time<p.defenseUntil||time<p.protectedUntil||(p.kit.stats.mountMax>0&&!p.kit.stats.mounted);a.aura.material.opacity=reactions.has(p.id)&&time-reactions.get(p.id).time<350?.5:.14;a.aura.position.y=p.kit.stats.collision[1]/2;a.aura.scale.set(Math.max(1,p.kit.stats.collision[0]/2+.3),p.kit.stats.collision[1]/2+.3,Math.max(1,p.kit.stats.collision[2]/2+.3));a.aura.rotation.y=time/1700;
+-  });for(const [id,a]of actors)if(!live.has(id)){collapse.fade(id);a.model?.dispose();a.pending?.dispose();disposeOriginal(a.pilot.group);a.texture.dispose();a.label.material.dispose();a.aura.material.dispose();a.arc.geometry.dispose();a.arc.material.dispose();a.flash.geometry.dispose();a.flash.material.dispose();a.g.removeFromParent();attacks.delete(id);reactions.delete(id);actors.delete(id);}
++  });for(const [id,a]of actors)if(!live.has(id)){collapse.fade(id);a.motion.clear();a.model?.dispose();a.pending?.dispose();disposeOriginal(a.pilot.group);a.texture.dispose();a.label.material.dispose();a.aura.material.dispose();a.arc.geometry.dispose();a.arc.material.dispose();a.flash.geometry.dispose();a.flash.material.dispose();a.g.removeFromParent();attacks.delete(id);reactions.delete(id);actors.delete(id);}
+   collapse.update(dt,boxes.map(item=>item.box));
+   for(const b of snapshot.projectiles)playback.add(b);
+   for(const impact of playback.update(dt,boxes.map(item=>item.box)))effect({...impact,played:true});
+--- /dev/null
++++ b/public/remote-motion-view.js
+@@ -0,0 +1,34 @@
++// Presentation only: one bounded transition between known remote transforms.
++// No extrapolation, snapshot buffering or server-clock estimation. A room update
++// is not actor motion: accepted frame progress and pose identify fresh samples.
++const LIMIT_MS=220,angle=a=>Math.atan2(Math.sin(a),Math.cos(a));
++const pose=p=>({x:p.x,y:p.y,z:p.z,yaw:p.yaw});
++const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
++export function createRemoteMotionView(){
++ let clock=0,key=null,from=null,target=null,shown=null,start=0,duration=0,lastReceipt=0,frame=-1,sourceTime=-Infinity;
++ function update(p,snapshot,now){
++  clock=Math.max(clock,Number.isFinite(now)?now:clock);
++  const identity=JSON.stringify([snapshot.epoch,snapshot.round?.id,snapshot.round?.mapId,snapshot.round?.status,p.id,p.spawnSerial||0,p.health>0,p.kit.id]);
++  const next=pose(p),nextFrame=Number.isSafeInteger(p.motion?.frame)?p.motion.frame:null,time=p.motion?.at??snapshot.time??0;
++  function reset(){key=identity;from=target=shown=next;start=lastReceipt=clock;duration=0;frame=nextFrame??-1;sourceTime=time;}
++  if(!target||identity!==key){reset();return {...shown};}
++  // The real client rejects old snapshots; keep this visual boundary defensive.
++  if((nextFrame!==null&&nextFrame<frame)||time<sourceTime)return sample();
++  const changed=distance(next,target)>1e-8||Math.abs(angle(next.yaw-target.yaw))>1e-8;
++  const fresh=nextFrame!==null?nextFrame>frame:time>sourceTime;
++  if(changed||fresh){
++   const interval=clock-lastReceipt;
++   const teleport=distance(next,target)>Math.max(6,(p.kit.stats.speed||0)*Math.min(interval,1000)/1000*2+2);
++   if(teleport){reset();return {...shown};}
++   // Repeated unchanged poses never restart an unfinished transition.
++   // Preserve the observed transition duration across short receipt bursts;
++   // a late sample followed closely by another must not accelerate catch-up.
++   if(changed){from=sample();target=next;start=clock;duration=Math.min(LIMIT_MS,Math.max(80,interval,duration));}
++   lastReceipt=clock;frame=nextFrame??frame;sourceTime=time;
++  }
++  return sample();
++ }
++ function sample(){const t=duration?Math.min(1,Math.max(0,(clock-start)/duration)):1;shown={x:from.x+(target.x-from.x)*t,y:from.y+(target.y-from.y)*t,z:from.z+(target.z-from.z)*t,yaw:from.yaw+angle(target.yaw-from.yaw)*t};return {...shown};}
++ function clear(){key=null;from=target=shown=null;frame=-1;sourceTime=-Infinity;clock=start=duration=lastReceipt=0;}
++ return {update,clear};
++}

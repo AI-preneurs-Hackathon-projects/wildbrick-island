@@ -1,0 +1,11 @@
+{
+  "passed": false,
+  "failures": [
+    "variable100-300/peer1: slow duration reduction below10%",
+    "variable100-300/peer2: stepP99M reduction below25%",
+    "variable100-300/peer2: slow duration reduction below10%",
+    "600/peer2: slow duration increased over5% of moving time",
+    "asymmetric-jitter/peer1: slow duration increased over5% of moving time",
+    "asymmetric-jitter/peer2: slow duration increased over5% of moving time"
+  ]
+}
