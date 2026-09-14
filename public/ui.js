@@ -1,5 +1,5 @@
 import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js';
-import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=35';
+import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=37';
 import {BUILDS} from './rules.js';
 import {creationControls} from './guidance.js';
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

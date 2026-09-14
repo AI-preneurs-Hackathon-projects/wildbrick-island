@@ -2,7 +2,7 @@ import {solveWeaponAim} from './aiming.js';
 import {MAP_CYCLE} from './map-catalog.js';
 import {weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
-import {predictPlayer,cleanInput} from './arena-core.js';
+import {predictPlayer,cleanInput} from './arena-core.js?v=37';
 import {MOVE_DT} from './movement.js';
 import {packFrame,frameInput,MAX_MOVE_FRAMES} from './movement-stream.js';
 import {validateBlueprint} from './blueprint.js';
@@ -57,13 +57,13 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   }catch(e){if(generation===lifecycle){credentials=null;onStatus('offline');onError(e.message,e.status);}return false;}finally{if(generation===lifecycle)joining=false;}
  }
  async function leave(){lifecycle++;joining=false;closed=true;clearTimer(timer);const old=credentials||joinTicket;joinTicket=null;credentials=null;self=null;snapshot=null;view.reset();commands=[];predictedCommands.clear();frames=[];accumulator=0;jumpQueued=false;input={};onStatus('offline');if(old)try{await request('/api/arena/leave',old);}catch{} }
- function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status==='finished'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;const id=++commandId;commands.push({id,type,mode,blueprint});if(type==='fire')previewAttack(id);schedule(0);return true;}
+ function command(type,mode,blueprint){if(!credentials){if(self)onError('Your position is held. Open Arena and join again to continue.');return false;}if(!self)return false;if(type==='restart')return false;if(snapshot?.round?.status!=='active'||self.health<=0)return false;if(type==='jump'){if(self.kit.stats.mounted||self.jumpRemaining>0)return false;jumpQueued=true;return true;}if(type==='build'&&(self.building||serverTime()<self.buildReadyAt)){onError(self.building?'Let these bricks finish assembling.':`Next build in ${Math.ceil((self.buildReadyAt-serverTime())/1000)}s.`);return false;}if(commands.length>=4)return false;const id=++commandId;commands.push({id,type,mode,blueprint});if(type==='fire')previewAttack(id);schedule(0);return true;}
  function previewAttack(id){const time=serverTime(),k=self?.kit.stats;if(!k||clock()-lastSuccess>=1000||self.health<=0||self.building||!k.damage||time<self.protectedUntil||time<self.overheatedUntil||clock()-previewAt<k.interval*1000)return;previewAt=clock();predictedCommands.add(id);while(predictedCommands.size>64)predictedCommands.delete(predictedCommands.values().next().value);const pose=view.state||self,aim=solveWeaponAim(snapshot,pose);onEvent({type:'attack-preview',commandId:id,player:self.id,weapon:k.weapon,yaw:aim.yaw,pitch:0,origin:aim.launchContact?aim.anchor:aim.muzzle,muzzle:aim.muzzle,aimYaw:aim.yaw,aimCorrection:aim.correction,roundId:snapshot.round?.id,spawnSerial:pose.spawnSerial||0,kitId:pose.kit.id,time},self.id);}
 
  function serverTime(){return snapshot?snapshot.time+Math.min(1000,clock()-lastSuccess):Date.now();}
  function tick(dt,newInput){
-  if(snapshot?.round?.status==='finished')newInput={};const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
-  if(self&&snapshot&&fresh&&snapshot.round?.status!=='finished'){
+  if(snapshot?.round?.status!=='active')newInput={};const pressed=newInput.fire===true&&!input.fire;input=cleanInput(newInput);if(pressed){fireHeldAt=clock();command('fire');}const fresh=credentials&&clock()-lastSuccess<1000;
+  if(self&&snapshot&&fresh&&snapshot.round?.status==='active'){
    accumulator=Math.min(.1,accumulator+Math.max(0,dt));
    while(accumulator+1e-8>=MOVE_DT&&frames.length<MAX_MOVE_FRAMES){
     const frame=packFrame(++nextFrame,{...input,jump:jumpQueued});jumpQueued=false;frames.push(frame);predictPlayer(self,frameInput(frame),MOVE_DT,{...snapshot,time:serverTime(),preview:true});accumulator-=MOVE_DT;
