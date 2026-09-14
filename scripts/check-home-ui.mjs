@@ -17,8 +17,9 @@ const $=id=>document.getElementById(id);
 function setup(joinImpl=async()=>true){
  const state=createState(),joins=[];let starts=0,leaves=0,resets=0,arenaUI,entry;
  const exit=()=>{leaves++;state.arena=false;state.mode='foot';arenaUI.reset();ui.resetPlayUI();ui.update(state);};
- const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},resetPractice(){resets++;for(const key of ['gates','targets','crates','rings'])state[key]=[];state.bricks=0;state.won=false;ui.update(state);},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome(){exit();state.started=false;ui.showEntry();},leaveArena:exit});
- arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name,room)=>{joins.push({name,room});return joinImpl();},leave:exit,toast(){}});
+ const exitHome=()=>{exit();state.started=false;ui.showEntry();};
+ const ui=createUI({state:()=>state,start(){state.started=true;starts++;},openArena(){entry=arenaUI.play();return entry;},resetPractice(){resets++;for(const key of ['gates','targets','crates','rings'])state[key]=[];state.bricks=0;state.won=false;ui.update(state);},pause(v){state.paused=v;},recent:()=>[],saved:()=>true,exitHome,leaveArena:exit});
+ arenaUI=createArenaUI({getPlayerName:ui.playerName,join:async(name,room)=>{joins.push({name,room});return joinImpl();},leave:exit,exitHome,toast(){}});
  return {ui,arenaUI,state,joins,exit,get starts(){return starts;},get leaves(){return leaves;},get resets(){return resets;},get entry(){return entry;}};
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
@@ -33,10 +34,10 @@ await check('Explore keeps newer speech controls and shows the full Practice rou
  app.state.gates.push('gate-1');app.ui.update(app.state);assert.equal($('practice-gates').textContent,'1/4');assert.ok($('practice-creations'));
  Object.assign(app.state,{gates:[0,1,2,3],targets:[0,1,2],crates:[0,1,2],rings:[0,1,2,3,4],won:true,bricks:226});app.ui.update(app.state);assert.equal($('practice-route').classList.contains('complete'),true);assert.equal($('practice-reset').classList.contains('hidden'),false);$('practice-reset').click();assert.equal(app.resets,1);assert.equal($('practice-reset').classList.contains('hidden'),true);
 });
-await check('failed authentication preserves sign-in and Back to Explore clears the lobby and errors',async()=>{
+await check('failed authentication preserves sign-in and Exit to home returns to the home screen',async()=>{
  const app=setup(async()=>{app.arenaUI.error('Sign in',401);return false;});name('Sky');$('start').click();await app.entry;
  assert.equal($('arena-sign-in').classList.contains('hidden'),false);assert.equal($('arena-sign-in').target,'_top');assert.equal(new URL($('arena-sign-in').href).searchParams.get('return_to'),'/');assert.equal(window.sessionStorage.getItem('brickwild-player-name'),'Sky');
- $('arena-explore').click();assert.equal(app.leaves,1);assert.equal($('arena-lobby').open,false);assert.equal($('arena-join-error').textContent,'');assert.equal($('arena-sign-in').classList.contains('hidden'),true);assert.equal($('hud').classList.contains('hidden'),false);
+ assert.equal($('arena-explore').textContent,'Exit to home');$('arena-explore').click();assert.equal(app.leaves,1);assert.equal(app.state.started,false);assert.equal($('arena-lobby').open,false);assert.equal($('arena-join-error').textContent,'');assert.equal($('arena-sign-in').classList.contains('hidden'),true);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('intro').classList.contains('hidden'),false);
 });
 await check('pause exit returns home in online, reconnecting, expired, offline and dead states',()=>{
  const app=setup();name('River');$('explore-start').click();const room=newRoom(),p=addPlayer(room,'p','River');
