@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=33/);assert.match(shell,/main\.js\?v=33/);
+assert.match(shell,/style\.css\?v=34/);assert.match(shell,/main\.js\?v=34/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -26,7 +26,7 @@ function setup(joinImpl=async()=>true){
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
- const app=setup();assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
+ const app=setup();assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','help','pause','mode-pill','mic','action','jump-equipped'])assert.equal($(id).closest('#hud'),$('hud'));for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
  name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
 });
