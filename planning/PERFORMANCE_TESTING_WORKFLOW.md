@@ -86,3 +86,9 @@ The movement-overlap candidate was implemented, compared and rejected: fewer mov
 ## Current input-timing follow-up
 
 Yerzhan additionally authorized a narrow authoritative input-timing correction and autonomous retry of the movement scheduler. Baseline is `6ae537f61114aefebea7cb653ce7d81dee899f5f`; latest fetched main remains `538e075feb407c9985f1bfc79ee904cfb9948ccf`. Keep timing-only and combined comparisons/commits separable. A fresh accepted held-fire attempt at current authoritative pose/time is a firing-reliability benefit; it must not be described as a movement gain. The scheduler must still pass the original movement, firing, authority, real HTTP and lifecycle gates. Owner playtesting is optional confirmation after these autonomous checks, never a replacement for them. See the existing progress document for live evidence and limitations.
+
+## Verified local candidate
+
+The authorized follow-up is complete: timing-only `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`, combined movement `01a08f319bbce55833dc9d180ad999417ddeff04`, baseline `6ae537f61114aefebea7cb653ce7d81dee899f5f`. Symmetric1600 ms held stops fell26.56% /23.31%;0/100/600 ms stayed at zero. Full checks,1440×900 rendered comparison and30-minute actual localhost HTTP soak passed. Increased asymmetric pose gap is an explicit limitation, not hidden by correction metrics. See the current progress document for exact measurements, transport boundaries, commands and separate revert steps.
+
+Owner review is optional. There is no persistent manual local Arena endpoint to recommend; use the automated comparison command in the progress document. Do not send Yerzhan to Practice to certify this result. Remote-player interpolation is the one proposed next improvement and has not started; announce its own baseline and criteria before beginning.

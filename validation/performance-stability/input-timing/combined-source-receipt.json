@@ -1,0 +1,60 @@
+{
+  "baselineSHA": "6ae537f61114aefebea7cb653ce7d81dee899f5f",
+  "timingOnlySHA": "3e3724e989d6e6be01c1ca9ae7c9155d486e9401",
+  "candidateRuntimeSHA": "01a08f319bbce55833dc9d180ad999417ddeff04",
+  "mainSHA": "538e075feb407c9985f1bfc79ee904cfb9948ccf",
+  "mainIntegrationSHA": "0b17f9ed427522dc98f62fdbb4d7078e5cf181c2",
+  "environment": {
+    "os": "macOS26.6.2 arm64",
+    "node": "22.22.0",
+    "chrome": "152.0.7977.83",
+    "viewport": [
+      1440,
+      900
+    ],
+    "renderer": "ANGLE SwiftShader"
+  },
+  "sha256": {
+    "public/arena-client.js": "fdd173445d511c5cbd3b9932f61e5423631463b8014549d4a14ffa050de3f334",
+    "public/arena-core.js": "89c202357da2d5eda6bb3afad0c0c157a49bb9bcb75de1eb3a76557936a13d3d",
+    "scripts/check-arena-movement-continuity.mjs": "cc8ebe4e4b03224803c92779afb181cb8b235c3b6042f698d6204e79f90bc6a2",
+    "scripts/compare-arena-movement.mjs": "55f1105c5de4c5f42a8529be61cf93367ed1fb30b90ee5dccff1468e81deeda9",
+    "scripts/soak-arena-stability.mjs": "0af53443c648a90bb987ef078a66fd258c4faf69fd1441a7799c0e445eac2029",
+    "scripts/lib/arena-http-fixture.mjs": "8554cdbd4014f79bd8e498b744ffce95e777ea961ff1cf98392581591c8514a6"
+  },
+  "scope": "Separate timing-only and combined runtime commits. Deterministic client/core comparisons, software-WebGL desktop checks and real localhost Node HTTP/core recovery soak. No hosted, hardware GPU or real D1/CAS soak claim.",
+  "soak": {
+    "wallMs": 1800022.075584,
+    "matches": 2,
+    "deliberateFixtureRejoins": 2,
+    "cleanup": {
+      "timers": 0,
+      "serverTimers": 0,
+      "clientTimers": 0,
+      "requests": 0,
+      "maxRequests": 5,
+      "sockets": 0,
+      "players": 0
+    },
+    "runtimeAndFixtureUnchangedDuringRun": true
+  },
+  "review": "Independent read-only authority/order, blocker/release, actual out-of-order ACK, shared429 backoff and soak cleanup/coverage review found no remaining blocker. Increased asymmetric pose gap is recorded as a limitation.",
+  "rollback": {
+    "movement": "git revert 01a08f319bbce55833dc9d180ad999417ddeff04",
+    "timingAfterMovementRevert": "git revert 3e3724e989d6e6be01c1ca9ae7c9155d486e9401"
+  },
+  "checks": [
+    "full npm run check",
+    "npm run build",
+    "node scripts/check-package.mjs",
+    "node scripts/check-voice-package.mjs",
+    "18 baseline versus combined scenarios passed",
+    "18 timing-only versus combined scenarios passed",
+    "14 continuity groups passed",
+    "16 firing groups passed",
+    "real HTTP baseline/candidate cancellation/loss test passed",
+    "desktop100/1600ms baseline/candidate passed",
+    "30-minute real HTTP soak passed"
+  ],
+  "unrelatedFilesVerifiedByteIdentical": 23
+}

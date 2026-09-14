@@ -1,6 +1,8 @@
 # Arena performance and stability checkpoint
 
-## Current follow-up — fresh held-fire acceptance
+## Verified local result — fewer Arena movement pauses
+
+Verified runtime commits: timing correction `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`; movement scheduler `01a08f319bbce55833dc9d180ad999417ddeff04`. Baseline `6ae537f61114aefebea7cb653ce7d81dee899f5f`. The combined candidate reduces symmetric1600 ms held-input stop time by26.56% /23.31%, with no added stops at0/100/600 ms, preserved authoritative firing and bounded prediction. Full checks, desktop1440×900 and the30-minute real localhost HTTP soak passed. Asymmetric pose lag can increase; local/hosted and movement/FPS claims remain distinct. Exact tables, limits, commands and rollback are below.
 
 Baseline frozen at `6ae537f61114aefebea7cb653ce7d81dee899f5f`. Fetch confirmed main remains `538e075feb407c9985f1bfc79ee904cfb9948ccf`, already integrated; no new merge was needed. Existing unrelated files, including the new local input-timing follow-up, are preserved. The baseline movement/failure checks pass.
 
@@ -253,3 +255,82 @@ The original deterministic matrix showed unchanged movement and 7 / 9 shots on b
 Timing-only desktop acceptance completed with the original tap phase preserved and an additional five-second held-fire phase (1,320 frames/run). At 100 ms both versions delivered 12 held-phase shot events and 77 total visible muzzle-attachment samples; at 1600 ms both delivered six held-phase events and 21 samples. Maximum attachment error was zero; page/console/request error arrays were empty. Baseline/candidate screenshots were inspected. This profile demonstrates preserved rendering, not the causal timing benefit. An earlier held-only trial had no visible baseline muzzle-flash samples at 1600 ms, exposing an existing stale-view-clock limitation; it was not counted as acceptance. The retained driver reports tap and held-phase samples separately and keeps its original attachment assertions.
 
 Full timing-only `npm run check`, `npm run build`, package and voice-package checks passed. Independently reviewed: current-time pose/aim, guarded eligible attempt, pure-core replay boundary and no command recasting. Timing evidence is in `validation/performance-stability/input-timing/`; candidate source hashes identify this separate correction before its commit. Rollback is a focused revert of the timing correction commit, after reverting any dependent scheduler. The next authorized step is the separately committed bounded scheduler, contingent on its unchanged gameplay comparison, real HTTP and round-spanning soak gates.
+
+## Bounded scheduler — acceptance in progress
+
+Timing-only commit: `3e3724e` (full SHA is recorded in the final source receipt). The combined candidate now permits at most two requests only after a successful slow sync, with the older request restricted to pure movement. Movement packets retain the entire unacknowledged frame prefix and are paced at half the measured RTT. A command or held-fire packet may follow one older movement packet, then serializes all later requests. Existing 90-frame prediction, 1000 ms freshness gate, frame credit, input expiry, command IDs and seat lifecycle stay intact. Shared failure backoff cannot be bypassed by a sibling success; an ignored old snapshot cannot update RTT.
+
+The refreshed matrix passes both `6ae537f` versus combined and timing-only versus combined. The new >=20% movement regression fails with the timing-only client and passes with the scheduler. A targeted asymmetric 600/1600 ms wall-contact/release check also passes: both predicted and authoritative bodies remain outside the wall, accepted movement matches shared replay, and release settles without drift. Collision stops are deliberately excluded from the movement-performance table.
+
+Independent adversarial review found no ordering/authority blocker, but correctly identified a pose-lag tradeoff: asymmetric slow-peer maximum predicted-versus-current-server separation increases from 3.85 m to 5.53 m (directional asymmetry 4.13 m to 5.67 m). This is not reconciliation correction; it must not be hidden behind zero correction numbers. The fixture now additionally checks the theoretical 6.3 m travel bound of its unchanged 90-frame queue at fixed 0.6 input and 7 m/s kit speed. No general combat-alignment improvement is claimed. At symmetric1600, pose separation instead falls 5.88/4.90 m → 3.71/3.92 m.
+
+This intermediate gate is now complete: real HTTP, desktop rendering and the30-minute HTTP soak passed, as recorded below. No hosted or hardware-GPU acceptance is inferred.
+
+## Combined candidate — deterministic before/after
+
+Runtime remained frozen throughout the completed30-minute HTTP soak. Baseline `6ae537f61114aefebea7cb653ce7d81dee899f5f`; timing-only `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`. The verified candidate is `01a08f319bbce55833dc9d180ad999417ddeff04`; the source receipt checks the measured client/core hashes against its committed blobs. Measurements below use identical seed452067, 60 Hz input ticks, scene and profile; baseline/candidate run sequentially with each version’s own client/core graph. Queue and movement credit remain90 frames. Normal0/100/600 ms packet/outcome behavior is unchanged in this profile.
+
+| Scenario | Held stop time, peer1 (ms), before → after | Held stop time, peer2 (ms), before → after | Longest stop, peer1 (ms), before → after | Longest stop, peer2 (ms), before → after |
+| --- | ---: | ---: | ---: | ---: |
+| hold-0 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 |
+| hold-100 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 |
+| hold-600 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 | 0.0 → 0.0 |
+| hold-1600 | 6150.0 → 4516.7 | 6150.0 → 4716.7 | 1100.0 → 716.7 | 1100.0 → 1083.3 |
+| asymmetric-600-1600 | 0.0 → 0.0 | 7266.7 → 4950.0 | 0.0 → 0.0 | 1100.0 → 1083.3 |
+| asymmetric-directions | 7250.0 → 5050.0 | 7266.7 → 4950.0 | 1100.0 → 716.7 | 1100.0 → 1083.3 |
+| seeded-jitter | 5150.0 → 3833.3 | 4216.7 → 2883.3 | 833.3 → 550.0 | 800.0 → 716.7 |
+| press-release-reverse | 7250.0 → 5050.0 | 7266.7 → 4950.0 | 1100.0 → 716.7 | 1100.0 → 1083.3 |
+| movement-firing | 9216.7 → 8033.3 | 9050.0 → 7950.0 | 1100.0 → 1100.0 | 1200.0 → 1066.7 |
+
+The symmetric1600 ms hold lasts12,000 ms (720 held-input ticks per peer). The reduction is26.56% /23.31%, above the predeclared20% minimum for each peer. Remaining stale-snapshot/full-queue pauses are still deliberate bounds; this does not eliminate all pauses or raise authoritative speed.
+
+| Symmetric1600 ms metric | Peer1 before → after | Peer2 before → after |
+| --- | ---: | ---: |
+| Zero-displacement held ticks (count) | 369.000 → 271.000 | 369.000 → 283.000 |
+| Stop episodes (count) | 8.000 → 13.000 | 7.000 → 10.000 |
+| Pending-frame high-water (frames) | 90.000 → 90.000 | 90.000 → 90.000 |
+| ACK advancement (frames) | 261.000 → 359.000 | 261.000 → 347.000 |
+| Accepted path length (m) | 20.930 → 27.720 | 20.860 → 27.160 |
+| Displayed path length (m) | 24.570 → 31.430 | 24.570 → 30.590 |
+| Maximum pose gap (m) | 5.880 → 3.710 | 4.900 → 3.920 |
+| Correction p95 (m) | 0.000 → 0.000 | 0.000 → 0.000 |
+| Maximum correction (m) | 0.000 → 0.000 | 0.000 → 0.000 |
+| Release overshoot (m) | 0.000 → 0.000 | 0.000 → 0.000 |
+| Concurrent sync high-water (requests) | 1.000 → 2.000 | 1.000 → 2.000 |
+
+Accepted path length increases as well as displayed travel; every accepted frame is checked against the unchanged shared movement simulation. Measurement ends before teardown; drain traffic is recorded separately. Held movement metrics exclude stationary input, death and joining; collision is tested independently and never counted as a network improvement. All18 scenarios passed: normal/asymmetric/jitter, press/release/reverse, moving while firing, accepted-response loss, transient failure, late response, prolonged outage, unaccepted uplink outage/seat expiry,401/410, round transition and leave pending. A separate warmed-overlap regression requires a genuinely out-of-order ACK, followed by build completion; another verifies that sibling success cannot bypass429 backoff.
+
+In the18-second moving/firing scenario, authoritative shot counts are7/9 →9/9 with no command duplication. Timing-only remains7/9 in this profile, and its movement figures are identical to baseline. The pure-core fresh-acceptance regression and actual HTTP held-fire test establish the separate timing correction; automatic shot totals are not promised to be independent of room-advance phase.
+
+Combined real HTTP comparison passed35 seconds of active input per version (36,643.1 /36,642.1 ms including cleanup). Accepted fresh held-fire effects were0/0 →11/6, each respecting authoritative cadence. Response loss after accepted mutation, a13-second delayed response beyond the real12-second client timeout,503 and command-ID effect/delivery deduplication were exercised. Final requests, sockets, seats and timers were zero; sync high-water was1/1 →2/2. This adapter uses actual localhost Node HTTP/fetch and core code, not Worker authentication, build reservation or D1/CAS. Existing packaged Worker/gameplay regressions passed separately; they do not establish hosted behavior.
+
+Combined desktop runs at1440×900 used Chrome ANGLE SwiftShader,1,320 frames/run and sequential baseline/candidate100/1600 ms. At100 ms both runs had zero held stops,21 shot events and77 visible attachment samples. At1600 ms the rendered profile had632/594 →528/527 held stops,12 →14 delivered shot events, and21 attachment samples in each version. Both retained six held-phase shot events; maximum sampled muzzle-attachment error was0 m. Page/console/request errors were empty. Both candidate screenshots were inspected; actors and equipped bows remain coherent. No renderer, remote interpolation or visual quality setting changed; no FPS/hardware-GPU claim.
+
+The full suite (including14 movement-continuity groups,16 firing groups, network/contact, control/camera/history and voice checks), build and both package checks passed. Package contents:67 assets,3 unchanged migrations, public assets byte-identical, development fixtures excluded. No paid requests or hosted load tests.
+
+## Completed lifecycle soak and reproducible handoff
+
+The real localhost HTTP soak ran for **1,800,022.076 ms (30 minutes plus22 ms)**, excluding final cleanup, on macOS26.6.2 arm64 / Node22.22.0. Target RTT was600 /1600 ms with independently seeded±100 ms jitter per direction. Natural5-minute rounds and15-second intermissions remained unchanged. It traversed round IDs1–6, began a second match through one explicit two-client leave/rejoin, and observed four round-started/four round-ended events on peer1. The fixture initiates the next match from authoritative completion before every final-score event is necessarily delivered; it does not certify the hosted lobby/final-score UX.
+
+There were2,492 /1,469 requests and2,485 /1,465 accepted sync/build mutations; sync concurrency peaked at2 /2. The whole adapter peaked atfive requests including lifecycle traffic. All three accepted-response losses, three13-second late responses/real client timeouts and three503s were observed. Each peer exercised58 distinct command effects with no duplicate command key, plus42 /457 fresh held-fire effects. Counts are wall-clock observations, not performance ratios. Pending input stayed≤90 frames. Minute samples showed3–10 timers and9.99–28.87 MB heap; the loop also enforced the20-timer ceiling throughout. These bounded samples do not establish a universal memory-leak guarantee. Final requests, sockets, client/server timers and seats were all zero.
+
+The soak runner now guarantees cleanup even when a loop gate fails and requires actual round/match transitions, nonempty firing paths, loss and timeout coverage for a30-minute pass. Source hashes for runtime and adapter stayed unchanged during the run. The final receipt verifies all23 unrelated dirty/untracked files byte-identical. No second implementation session, merge to main, push, deployment, paid request, production traffic, migration or database operation occurred.
+
+Evidence: `validation/performance-stability/input-timing/combined-source-receipt.json`, `movement-combined.json`, `timing-vs-combined.json`, `http-combined.json`, `desktop-combined.json`, inspected `combined-100.png` / `combined-1600.png`, and bounded `http-soak-30m.json` / `.log`. Comparison JSON distinguishes HEAD at measurement from the later commit whose source hashes were verified, avoiding attribution of dirty runtime to the baseline HEAD. Timing-only evidence remains alongside it.
+
+From the repository root, reproduce without switching the shared checkout:
+
+```sh
+arena_base=$(mktemp -d /private/tmp/brickwild-baseline.XXXXXX)
+git archive 6ae537f61114aefebea7cb653ce7d81dee899f5f | tar -x -C "$arena_base"
+node scripts/compare-arena-movement.mjs --baseline "$arena_base" --baseline-sha 6ae537f61114aefebea7cb653ce7d81dee899f5f --output /private/tmp/arena-comparison.json
+node scripts/check-arena-http.mjs --baseline "$arena_base" --output /private/tmp/arena-http-comparison.json
+PLAYWRIGHT_MODULE=file:///private/tmp/brickwild-browser-run/node_modules/playwright/index.mjs STABILITY_BASELINE="$arena_base" STABILITY_HELD_FIRE=1 STABILITY_OUTPUT=/private/tmp/arena-desktop-comparison node scripts/diagnose-arena-desktop.mjs
+node scripts/soak-arena-stability.mjs --http --duration-ms 1800000 --output /private/tmp/arena-http-soak.json
+```
+
+Run these sequentially. The rendered command uses the already-verified localhost Vite preview on5194 and external Playwright; it creates the automated synthetic route, not a persistent manual Arena endpoint. No manual owner test is required or offered through Practice. The short automated movement comparison is the useful repeatable acceptance check now. Full validation commands are `npm run check`, `npm run build`, `node scripts/check-package.mjs`, `node scripts/check-voice-package.mjs`.
+
+**Rollback:** `git revert 01a08f319bbce55833dc9d180ad999417ddeff04` removes the scheduler and its improvement regression while retaining the independently useful firing-timing fix. To restore the original runtime completely, then `git revert 3e3724e989d6e6be01c1ca9ae7c9155d486e9401`; retain any later soak evidence as historical. This is a rollback command, not an executed rollback or authorization to deploy.
+
+**One proposed next improvement, not started:** remote-player interpolation under irregular snapshots. First capture a separate desktop before/after trace of remote step size and visual delay, while checking authoritative contact and the pose-gap tradeoff exposed here. It must preserve this local movement/authority result and will be announced before implementation. Hosted reliability and hardware-GPU performance remain separate acceptance work; no claim that this fixes hosted disconnects or raises FPS.
