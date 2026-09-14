@@ -1,3 +1,4 @@
+import {handleTranscription} from './transcription-api.js';
 import {reserveGeneration} from './generation-budget.js';
 import {handleArenaAPI} from './arena-api.js';
 import {BLUEPRINT_SCHEMA,COMPACT_BLUEPRINT_SCHEMA,normalizeGeneratedBlueprint,validateBlueprint,creationPrompt} from '../public/blueprint.js';
@@ -51,7 +52,7 @@ export async function handleAPI(request,env,upstream=fetch){
  }catch(e){return json({error:controller.signal.aborted?'The design was cancelled or took too long. Try again when ready.':'The connection was interrupted. Please try again.'},504);}finally{clearTimeout(timer);request.signal.removeEventListener('abort',abort);activeRequests--;await release?.().catch(()=>{});}
 }
 export default {async fetch(request,env,ctx){
- const url=new URL(request.url);if(url.pathname.startsWith('/api/arena/'))return handleArenaAPI(request,env,ctx);if(url.pathname.startsWith('/api/'))return handleAPI(request,env);
+ const url=new URL(request.url);if(url.pathname==='/api/transcribe')return handleTranscription(request,env);if(url.pathname.startsWith('/api/arena/'))return handleArenaAPI(request,env,ctx);if(url.pathname.startsWith('/api/'))return handleAPI(request,env);
  if(request.method!=='GET'&&request.method!=='HEAD')return new Response('Method not allowed',{status:405});
  const key=url.pathname==='/'?'/index.html':url.pathname;const asset=STATIC_ASSETS[key];if(!asset)return new Response('Not found',{status:404});
  const headers={'Content-Type':asset.type,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'same-origin'};

@@ -1,0 +1,9 @@
+{
+  "assets": 64,
+  "migrations": 3,
+  "byteIdentical": true,
+  "developmentFilesExcluded": true,
+  "unauthenticatedArenaStatus": 401,
+  "publicSecretScan": "passed"
+}
+PASS packaged transcription auth and development voice harness/test exclusion

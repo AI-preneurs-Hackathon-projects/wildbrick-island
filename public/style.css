@@ -122,3 +122,12 @@
 .arena-score-columns .arena-rank{padding:6px 0;font-size:14px}
 #arena-buffs,#arena-network{background:#fffaf0ed;border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;font-weight:700;color:#2b708b}
 @media(max-width:600px){.arena-results{padding:18px 12px}.arena-score-columns{gap:12px}.arena-score-columns h3{font-size:16px}.arena-score-columns .arena-rank{grid-template-columns:minmax(0,1fr) 26px 29px;gap:4px;font-size:12px}.arena-score-columns .arena-rank>b{display:none}.arena-score-columns .arena-rank span{font-size:12px}.arena-results h2{font-size:28px}}
+
+/* Voice choices share the existing build dock; recording leaves movement usable. */
+.voice-options {max-width:min(25rem,calc(100vw - 2rem));padding:.8rem;border-radius:1rem;background:#fff8e9;box-shadow:0 4px 20px #18373225;color:#233b36;pointer-events:auto;text-align:left;}
+.voice-options p {font-size:.875rem;line-height:1.4;margin:0 0 .6rem;}
+.voice-options button,#cancel-voice {font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
+.voice-options button:disabled {opacity:.5;cursor:default;}
+#record-voice {background:#254f45;color:#fff8e9;}
+.build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
+.build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}

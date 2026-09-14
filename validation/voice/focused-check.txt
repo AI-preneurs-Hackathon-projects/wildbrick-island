@@ -1,0 +1,40 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> brickwild@3.0.0 check:voice
+> node scripts/check-voice.mjs && node scripts/check-transcription.mjs && node scripts/check-voice-ui.mjs && node scripts/check-voice-harness.mjs
+
+PASS native success submits one final result and preserves a valid result on late error
+PASS missing native and service/no-speech/permission errors offer deliberate recording without upload
+PASS native constructor/start failure and startup/stop stalls are bounded
+PASS native duration limit, invalid final and canceled callbacks never duplicate
+PASS WebM and MP4 recording capture final chunk before a single upload and dispatch
+PASS unsupported MIME, recorder constructor/start/error, denied permission and device loss release resources
+PASS byte overflow, empty audio, wrong final MIME, mixed container and unexpected stop cannot upload
+PASS 30 second bound stops capture; stopping stall discards instead of sending incomplete audio
+PASS cancel during permission and permission stall stop late streams before a recorder starts
+PASS cancel during capture/stopping ignores retained old recorder events
+PASS cancel during upload aborts fetch and late response cannot generate
+PASS cancel after response but before JSON completion and newer attempt defeat old results
+PASS transcription timeout, invalid/overlong response and errors do not automatically retry
+PASS double Record, rapid toggles and native versus recorded race create at most once
+PASS cancel on ready and pagehide remove all work without a generation
+15 voice lifecycle groups passed; synthetic browser/recorder/fetch only, no microphone or paid calls.
+PASS auth, method, origin, MIME and attempt validation happen before provider/config access
+PASS missing key/model, unsupported server model and missing/broken durable budget fail closed
+PASS stream limits reject absent/false length, malformed/empty audio, unsupported container without upstream
+PASS valid WebM/MP4 creates only fixed multipart request, normalizes text and releases slot
+PASS concurrent/retried same attempt is admitted once across handler instances and lost response
+PASS shared global 4 slots, requester 8/minute and 30/minute budget are not doubled
+PASS provider 4xx/5xx, malformed/empty/overlong/huge text return sanitized errors with no retry
+PASS abort before/during upload and upload deadline prevent provider request
+PASS provider timeout/disconnect propagates AbortSignal, releases admission and has no retry
+PASS provider response stream remains bounded by cancellation and no late success
+PASS actual Worker dispatch routes audio before generation JSON parser and never relaxes generation limit
+11 transcription endpoint groups passed; isolated SQLite admissions and mocked provider, no paid calls.
+PASS fallback offers explicit upload notice and Record/Type without pausing gameplay
+PASS Left Arrow callback toggles recording, final text dispatches once and controls remain independent
+PASS Help, pause, text edit and pagehide cancel active media and retain typing
+PASS invalid overlong transcript is editable intact and active newer speech survives old build completion
+PASS main integration retains all transition cancellations without editing reserved input modules
+5 voice UI/integration groups passed; jsdom DOM, not rendered microphone acceptance.
+PASS actual no-upload harness wiring: record/finish, delayed cancel, native success/failure and KO/mode transitions (jsdom only)
