@@ -8,7 +8,7 @@ const container=t=>String(t||'').split(';')[0].trim().toLowerCase();
 
 // All browser effects are owned by one attempt. Injected platform objects are for
 // isolated tests; the production UI always uses the same-origin fetch below.
-export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback=()=>{},platform={}}){
+export function createVoice({onCommand,onState=()=>{},onFallback=()=>{},platform={}}){
  const browser=globalThis.window||globalThis;
  const Recognition=platform.Recognition===undefined?(browser.SpeechRecognition||browser.webkitSpeechRecognition):platform.Recognition;
  const Recorder=platform.MediaRecorder===undefined?browser.MediaRecorder:platform.MediaRecorder;
@@ -30,7 +30,7 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
  function retire(a){if(!alive(a))return false;current=null;serial++;cleanup(a);return true;}
  function stop(){const a=current;if(a)retire(a);else serial++;notify('canceled','');}
  function begin(route){if(current)retire(current);const a={id:++serial,route,timers:new Map(),chunks:[],bytes:0,final:'',finalAt:0,stopping:false};current=a;return a;}
- function offer(message,draft='',available=true){preferRecording=true;notify('error',message);onNotice(message,6000);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
+ function offer(message,draft='',available=true){preferRecording=true;notify('error',message);onFallback(message,{draft,canRecord:available&&!!media?.getUserMedia&&!!recordingType(Recorder)});}
  function fail(a,message,draft='',available=true){if(retire(a))offer(message,draft,available);}
  function complete(a,text){
   if(!alive(a))return;
@@ -69,8 +69,8 @@ export function createVoice({onCommand,onState=()=>{},onNotice=()=>{},onFallback
    complete(a,data.text);
   }catch{if(alive(a))fail(a,'The recording could not be transcribed. No automatic retry was sent.');}
  }
- // This method must only be called by the explicit Record action next to the
- // audio-upload notice. Preference never silently grants recording/upload consent.
+ // Retained for isolated recording lifecycle checks. The game UI routes speech
+ // failures to typing and never starts recorded upload automatically.
  async function record(){
   if(current)return;preferRecording=true;const a=begin('recorded'),mime=recordingType(Recorder);
   if(!mime||!media?.getUserMedia){fail(a,'Recording is unavailable in this browser. Type an idea or try another browser.');return;}

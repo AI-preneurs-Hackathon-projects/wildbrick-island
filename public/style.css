@@ -130,12 +130,10 @@
 .generation-cancel-hint{display:block;margin-top:5px;color:#607268;font-weight:700}.generation-cancel-hint kbd{background:#fff;color:#254139;border:1px solid #254139;border-radius:5px;padding:1px 5px}
 .build-progress{padding-right:72px}.build-progress>small{display:block;margin:5px 0 0 27px;color:#607268;font-size:11px}.build-progress>#cancel-build{position:absolute;right:10px;top:10px;padding:7px 9px;border-radius:7px;background:#254139;color:#fffaf0;font-size:11px;font-weight:800}.build-progress>.progress-track{margin-right:-56px}
 
-/* Voice choices share the existing build dock; recording leaves movement usable. */
-.voice-options {max-width:min(25rem,calc(100vw - 2rem));padding:.8rem;border-radius:1rem;background:#fff8e9;box-shadow:0 4px 20px #18373225;color:#233b36;pointer-events:auto;text-align:left;}
-.voice-options p {font-size:.875rem;line-height:1.4;margin:0 0 .6rem;}
-.voice-options button{font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
-.voice-options button:disabled {opacity:.5;cursor:default;}
-.build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
+/* Speech fallback is one compact typing action centered above Speak / Build. */
+.voice-options{pointer-events:auto;text-align:center;}
+.voice-options button{font:inherit;font-size:.875rem;font-weight:800;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .8rem;background:#fff8e9;color:#233b36;cursor:pointer;pointer-events:auto;box-shadow:0 3px 12px #18373220;}
+.build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 2rem);z-index:2;}
 .build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}
 
 /* Completed Practice state and its persistent collection shortcut. */
