@@ -12,8 +12,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
  function diagnose(type,data){try{diagnostics.record(type,data);}catch{/* Diagnostics must never interrupt gameplay. */}}
  function status(value){if(diagnostics)diagnose('status',{at:clock(),code:['offline','joining','online','reconnecting','expired'].indexOf(value)});onStatus(value);}
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
- let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,epoch=null,lifecycle=0;
- const pendingSyncs=new Set();let syncRtt=0,nextMovementSend=0,retryAfter=0;
+ let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
  let previewAt=-Infinity,fireHeldAt=0,joinTicket=null;
  let frames=[],nextFrame=0,motionEpoch=0,accumulator=0,jumpQueued=false;
  // Match each local preview to its exact acknowledgement, even after a retry.
@@ -44,30 +43,13 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   status('online');
  }
  function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
- async function sync(){
-  if(!credentials||closed)return;
-  if(clock()<retryAfter){schedule(retryAfter-clock());return;}
-  // Only an older movement request may be overlapped, after a slow successful
-  // sync. A command can use the spare slot, but blocks every subsequent send
-  // until its response (build reservation happens outside the core mutation).
-  // Every movement packet retains the complete unacknowledged prefix;
-  // server sequence checks, frame IDs and frame credit still govern acceptance.
-  const movementOnly=!commands.length&&!input.fire&&snapshot?.round?.status==='active';
-  const overlap=syncRtt>750&&[...pendingSyncs].every(p=>p.movementOnly&&p.credentials===credentials);
-  if(pendingSyncs.size>=(overlap?2:1))return;
-  if(overlap&&movementOnly&&clock()<nextMovementSend){schedule(nextMovementSend-clock());return;}
-  const started=clock(),current=credentials,flight={movementOnly,credentials:current};pendingSyncs.add(flight);
-  const command=commands[0],packet={...current,mapVersion:1,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
-  if(overlap&&movementOnly){nextMovementSend=started+Math.max(120,syncRtt/2);schedule(nextMovementSend-started);}
+ async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,mapVersion:1,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
   try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
    // A rejected old-round build must never replace the retained kit's model.
    // accept() fetches unknown blueprints by their authoritative server IDs.
-   const previousRevision=revision;accept(result.snapshot);if(revision>previousRevision)syncRtt=clock()-started;
-   // Held-fire updates stay serialized. At slow RTT, avoid adding an idle
-   // poll delay between successful updates; authority still gates each shot.
-   schedule(input.fire&&syncRtt>750?0:120);}
-  catch(e){if(current!==credentials)return;syncRtt=0;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);retryAfter=clock()+600;schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);status('expired');onError(e.message,e.status);}else{status('reconnecting');const delay=e.status===429?1500:650;retryAfter=clock()+delay;schedule(delay);}}
-  finally{pendingSyncs.delete(flight);if(current!==credentials&&credentials&&!closed)schedule();}
+   accept(result.snapshot);schedule();}
+  catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);status('expired');onError(e.message,e.status);}else{status('reconnecting');schedule(e.status===429?1500:650);}}
+  finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
  async function join(name,room,avatarColor,create=false){
   if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;status('joining');
@@ -75,7 +57,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
    if(generation!==lifecycle)return false;
    const result=await request('/api/arena/join',{name,room,create,avatarColor,motionVersion:1,mapVersion:1,resume:ticket});
    if(generation!==lifecycle){request('/api/arena/leave',{session:result.session,token:result.token}).catch(()=>{});return false;}
-   view.reset();self=null;snapshot=null;commands=[];predictedCommands.clear();previewAt=-Infinity;seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};syncRtt=0;nextMovementSend=0;retryAfter=0;
+   view.reset();self=null;snapshot=null;commands=[];predictedCommands.clear();previewAt=-Infinity;seq=0;commandId=0;revision=-1;lastEvent=0;epoch=null;frames=[];nextFrame=0;accumulator=0;jumpQueued=false;input={};
    roomCode=result.room;credentials={session:result.session,token:result.token};accept(result.snapshot);schedule();return true;
   }catch(e){if(generation===lifecycle){credentials=null;status('offline');onError(e.message,e.status);}return false;}finally{if(generation===lifecycle)joining=false;}
  }

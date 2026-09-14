@@ -1,6 +1,10 @@
 # Arena performance and stability checkpoint
 
-## Current result — scheduler acceptance remains provisional; no new runtime improvement
+## Current work — remote presentation after removing provisional overlap
+
+Yerzhan authorizes restoring serial requests and attempting one bounded remote transform improvement. Main fetched unchanged at `dd5dab9`, already integrated; starting HEAD `19f12af`. Restore only `public/arena-client.js` to the independent firing-fix source `3e3724e`; preserve firing core, diagnostics, authority and failure regression coverage. Scheduler-specific tests now assert one pending sync and the restored 369/720 stress stops, not a performance gain. Removal is removal of an unaccepted tradeoff. Verify and commit this baseline before presentation changes. No crossing-contact scheduler defense or new transport work.
+
+## Historical result — scheduler acceptance remained provisional; no new runtime improvement
 
 Main was fetched and integrated separately through `dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66` in merge `6d7220a857d15c286b327b2f88ae3c4535cee33a`. Frozen optimization baseline: that merge. `bd8715bdc7435824d171e684351d11d9ab0e05b1` subsequently aligns the stale controls assertion with main's X cancellation shortcut; it changes no runtime behavior. Full checks then pass with no historical failure exceptions. The current client/core remain byte-identical to retained scheduler `01a08f319bbce55833dc9d180ad999417ddeff04` and firing fix `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`. Pre-scheduler control: `6ae537f61114aefebea7cb653ce7d81dee899f5f`. Isolated copies preserve the active checkout. All 24 pre-existing unrelated dirty/untracked files remain byte-identical.
 
