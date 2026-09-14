@@ -8,3 +8,6 @@ export function combatPose(weapon,elapsed){
 
 // Upright carried melee weapons swing about local X, toward character +Z.
 export const meleeAngle=strike=>Math.max(0,Math.min(1,strike))*1.45;
+
+// Turn the hammer's broad head along the forward strike, keeping its handle upright.
+export const meleeRotation=(strike,weapon)=>[meleeAngle(strike),weapon==='hammer'?Math.PI/2:0,0,'XYZ'];

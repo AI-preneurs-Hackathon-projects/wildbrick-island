@@ -30,7 +30,7 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   // server position replacement, or automatic relocation on loadout changes.
   for(const frame of frames)predictPlayer(self,frameInput(frame),MOVE_DT,{...s,time:s.time,preview:true});
   view.accept(self,{teleport});
-  for(const p of s.players){fetchBlueprint(p.kit.blueprintId);fetchBlueprint(p.building?.kit.blueprintId);}for(const p of s.placed||[])fetchBlueprint(p.blueprintId);
+  for(const p of s.players){fetchBlueprint(p.kit.blueprintId);fetchBlueprint(p.building?.kit.blueprintId);}for(const p of s.placed||[])fetchBlueprint(p.blueprintId);for(const item of s.items||[])fetchBlueprint(item.kit.blueprintId);
   // Install the authoritative world before playing events from that world.
   onSnapshot(s);
   if(lastEvent===0)lastEvent=s.eventCursor??Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&predictedCommands.delete(e.commandId)},s.self);lastEvent=e.id;}lastEvent=Math.max(lastEvent,s.eventCursor||0);
