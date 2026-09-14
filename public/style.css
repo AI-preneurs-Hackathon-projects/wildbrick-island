@@ -135,7 +135,6 @@
 .voice-options p {font-size:.875rem;line-height:1.4;margin:0 0 .6rem;}
 .voice-options button{font:inherit;font-size:.875rem;border:1px solid #325a50;border-radius:.65rem;padding:.55rem .75rem;background:#fff8e9;color:#233b36;cursor:pointer;margin:.2rem;pointer-events:auto;}
 .voice-options button:disabled {opacity:.5;cursor:default;}
-#record-voice {background:#254f45;color:#fff8e9;}
 .build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
 .build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}
 
