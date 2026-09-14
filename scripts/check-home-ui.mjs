@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=37/);assert.match(shell,/main\.js\?v=38/);
+assert.match(shell,/style\.css\?v=39/);assert.match(shell,/main\.js\?v=39/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -26,7 +26,7 @@ function setup(joinImpl=async()=>true){
 }
 function name(value){$('player-name').value=value;$('player-name').dispatchEvent(new window.Event('input',{bubbles:true}));}
 await check('both modes require a name and recover from whitespace input',async()=>{
- const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','snapshot','help','pause','mode-pill','mic','action','jump-equipped'])assert.equal($(id).closest('#hud'),$('hud'));assert.equal($('snapshot').getAttribute('aria-label'),'Take a snapshot');app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
+ const app=setup();assert.equal(document.querySelector('.intro-small'),null);assert.doesNotMatch($('intro').textContent,/Keyboard or touch|Type or speak to build/);assert.equal($('hud').classList.contains('hidden'),true);assert.equal($('hud').getAttribute('aria-hidden'),'true');for(const id of ['practice-map-name','snapshot','help','pause','mode-pill','mic','action'])assert.equal($(id).closest('#hud'),$('hud'));assert.equal($('jump-equipped'),null);assert.equal($('snapshot').getAttribute('aria-label'),'Take a snapshot');app.ui.toast('First sentence. Second sentence!');assert.equal($('toast').textContent,'First sentence.\nSecond sentence!');for(const id of ['explore-start','start']){$(id).click();assert.equal(app.starts,0);}
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
  name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');$('snapshot').click();assert.equal(app.snapshots,1);assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
 });
@@ -45,7 +45,7 @@ await check('pause exit returns home in online, reconnecting, expired, offline a
  const app=setup();name('River');$('explore-start').click();const room=newRoom(),p=addPlayer(room,'p','River');
  for(const status of ['online','reconnecting','expired','offline','dead']){
   if(!app.state.started)$('explore-start').click();app.state.arena=true;p.health=status==='dead'?0:100;app.ui.update(app.state);app.arenaUI.setStatus(status==='dead'?'online':status);app.arenaUI.update({active:true,self:p,snapshot:roomSnapshot(room,p.id),room:'ISLAND',serverTime:()=>room.time});$('arena-board').open=false;
-  assert.equal($('arena-exit'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('intro').classList.contains('hidden'),false);assert.equal($('hud').classList.contains('hidden'),true);assert.equal(document.activeElement,$('player-name'));assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Punch');assert.equal($('jump-equipped').classList.contains('hidden'),false);assert.match($('practice-route').textContent,/Scenic route/);
+  assert.equal($('arena-exit'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('intro').classList.contains('hidden'),false);assert.equal($('hud').classList.contains('hidden'),true);assert.equal(document.activeElement,$('player-name'));assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Punch');assert.equal($('jump-equipped'),null);assert.match($('practice-route').textContent,/Scenic route/);
  }assert.equal(app.leaves,5);
 });
 await check('leaving during pending join prevents the old completion reopening the lobby',async()=>{
