@@ -68,7 +68,30 @@ function applyFrames(room,p,packet,now){
 }
 export function predictPlayer(p,input,dt,worldState){if(worldState.round?.status==='finished'||p.health<=0)return;const world={...worldState,preview:true,players:{[p.id]:p},events:[],eventId:0,damage:{...worldState.damage},destroyed:{...worldState.destroyed}},controls=cleanInput(input);for(let left=Math.min(.1,dt);left>1e-8;){const step=Math.min(left,1/30);movePlayer(world,p,step,controls);left-=step;world.time+=step*1000;}}
 function rand(room){let n=room.seed|0;n^=n<<13;n^=n>>>17;n^=n<<5;room.seed=n>>>0;return room.seed/4294967296;}
-function shoot(room,p,input,commandId=null){const k=p.kit.stats;if(ensureRound(room).status!=='active'||p.health<=0||p.building||!k.damage||room.time<p.nextShot||room.time<p.overheatedUntil||room.time<p.protectedUntil)return;
+// A pure status query for local diagnostics; no extra network events or telemetry.
+export function attackBlockReason(room,p){
+ if(room.round?.status!=='active')return 'round';if(p.health<=0)return 'dead';if(p.building)return 'building';if(!p.kit.stats.damage)return 'unarmed';
+ if(room.time<p.protectedUntil)return 'protection';if(room.time<p.overheatedUntil)return 'heat';if(room.time<p.nextShot)return 'cooldown';return null;
+}
+function projectileContact(room,b,from,to,boxes,launchYaw=null){
+ let hit=to.y<=0&&from.y>=0?{t:from.y/Math.max(1e-9,from.y-to.y),ground:true}:null;
+ // Scenery wins ties, including a launch origin inside both cover and a rival.
+ for(const {entity,box} of boxes){if(room.destroyed[entity.id])continue;const h=segmentBox(from,to,box);if(h&&(!hit||h.t<hit.t))hit={...h,entity};}
+ for(const p of Object.values(room.players)){
+  if(p.id===b.owner||p.health<=0)continue;
+  // Overlapping bodies are legal; the launch bridge must not become a rear attack.
+  if(launchYaw!==null&&(p.x-from.x)*Math.sin(launchYaw)+(p.z-from.z)*Math.cos(launchYaw)<-1e-9)continue;
+  const bb=bounds(p),h=segmentBox(from,to,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);
+  if(h&&(!hit||h.t<hit.t))hit={...h,player:p};
+ }
+ return hit;
+}
+function resolveProjectileContact(room,b,from,to,hit){
+ const point={x:from.x+(to.x-from.x)*hit.t,y:from.y+(to.y-from.y)*hit.t,z:from.z+(to.z-from.z)*hit.t,attack:b.id,color:b.color};
+ if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}
+ else{if(hit.entity)destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',{...point,by:b.owner,entity:hit.entity?.id||'ground'});}
+}
+function shoot(room,p,input,commandId=null){const k=p.kit.stats;ensureRound(room);if(attackBlockReason(room,p))return;
  p.nextShot=room.time+k.interval*1000;p.actionAt=room.time;p.actionYaw=p.yaw;
  if(k.weapon==='automatic'){p.heat+=.115;if(p.heat>=1){p.overheatedUntil=room.time+2200;p.heat=1;}}
  let {yaw,pitch}=weaponAim(p,input.weaponPitch);const anchor={x:p.x,y:p.y+Math.max(1.2,k.collision[1]*.6),z:p.z};
@@ -76,19 +99,32 @@ function shoot(room,p,input,commandId=null){const k=p.kit.stats;if(ensureRound(r
 
  yaw+=(rand(room)-.5)*k.spread;pitch+=(rand(room)-.5)*k.spread*.7;
  const from=weaponMuzzle(p,yaw,pitch);
- let obstruction=from.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-from.y)):1;for(const {box} of solidBoxes(room)){const hit=segmentBox(anchor,from,box);if(hit)obstruction=Math.min(obstruction,Math.max(0,hit.t-.02));}for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*obstruction;
+ // Retain the ground clamp for legacy emitter data. Cover and players share one
+ // ordered launch query instead of clipping past a victim or redirecting off cover.
+ const groundClamp=from.y<.02?Math.max(0,(anchor.y-.02)/(anchor.y-from.y)):1;
+ for(const key of ['x','y','z'])from[key]=anchor[key]+(from[key]-anchor[key])*groundClamp;
 
  // Bound each shooter's outstanding work without deleting another player's shots.
  if(room.projectiles.filter(b=>b.owner===p.id).length>=24||room.projectiles.length>=2048){event(room,'notice',{player:p.id,text:'The arena has a lot of projectiles. Try attacking again shortly.'});return;}
- const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};room.projectiles.push(projectile);event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,...from,projectile:{...projectile}});
+ const id=++room.eventId,projectile={id,owner:p.id,born:room.time,...from,vx:Math.sin(yaw)*Math.cos(pitch)*k.projectileSpeed,vy:Math.sin(pitch)*k.projectileSpeed,vz:Math.cos(yaw)*Math.cos(pitch)*k.projectileSpeed,damage:k.damage,weapon:k.weapon,color:k.weapon==='flame'?'#ff7836':p.kit.color,expires:room.time+k.range/k.projectileSpeed*1000,range:k.range};
+ const contact=projectileContact(room,projectile,anchor,from,solidBoxes(room),p.yaw);
+ // Immediate contact has no live projectile. Replay starts at the body so the
+ // visible trace travels toward the contact instead of backwards from the muzzle.
+ const visible={...projectile,...(contact?anchor:from)};
+ event(room,'shot',{player:p.id,commandId,weapon:k.weapon,yaw,pitch,x:visible.x,y:visible.y,z:visible.z,projectile:visible});
+ if(contact)resolveProjectileContact(room,projectile,anchor,from,contact);else room.projectiles.push(projectile);
 }
 function resolveMelee(room,p){
  const m=p.melee;if(!m||room.time<m.at)return;p.melee=null;
  if(p.health<=0||p.building||p.kit.id!==m.kit)return;
- const from={x:p.x,y:p.y+1.3,z:p.z};let victim=null,nearest=m.range;const boxes=solidBoxes(room);
- for(const q of Object.values(room.players)){if(q.id===p.id||q.health<=0)continue;const dx=q.x-p.x,dz=q.z-p.z,d=Math.hypot(dx,dz);if(d>=nearest||Math.abs(q.y-p.y)>1.8||(dx*Math.sin(m.yaw)+dz*Math.cos(m.yaw))/Math.max(.01,d)<.45)continue;
-  const to={x:q.x,y:q.y+1.3,z:q.z};if(boxes.some(({box})=>segmentBox(from,to,box)))continue;victim=q;nearest=d;}
- if(victim){const point={x:victim.x-Math.sin(m.yaw)*.4,y:victim.y+1.3,z:victim.z-Math.cos(m.yaw)*.4,attack:m.attack};if(!hurt(room,victim,m.damage,p.id,point))event(room,'blocked',{player:victim.id,by:p.id,...point});return;}
+ const from={x:p.x,y:p.y+1.3,z:p.z};let victim=null,point=null,nearest=m.range;const boxes=solidBoxes(room);
+ for(const q of Object.values(room.players)){if(q.id===p.id||q.health<=0)continue;const dx=q.x-p.x,dz=q.z-p.z,d=Math.hypot(dx,dz);
+  // Undefined facing at an identical center is explicit contact. Every separated
+  // center still obeys the existing forward cone and foot-altitude limit.
+  if(Math.abs(q.y-p.y)>1.8||(d>1e-9&&(dx*Math.sin(m.yaw)+dz*Math.cos(m.yaw))/d<.45))continue;
+  const bb=bounds(q),to={x:clamp(p.x,q.x-bb.hx,q.x+bb.hx),y:clamp(from.y,q.y,q.y+bb.h),z:clamp(p.z,q.z-bb.hz,q.z+bb.hz)},reach=Math.hypot(to.x-from.x,to.z-from.z);
+  if(reach>=nearest||boxes.some(({box})=>segmentBox(from,to,box)))continue;victim=q;point={...to,attack:m.attack};nearest=reach;}
+ if(victim){if(!hurt(room,victim,m.damage,p.id,point))event(room,'blocked',{player:victim.id,by:p.id,...point});return;}
  const end={x:from.x+Math.sin(m.yaw)*m.range,y:from.y,z:from.z+Math.cos(m.yaw)*m.range};let cover=null;for(const item of boxes){const hit=segmentBox(from,end,item.box);if(hit&&(!cover||hit.t<cover.t))cover={...item,...hit};}
  if(cover){destroyCover(room,cover.entity,m.damage,p.id);event(room,'impact',{x:from.x+(end.x-from.x)*cover.t,y:from.y,z:from.z+(end.z-from.z)*cover.t});}
 }
@@ -126,11 +162,8 @@ function step(room,dt){
  room.drops=room.drops.filter(d=>SUPPORT_DROPS.includes(d.type)&&room.time<d.expires);
  for(const [id,until] of Object.entries(room.destroyed))if(until<=room.time){const entity=arenaMap(room).entities.find(e=>e.id===id)||room.placed.find(e=>e.id===id);const boxes=entity?.boxes||[entity&&{...entity,y:entity.h/2}].filter(Boolean);if(entity&&isMovementBlocker(entity)&&Object.values(room.players).some(p=>p.health>0&&boxes.some(b=>overlapsBody(p,movementShape(p.kit.stats),b)))){room.destroyed[id]=room.time+1000;continue;}delete room.destroyed[id];event(room,'restore',{entity:id});}
  for(const p of Object.values(room.players)){if(room.time-p.lastSeen>20000){removePlayer(room,p.id);continue;}if(p.health<=0){if(room.time>=p.respawnAt)respawn(room,p);continue;}p.heat=Math.max(0,p.heat-dt*.13);if(p.building&&room.time>=p.building.ends)finishBuild(room,p);const input=room.time-p.inputAt<INPUT_STALE_MS?p.input:{};if(!p.motion)movePlayer(room,p,dt,input);if(input.fire)shoot(room,p,input);resolveMelee(room,p);for(const drop of [...room.drops])if(Math.hypot(p.x-drop.x,p.z-drop.z)<1.2)collectPickup(room,p,drop.id);}
- const players=Object.values(room.players);
- const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],travel=Math.min(dt,Math.max(0,(b.expires-room.time+dt*1000)/1000)),end={x:b.x+b.vx*travel,y:b.y+b.vy*travel,z:b.z+b.vz*travel};let hit=end.y<=0&&b.y>=0?{t:b.y/Math.max(1e-9,b.y-end.y),ground:true}:null;
-  for(const {entity,box} of boxes){if(room.destroyed[entity.id])continue;const h=segmentBox(b,end,box);if(h&&(!hit||h.t<hit.t))hit={...h,entity};}
-  for(const p of players){if(p.id===b.owner||p.health<=0)continue;const bb=bounds(p),h=segmentBox(b,end,{x:p.x,y:p.y+bb.hy,z:p.z,w:bb.hx*2,h:bb.h,d:bb.hz*2},b.weapon==='flame'?[.45,.45,.45]:[.12,.12,.12]);if(h&&(!hit||h.t<hit.t))hit={...h,player:p};}
-  if(hit){const point={x:b.x+(end.x-b.x)*hit.t,y:b.y+(end.y-b.y)*hit.t,z:b.z+(end.z-b.z)*hit.t,attack:b.id,color:b.color};if(hit.player){if(!hurt(room,hit.player,b.damage,b.owner,point))event(room,'blocked',{player:hit.player.id,by:b.owner,...point});}else{if(hit.entity)destroyCover(room,hit.entity,b.damage,b.owner);event(room,'impact',{...point,by:b.owner,entity:hit.entity?.id||'ground'});}room.projectiles.splice(i,1);}else if(room.time>=b.expires){event(room,'shot-end',{...end,attack:b.id});room.projectiles.splice(i,1);}else Object.assign(b,end);
+ const boxes=solidBoxes(room);for(let i=room.projectiles.length-1;i>=0;i--){const b=room.projectiles[i],travel=Math.min(dt,Math.max(0,(b.expires-room.time+dt*1000)/1000)),end={x:b.x+b.vx*travel,y:b.y+b.vy*travel,z:b.z+b.vz*travel},hit=projectileContact(room,b,b,end,boxes);
+  if(hit){resolveProjectileContact(room,b,b,end,hit);room.projectiles.splice(i,1);}else if(room.time>=b.expires){event(room,'shot-end',{...end,attack:b.id});room.projectiles.splice(i,1);}else Object.assign(b,end);
  }
  if(room.time>=room.nextDrop)spawnDrop(room);
 

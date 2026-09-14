@@ -1,0 +1,82 @@
+[
+  {
+    "case": "bow point blank",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "hit",
+    "damage": 21.6,
+    "contacts": 1
+  },
+  {
+    "case": "bow one metre",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "hit",
+    "damage": 21.6,
+    "contacts": 1
+  },
+  {
+    "case": "punch exact overlap",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "hit",
+    "damage": 16.2,
+    "contacts": 1
+  },
+  {
+    "case": "punch nearby",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "hit",
+    "damage": 16.2,
+    "contacts": 1
+  },
+  {
+    "case": "punch car surface",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "hit",
+    "damage": 16.2,
+    "contacts": 1
+  },
+  {
+    "case": "ordinary miss",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "miss",
+    "damage": 0,
+    "contacts": 0
+  },
+  {
+    "case": "shooter protection",
+    "accepted": false,
+    "rejection": "protection",
+    "outcome": "rejected",
+    "damage": 0,
+    "contacts": 0
+  },
+  {
+    "case": "cooldown",
+    "accepted": false,
+    "rejection": "cooldown",
+    "outcome": "rejected",
+    "damage": 0,
+    "contacts": 0
+  },
+  {
+    "case": "heat",
+    "accepted": false,
+    "rejection": "heat",
+    "outcome": "rejected",
+    "damage": 0,
+    "contacts": 0
+  },
+  {
+    "case": "target protection",
+    "accepted": true,
+    "rejection": null,
+    "outcome": "blocked",
+    "damage": 0,
+    "contacts": 1
+  }
+]

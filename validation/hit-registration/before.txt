@@ -1,0 +1,483 @@
+✖ bow: body-centered exact overlap and point-blank contact in eight facings (11.55384ms)
+✔ bow: target behind receives no ordinary forward hit (10.003049ms)
+✖ automatic: body-centered exact overlap and point-blank contact in eight facings (3.717571ms)
+✔ automatic: target behind receives no ordinary forward hit (8.243613ms)
+✖ flame: body-centered exact overlap and point-blank contact in eight facings (2.980339ms)
+✔ flame: target behind receives no ordinary forward hit (8.196733ms)
+✖ pulse: body-centered exact overlap and point-blank contact in eight facings (2.488456ms)
+✔ pulse: target behind receives no ordinary forward hit (7.401994ms)
+✖ foot: body-centered exact overlap and point-blank contact in eight facings (2.689029ms)
+✔ foot: target behind receives no ordinary forward hit (7.629186ms)
+✖ sword: body-centered exact overlap and point-blank contact in eight facings (2.350538ms)
+✔ sword: target behind receives no ordinary forward hit (7.014188ms)
+✖ knife: body-centered exact overlap and point-blank contact in eight facings (2.542218ms)
+✔ knife: target behind receives no ordinary forward hit (7.358698ms)
+✖ hammer: body-centered exact overlap and point-blank contact in eight facings (2.453474ms)
+✔ hammer: target behind receives no ordinary forward hit (6.658521ms)
+✔ bow: normal body-centered forward shots in eight facings (21.196115ms)
+✔ automatic: normal body-centered forward shots in eight facings (19.034563ms)
+✔ flame: normal body-centered forward shots in eight facings (18.833559ms)
+✔ generated pulse keeps its authored parallel barrel path, without camera aiming or homing (5.483066ms)
+✖ foot: surface reach has a strict boundary, including large mounted bodies (3.339331ms)
+✖ sword: surface reach has a strict boundary, including large mounted bodies (2.990785ms)
+✖ knife: surface reach has a strict boundary, including large mounted bodies (2.74966ms)
+✖ hammer: surface reach has a strict boundary, including large mounted bodies (3.163115ms)
+✖ melee cone, exact overlap exception and vertical limits stay bounded (2.853077ms)
+✔ melee samples current positions at windup completion while retaining accepted body yaw (6.997403ms)
+✔ bow: nearest launch-path player/cover wins and one shot cannot damage twice (11.722114ms)
+✔ automatic: nearest launch-path player/cover wins and one shot cannot damage twice (14.408009ms)
+✔ flame: nearest launch-path player/cover wins and one shot cannot damage twice (13.612638ms)
+✖ pulse: nearest launch-path player/cover wins and one shot cannot damage twice (14.976277ms)
+✔ a cover tie at the launch origin blocks overlapping players (4.015311ms)
+✖ melee respects cover to the nearest target surface, including overlap and large targets (14.62772ms)
+✔ bow: range endpoint may contact; expiry alone never causes a hit (10.313399ms)
+✔ automatic: range endpoint may contact; expiry alone never causes a hit (11.081208ms)
+✔ flame: range endpoint may contact; expiry alone never causes a hit (8.896059ms)
+✔ pulse: range endpoint may contact; expiry alone never causes a hit (8.34678ms)
+✖ ranged altitude separation and airborne contact use the actual body volume (3.542387ms)
+✖ ranged contact covers foot and mounted targets and generated mounted shooters (5.22698ms)
+✖ heavy armor and defense apply once to immediate contact without changing base damage (3.828539ms)
+✔ jump and fall during windup can enter and leave contact without a historical sweep (6.410537ms)
+✖ spawn protection distinguishes rejected attacks and blocked contacts from misses (6.687745ms)
+✖ damage values, armor, defense, mount destruction, KO and respawn remain authoritative (3.28579ms)
+✖ cooldown, command retries and heat cannot produce extra launch contacts (3.082223ms)
+✖ immediate authoritative shot precedes exactly one contact and replays toward the contact (2.800657ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 22
+ℹ fail 22
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 339.639058
+
+✖ failing tests:
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ bow: body-centered exact overlap and point-blank contact in eight facings (11.55384ms)
+  AssertionError [ERR_ASSERTION]: bow yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ automatic: body-centered exact overlap and point-blank contact in eight facings (3.717571ms)
+  AssertionError [ERR_ASSERTION]: automatic yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ flame: body-centered exact overlap and point-blank contact in eight facings (2.980339ms)
+  AssertionError [ERR_ASSERTION]: flame yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ pulse: body-centered exact overlap and point-blank contact in eight facings (2.488456ms)
+  AssertionError [ERR_ASSERTION]: pulse yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ foot: body-centered exact overlap and point-blank contact in eight facings (2.689029ms)
+  AssertionError [ERR_ASSERTION]: foot yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ sword: body-centered exact overlap and point-blank contact in eight facings (2.350538ms)
+  AssertionError [ERR_ASSERTION]: sword yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ knife: body-centered exact overlap and point-blank contact in eight facings (2.542218ms)
+  AssertionError [ERR_ASSERTION]: knife yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:30:2
+✖ hammer: body-centered exact overlap and point-blank contact in eight facings (2.453474ms)
+  AssertionError [ERR_ASSERTION]: hammer yaw=0 z=0
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:32:54)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:47:55
+✖ foot: surface reach has a strict boundary, including large mounted bodies (3.339331ms)
+  AssertionError [ERR_ASSERTION]: foot yaw=0 delta=-0.01
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:54:71)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:47:55
+✖ sword: surface reach has a strict boundary, including large mounted bodies (2.990785ms)
+  AssertionError [ERR_ASSERTION]: foot yaw=0 delta=-0.01
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:54:71)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:47:55
+✖ knife: surface reach has a strict boundary, including large mounted bodies (2.74966ms)
+  AssertionError [ERR_ASSERTION]: foot yaw=0 delta=-0.01
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:54:71)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:47:55
+✖ hammer: surface reach has a strict boundary, including large mounted bodies (3.163115ms)
+  AssertionError [ERR_ASSERTION]: foot yaw=0 delta=-0.01
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:54:71)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:57:1
+✖ melee cone, exact overlap exception and vertical limits stay bounded (2.853077ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:59:96)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:68:57
+✖ pulse: nearest launch-path player/cover wins and one shot cannot damage twice (14.976277ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 1
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:71:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:74:1
+✖ melee respects cover to the nearest target surface, including overlap and large targets (14.62772ms)
+  AssertionError [ERR_ASSERTION]: body is before cover; center LOS must not reject it
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:76:68)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:81:1
+✖ ranged altitude separation and airborne contact use the actual body volume (3.542387ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:82:169)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:84:1
+✖ ranged contact covers foot and mounted targets and generated mounted shooters (5.22698ms)
+  AssertionError [ERR_ASSERTION]: bow against foot at 0
+
+  false !== true
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:86:63)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:93:1
+✖ heavy armor and defense apply once to immediate contact without changing base damage (3.828539ms)
+  AssertionError [ERR_ASSERTION]: 100 != 91.792
+      at near (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:27:26)
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:95:17)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:101:1
+✖ spawn protection distinguishes rejected attacks and blocked contacts from misses (6.687745ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 1
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:103:141)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:105:1
+✖ damage values, armor, defense, mount destruction, KO and respawn remain authoritative (3.28579ms)
+  AssertionError [ERR_ASSERTION]: 100 != 78.4
+      at near (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:27:26)
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:106:44)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:112:1
+✖ cooldown, command retries and heat cannot produce extra launch contacts (3.082223ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== 1
+
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:113:122)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scripts/check-hit-registration.mjs:116:1
+✖ immediate authoritative shot precedes exactly one contact and replays toward the contact (2.800657ms)
+  AssertionError [ERR_ASSERTION]: contact resolves at launch
+      at TestContext.<anonymous> (file:///workspace/sites/brickwild-adventure/scripts/check-hit-registration.mjs:117:102)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
