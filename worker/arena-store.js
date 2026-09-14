@@ -6,6 +6,7 @@ export const nonce=()=>crypto.randomUUID().replaceAll('-','')+crypto.randomUUID(
 // never strand later requests behind a shared promise; CAS serializes writes.
 export function arenaStore(db){if(!db)throw new ArenaError('The shared arena is unavailable. Please try Play again shortly.',503);
  return {
+  async roomExists(roomId){return !!await db.prepare('SELECT id FROM arena_rooms WHERE id = ?').bind(roomId).first();},
   async mutate(roomId,fn){const started=Date.now();for(let attempt=0;attempt<16&&Date.now()-started<1800;attempt++){
    let row=await db.prepare('SELECT revision, snapshot, updated_at FROM arena_rooms WHERE id = ?').bind(roomId).first();const now=Math.max(Date.now(),row?JSON.parse(row.snapshot).time:0);
    if(!row){const initial=newRoom(now,crypto.randomUUID());await db.prepare('INSERT INTO arena_rooms (id, revision, snapshot, updated_at) VALUES (?, 0, ?, ?) ON CONFLICT(id) DO NOTHING').bind(roomId,JSON.stringify(initial),now).run();continue;}

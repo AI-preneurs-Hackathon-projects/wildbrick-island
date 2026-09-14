@@ -38,9 +38,10 @@ for(const rtt of [50,150,300]){
  }
  const a=peer('test-shooter'),b=peer('test-target');
  try{
-  assert.deepEqual(await Promise.all([a.client.join('Shooter','TEST'),b.client.join('Target','TEST')]),[true,true]);
-  await store.mutate('TEST',r=>{r.round.lobbyEndsAt=r.time;for(const player of Object.values(r.players))player.lastSeen=r.time+1;advanceRoom(r,r.time+1);});
-  await until(()=>peers.every(p=>p.client.snapshot?.round?.status==='active'),'shared lobby countdown completed');
+  assert.equal(await a.client.join('Shooter','TEST',undefined,true),true);
+  assert.equal(await b.client.join('Target','TEST'),true);
+  assert.equal(await a.client.start(),true);
+  await until(()=>peers.every(p=>p.client.snapshot?.round?.status==='active'),'creator started coded arena');
   const shooter=a.client.snapshot.self,target=b.client.snapshot.self;
   // Verify the actual endpoint rejects anonymous requests and crossed principals.
   assert.equal((await handleArenaAPI(new Request('https://brickwild.test/api/arena/sync',{method:'POST',body:'{}'}),{DB})).status,401);

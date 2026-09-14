@@ -1,7 +1,7 @@
 import {avatarColor} from '../public/avatar-colors.js';
 import {newMotion,validFrames} from '../public/movement-stream.js';
 import {arenaStore,ArenaError,hash,nonce} from './arena-store.js';
-import {queuePlayer,removePlayer,applyInput,roomSnapshot,makeKit} from '../public/arena-core.js';
+import {queuePlayer,startRoom,removePlayer,applyInput,roomSnapshot,makeKit} from '../public/arena-core.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {SUPPLY_BLUEPRINTS} from '../public/supply-catalog.js';
 const response=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -17,6 +17,7 @@ export async function handleArenaAPI(request,env,ctx={}){try{
  const packet=await readPacket(request,url.pathname==='/api/arena/build'?100000:url.pathname==='/api/arena/sync'?16384:4096);
  if(url.pathname==='/api/arena/join'){
   const roomId=String(packet.room||'ISLAND').trim().toUpperCase();if(!/^[A-Z0-9]{4,8}$/.test(roomId))throw new ArenaError('Use a room code with 4–8 letters or numbers.');
+  const creating=packet.create===true,exists=await store.roomExists(roomId);let creatorRetry=false;if(creating&&exists&&packet.resume?.session&&packet.resume?.token){const prior=await env.DB.prepare('SELECT token_hash, principal, room_id FROM arena_sessions WHERE id = ?').bind(packet.resume.session).first();creatorRetry=!!prior&&prior.principal===principal&&prior.room_id===roomId&&prior.token_hash===await hash(packet.resume.token);}if(creating&&exists&&!creatorRetry)throw new ArenaError('That arena code is already in use. Create another one.',409);if(!creating&&!exists)throw new ArenaError('That arena code was not found. Check the code and try again.',404);
   const resume=packet.resume;if(resume&&(!/^[a-f0-9-]{36}$/.test(resume.session||'')||!/^[a-f0-9]{64}$/.test(resume.token||'')))throw new ArenaError('Invalid join attempt. Exit to home and try again.');
   const name=String(packet.name||'Builder').replace(/[<>\u0000-\u001f]/g,'').trim().slice(0,20)||'Builder',id=resume?.session||crypto.randomUUID(),token=resume?.token||nonce();
   // A retry proves possession of the same random token and reuses one seat.
@@ -27,6 +28,7 @@ export async function handleArenaAPI(request,env,ctx={}){try{
  }
  const session=await store.session(request,packet);
  if(url.pathname==='/api/arena/leave'){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));return response({left:true});}
+ if(url.pathname==='/api/arena/start'){const {room}=await store.mutate(session.room_id,(r,t)=>startRoom(r,session.player_id,t));return response({snapshot:roomSnapshot(room,session.player_id)});}
  if(!['/api/arena/sync','/api/arena/build'].includes(url.pathname))return response({error:'Not found.'},404);
  if(!Number.isSafeInteger(packet.seq)||packet.seq<1||packet.seq>1e12)throw new ArenaError('Invalid input sequence.');
  if(packet.frames!==undefined&&(!validFrames(packet.frames)||!Number.isSafeInteger(packet.motionEpoch)||packet.motionEpoch<0))throw new ArenaError('Invalid movement frames.');
@@ -37,4 +39,4 @@ export async function handleArenaAPI(request,env,ctx={}){try{
   else throw new ArenaError('Choose a starter build or a valid creation.');
  }
  const {room}=await store.mutate(session.room_id,(r,t)=>{requireMapClient(r,packet);return applyInput(r,session.player_id,packet,t,kit);});return response({snapshot:roomSnapshot(room,session.player_id,packet.afterEvent)});
- }catch(e){return response({error:e instanceof ArenaError||[410,422].includes(e.status)?e.message:'The shared arena could not sync. Your controls will resume when it reconnects.'},e instanceof ArenaError||[410,422].includes(e.status)?e.status:503);}}
+ }catch(e){return response({error:e instanceof ArenaError||[403,404,409,410,422].includes(e.status)?e.message:'The shared arena could not sync. Your controls will resume when it reconnects.'},e instanceof ArenaError||[403,404,409,410,422].includes(e.status)?e.status:503);}}

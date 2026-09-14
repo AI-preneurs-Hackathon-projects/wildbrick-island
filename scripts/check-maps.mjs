@@ -264,7 +264,7 @@ await check('SQLite-backed API rejects stale map clients and late joins while ac
   for(const name of fs.readdirSync(new URL('../drizzle',import.meta.url)).filter(n=>n.endsWith('.sql')).sort())sqlite.exec(fs.readFileSync(new URL('../drizzle/'+name,import.meta.url),'utf8'));
   const DB={prepare(sql){return {bind(...args){return {async first(){await Promise.resolve();return sqlite.prepare(sql).get(...args)||null;},async run(){await Promise.resolve();const result=sqlite.prepare(sql).run(...args);return {meta:{changes:Number(result.changes)}};}};}};}};
   const api=(path,body,principal='fixture-owner')=>handleArenaAPI(new Request('https://brickwild.test/api/arena/'+path,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://brickwild.test','oai-authenticated-user-id':principal},body:JSON.stringify(body)}),{DB});
-  const initial=await api('join',{name:'Legacy',room:'MAPTEST',motionVersion:1});assert.equal(initial.status,200);
+  const initial=await api('join',{name:'Legacy',room:'MAPTEST',create:true,motionVersion:1});assert.equal(initial.status,200);
   const joined=await initial.json(),credentials={session:joined.session,token:joined.token};assert.equal(joined.snapshot.round.mapId,'island');
   const store=arenaStore(DB);await store.mutate('MAPTEST',r=>{r.round.status='finished';r.round.intermissionEndsAt=r.time-1;});
   const refresh=await api('sync',{...credentials,seq:1,mapVersion:1,input:{}});assert.equal(refresh.status,200);const beach=(await refresh.json()).snapshot;assert.equal(beach.round.mapId,'beach');

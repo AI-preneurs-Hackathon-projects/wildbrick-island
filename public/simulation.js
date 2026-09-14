@@ -33,6 +33,7 @@ export async function createSimulation(obstacles,onEvent){
   const blueprint=validateBlueprint(design.blueprint),custom={blueprint,dimensions:design.dimensions};const mode=customMode(blueprint);
   s.building={mode,custom,time:0,duration:1.2};emit('build',{mode,custom});return true;
  }
+ function cancelBuild(){if(!s.building)return false;s.building=null;emit('notice',{text:'Build canceled.'});return true;}
  function aimSolution(kit=makeKit(s.custom?'generated':s.mode,s.custom?.blueprint),correction){
   const key=s.targets.join(',')+':'+placementId+':'+placements.size;if(!aimBoxesCache||key!==aimTargetKey){aimTargetKey=key;const targets=TARGETS.map((t,i)=>({x:t.x,y:1.9,z:t.z,w:1.75,h:1.75,d:.4,id:'target:'+i})).filter((_,i)=>!s.targets.includes(i));aimBoxesCache=[...scenery.values(),...placements.values(),...targets].map((box,i)=>({entity:{id:box.id??'practice:'+i},box}));}
   const world={players:[],destroyed:{}},p={...s,id:'practice',kit},base=solveWeaponAim(world,p,{boxes:aimBoxesCache}),solution=correction===undefined?base:equippedAim(p,base,correction);if(correction!==undefined)solution.launchContact=projectileContact(world,{owner:p.id,weapon:kit.stats.weapon},solution.anchor,solution.muzzle,aimBoxesCache,p.yaw);return {...solution,path:weaponPath(world,p,solution,aimBoxesCache)};
@@ -77,5 +78,5 @@ export async function createSimulation(obstacles,onEvent){
   if(s.mode==='plane')RINGS.forEach((p,i)=>{if(!s.rings.includes(i)&&passedRing(previous,s,i,creationStats(s.custom?.blueprint||s.mode,s.custom?.dimensions).collision[1])){s.rings.push(i);s.bricks+=20;emit('ring',{id:i});}});
   if(!s.won&&completion(s)){s.won=true;emit('win');}
  }
- return {get state(){return s;},aim:aimSolution,build,buildCustom,action,jump,hitTarget,respawn,reset,resetChallenges,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
+ return {get state(){return s;},aim:aimSolution,build,buildCustom,cancelBuild,action,jump,hitTarget,respawn,reset,resetChallenges,update,clipCamera,placeCreation,removePlacement,removeEntity,returnToFoot,dispose(){scenery.clear();placements.clear();}};
 }
