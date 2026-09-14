@@ -12,7 +12,7 @@ export function navigationGoal(s){
 }
 export function creationControls(s){
  const b=s.custom?.blueprint;
- const move=s.mode==='plane'?'WASD to move · hold ↑ to take off/rise, ↓ to lower · release to hover':s.mode==='car'?b?.movement==='walk'?'Move to ride your creature':'Move to drive':b?.movement==='carry'?'Move to explore with your creation':'Move to explore · Shift to run';
+ const move=s.mode==='plane'?'WASD to move · hold ↑ to take off/rise, use Lower to descend · release to hover':s.mode==='car'?b?.movement==='walk'?'Move to ride your creature':'Move to drive':b?.movement==='carry'?'Move to explore with your creation':'Move to explore · Shift to run';
  const ability=b?.ability==='pulse'?'Cast / →: aim at striped targets':b?.ability==='swing'?'Swing / →: smash nearby purple crates':!b&&s.mode==='bow'?'Shoot / →: aim at striped targets':!b&&s.mode==='sword'?'Swing / →: smash nearby purple crates':s.mode==='foot'?'Jump / ↑ or Space':s.mode==='car'?'Boost / →':'';
  return [move,ability].filter(Boolean).join(' · ');
 }

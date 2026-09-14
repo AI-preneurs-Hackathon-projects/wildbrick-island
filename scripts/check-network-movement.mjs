@@ -122,7 +122,8 @@ for(const latency of [250,600])await check(`a one-frame attack survives ${latenc
 });
 const renderDOM=new JSDOM('');globalThis.document=renderDOM.window.document;renderDOM.window.HTMLCanvasElement.prototype.getContext=()=>({clearRect(){},fillRect(){},fillText(){}});
 for(const latency of [250,600,1200])for(const heldMs of [0,300])await check(`one ${heldMs}ms press draws one punch through ${latency}ms latency and a lost acknowledgement`,async()=>{
- const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),n=network(latency,e=>view.effect(e));await n.join();Object.assign(n.player,{x:0,z:10,yaw:0,protectedUntil:0});const target=addPlayer(n.room,'target','Target',n.now);Object.assign(target,{x:0,z:11.7,protectedUntil:0});
+ const scene=new THREE.Scene(),view=createArenaView(scene,new THREE.PerspectiveCamera()),n=network(latency,e=>view.effect(e));await n.join();n.room.nextDrop=n.now+1e9; // Keep random healing out of this single-hit animation fixture.
+ Object.assign(n.player,{x:0,z:10,yaw:0,protectedUntil:0});const target=addPlayer(n.room,'target','Target',n.now);Object.assign(target,{x:0,z:11.7,protectedUntil:0});
  for(let i=0;i<200;i++)await n.step();while(n.client.stale)await n.step();
  const draw=()=>{view.update(n.client.snapshot,n.client.self,n.client.blueprints,MOVE_DT,n.client.serverTime());return scene.getObjectByName('arena-player:'+n.player.id).children[0].children.find(c=>c.position.x===-.68).rotation.x;};draw();n.loseResponse(true);let peaks=0,striking=false;
  for(let i=0;i<400;i++){await n.step({fire:i===0||i*MOVE_DT*1000<heldMs});const next=draw()<-1;if(next&&!striking)peaks++;striking=next;}
