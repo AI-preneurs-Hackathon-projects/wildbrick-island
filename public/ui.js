@@ -34,8 +34,8 @@ export function createUI(actions){
  const $=s=>document.querySelector(s);let started=false,lastMode='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='',voiceNote='';
  const on=(selector,fn)=>$(selector).addEventListener('click',fn);
  let playerName='',selectedMode='arena',selectedColor=AVATAR_COLORS[0].hex;
- try{selectedColor=avatarColor(window.localStorage.getItem('brickwild-avatar-color'));}catch{}
- for(const radio of document.querySelectorAll('[name="avatar-color"]')){radio.checked=radio.value===selectedColor;radio.addEventListener('change',()=>{selectedColor=radio.value;try{window.localStorage.setItem('brickwild-avatar-color',selectedColor);}catch{}actions.setAvatarColor?.(selectedColor);});}
+ try{selectedColor=avatarColor(window.localStorage.getItem('brickwild-avatar-color-v2'));}catch{}
+ for(const radio of document.querySelectorAll('[name="avatar-color"]')){radio.checked=radio.value===selectedColor;radio.addEventListener('change',()=>{selectedColor=radio.value;try{window.localStorage.setItem('brickwild-avatar-color-v2',selectedColor);}catch{}actions.setAvatarColor?.(selectedColor);});}
  try{$('#player-name').value=(window.sessionStorage.getItem('brickwild-player-name')||window.localStorage.getItem('brickwild-name')||'').slice(0,20);}catch{}
  $('#player-name').addEventListener('input',()=>$('#player-name').setCustomValidity(''));
  $('#home-form').addEventListener('submit',e=>{
