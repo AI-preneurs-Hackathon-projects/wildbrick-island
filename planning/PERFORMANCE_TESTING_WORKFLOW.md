@@ -4,7 +4,7 @@
 
 Yerzhan explicitly superseded the owner-baseline pause on 2026-09-14. For this local movement-pause slice, capture the frozen baseline, announce the selected change, implement and verify autonomously. Owner review is optional confirmation of a finished candidate. Do not require a new interactive page or a Practice test for Arena acceptance. Keep the historical agreement below as context; its mandatory pause and deferred-behavior language no longer govern this slice.
 
-Current comparison base: `0b17f9ed427522dc98f62fdbb4d7078e5cf181c2`, after separately merging main `538e075feb407c9985f1bfc79ee904cfb9948ccf`. No branch reset.
+Current comparison base: `6d7220a857d15c286b327b2f88ae3c4535cee33a`, after integrating main `dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66`. Integration assertion fix `bd8715b` changes no runtime behavior. The stronger scheduler tradeoff Gate A is **failed/provisional**: total stop time improves, but frequency and mixed-input separation exposure increase. Two attempted repairs failed and were not retained. Gate B remote interpolation is blocked. See the current section of `PERFORMANCE_STABILITY_PROGRESS.md` for evidence and one next bounded contact experiment. Autonomous verification remains authorized; manual owner review is optional, not an acceptance substitute.
 
 ## Historical agreement before the explicit follow-up
 

@@ -1,0 +1,11 @@
+--- baseline/public/arena-client.js	2026-09-15 00:09:53
++++ rejected-candidate/public/arena-client.js	2026-09-15 00:16:08
+@@ -65,7 +65,7 @@
+    const previousRevision=revision;accept(result.snapshot);if(revision>previousRevision)syncRtt=clock()-started;
+    // Held-fire updates stay serialized. At slow RTT, avoid adding an idle
+    // poll delay between successful updates; authority still gates each shot.
+-   schedule(input.fire&&syncRtt>750?0:120);}
++   schedule(syncRtt>750&&(movementOnly||input.fire)?0:120);}
+   catch(e){if(current!==credentials)return;syncRtt=0;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);retryAfter=clock()+600;schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);status('expired');onError(e.message,e.status);}else{status('reconnecting');const delay=e.status===429?1500:650;retryAfter=clock()+delay;schedule(delay);}}
+   finally{pendingSyncs.delete(flight);if(current!==credentials&&credentials&&!closed)schedule();}
+  }

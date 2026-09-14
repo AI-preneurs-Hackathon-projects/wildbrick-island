@@ -1,6 +1,71 @@
 # Arena performance and stability checkpoint
 
-## Verified local result — fewer Arena movement pauses
+## Current result — scheduler acceptance remains provisional; no new runtime improvement
+
+Main was fetched and integrated separately through `dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66` in merge `6d7220a857d15c286b327b2f88ae3c4535cee33a`. Frozen optimization baseline: that merge. `bd8715bdc7435824d171e684351d11d9ab0e05b1` subsequently aligns the stale controls assertion with main's X cancellation shortcut; it changes no runtime behavior. Full checks then pass with no historical failure exceptions. The current client/core remain byte-identical to retained scheduler `01a08f319bbce55833dc9d180ad999417ddeff04` and firing fix `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`. Pre-scheduler control: `6ae537f61114aefebea7cb653ce7d81dee899f5f`. Isolated copies preserve the active checkout. All 24 pre-existing unrelated dirty/untracked files remain byte-identical.
+
+**Gate A fails the prospective tradeoff criteria. Gate B was not started. Neither attempted runtime repair is retained.** The previous total-stop reduction is reproducible, but is not sufficient usability acceptance. No new multiplayer local-movement, remote-presentation, solo-rendering or hosted-reconnect benefit is claimed in this iteration. The existing scheduler remains in the branch, explicitly provisional under this stronger gate; it has not silently been reverted or declared accepted.
+
+### Criteria set before candidate measurements
+
+Per peer: no normal-latency regression; retain at least 20% total-stop reduction versus timing-only serial at 1600 ms while adding no stop episodes, longest stop or worst stopped fraction in 1-second freshness and 4-second input-cycle windows. Measure same-time predicted/authoritative separation integral and contiguous exposure beyond 0.9 m (foot body diameter) and 2.2 m (punch reach). A queue-derived 6.3 m bound is not a usability allowance. Require preserved collision, authority, release, protection, deduplication and lifecycle behavior. Compare to serial and current controls. Do not infer human feel or combat accuracy from virtual totals.
+
+### Matched before/after result
+
+Seed 452067; 60 Hz; identical 4-second stationary warmup followed by 24 seconds measured. Values below are peer 1 / peer 2. This longer warmed profile differs from the historical 12-second run; do not combine their denominators.
+
+| 1600 ms RTT metric | Timing-only serial | Current overlap |
+| --- | ---: | ---: |
+| Held/reversing stop time, ms | 12,733 / 12,750 | 9,050 / 8,717 |
+| Stop episodes, count | 14 / 14 | 26 / 23 |
+| Longest stop, ms | 1,100 / 1,100 | 717 / 800 |
+| Mixed hold/release/reverse stop time, ms | 9,500 / 9,500 | 7,050 / 6,267 |
+| Mixed stop episodes, count | 17 / 17 | 23 / 21 |
+| Mixed separation above 2.2 m, ms | 7,300 / 6,450 | 11,633 / 12,733 |
+| Mixed maximum separation, m | 3.64 / 3.71 | 5.11 / 5.53 |
+
+At 0/100/600 ms, hold/mixed movement metrics remain identical with zero network-induced stops. At asymmetric 600/1600 ms, the slow peer's mixed exposure above 2.2 m similarly increases from 6,450 to 12,733 ms. Directional-delay mixed slow-peer exposure rises from 5,850 to 15,583 ms, with maximum separation 6.02 m. Per-episode timestamps, rolling windows, correction/travel/ACK/pending statistics and all seven network profiles are retained in `validation/performance-stability/scheduler-tradeoff/`. These are reproduced timing tradeoffs, not a subjective feel verdict.
+
+### Attempted repairs and why they were rejected
+
+Trace showed warmed movement sends alternating 800/920 ms: response completion replaces an already-due send deadline with 120 ms idle polling. Candidate `deadline-rejected.patch` schedules immediate reconsideration after a slow pure-movement response, retaining pacing and the two-request/90-frame bounds. It reduces some fragmentation, but peer 2 held stop time worsens from 8,717 to 9,000 ms and longest stop from 800 to 900 ms; mixed separation exposure remains substantially above serial. Rejected.
+
+Candidate `serial-continuous-rejected.patch` disables overlap and immediately reschedules slow responses. Held stop time becomes 12,683 / 12,683 ms, losing essentially all of the existing gain and failing the required 20% reduction. Rejected. Both were tested only in isolated copies. No production runtime edits need undoing.
+
+### Verification and limits
+
+- Three versions × seven network conditions × six profiles: 126 sequential actual-client/core virtual scenarios. Two isolated repair variants add 28 hold/mixed scenarios. Profiles include approach and continuous same-life crossing while firing, release/reverse, authoritative wall contact and death/respawn. Crossing does not count spawn teleports. Firing eligibility and immediate effects are traced at acceptance without modifying the core. A read-only trace rerun preserved all existing metrics exactly.
+- Death/kit changes make whole-combat totals unequal; common first-two-second windows have 2,000 ms eligible time per peer. Shot/hit differences are reported, not interpreted as improved accuracy or proven contact harm. A direct matched apparent-contact versus authoritative-contact comparison remains open.
+- Authority replay, collision, pending queue <=90, sync requests <=2, command exclusion and attack deduplication pass. Cleanup leaves zero seats/timers. The independent review caught and corrected crossing discontinuity counting and empty assessments falsely passing; focused gate tests now reject empty/combat-only or unmatched comparisons and regressions hidden behind total-stop gains.
+- Existing desktop driver ran six sequential 1,680-frame comparisons at 1440×900: serial/current at 100, 1600 and asymmetric 600/1600 ms, crossing bow fire, forced death and natural respawn. Screenshots inspected; no page/console/request errors. Both actors' visible bow flashes remain attached to equipped emitters (maximum world-space error 1.84e-15 m); every run delivers respawn and cleans seats/timers. At the final screenshot the naturally respawned actor can be outside the fixed camera; this is not a claim that both remain in view. The earlier fresh-aim attachment check was inappropriate for a cached visible flash during turning; this profile checks physical equipped geometry, retaining the original assertion for existing profiles.
+- Settled full `npm run check`, build, package and voice-package checks pass. Existing control/camera/history/voice and movement failure/lifecycle regressions remain intact. Package serving/auth checks and migration/hosting identities are unchanged by this work.
+- Environment: macOS 26.6.2 arm64, Node 22.22, Chrome 152.0.7977.83, ANGLE SwiftShader. Rendered transport is in-process simulation, not HTTP, Worker/D1, hardware GPU or hosted acceptance. No new HTTP recovery claim: runtime is unchanged, so the previous actual 30-minute HTTP soak remains historical evidence and was not repeated. No paid calls or hosted load.
+
+### Reproduction, rollback and one next experiment
+
+From the repository, create an isolated serial source copy without switching the shared checkout:
+
+```sh
+mkdir -p /private/tmp/arena-tradeoff-serial
+ git archive 3e3724e989d6e6be01c1ca9ae7c9155d486e9401 | tar -x -C /private/tmp/arena-tradeoff-serial
+node scripts/check-arena-tradeoff-gate.mjs
+node scripts/check-arena-tradeoffs.mjs --root /private/tmp/arena-tradeoff-serial --output /private/tmp/arena-serial.json
+node scripts/check-arena-tradeoffs.mjs --control /private/tmp/arena-serial.json --output /private/tmp/arena-current.json --require-pass
+```
+
+The last command intentionally exits 1 for the current failed acceptance gate. Use `--profiles hold,mixed` on both matrix commands for a shorter movement-only comparison. Full matrices include all six profiles. Evidence contains the exact rejected one-module patches for reproduction in separate copies.
+
+```sh
+PLAYWRIGHT_MODULE=file:///private/tmp/brickwild-browser-run/node_modules/playwright/index.mjs STABILITY_BASELINE=/private/tmp/arena-tradeoff-serial STABILITY_TRADEOFF=1 STABILITY_OUTPUT=/private/tmp/arena-tradeoff-desktop node scripts/diagnose-arena-desktop.mjs
+```
+
+The desktop command uses the existing localhost preview on port 5194 and requires Playwright/Chrome paths present in this environment. It creates a synthetic route, not a persistent playable Arena URL. No Practice assignment or owner certification is requested.
+
+Rollback of this iteration's acceptance-coverage commit removes only tests/evidence/docs. If explicitly choosing to remove the existing provisional overlap, the focused runtime rollback is `git revert 01a08f319bbce55833dc9d180ad999417ddeff04`; this preserves the independent firing correction. It has **not** been executed.
+
+One next bounded experiment: short reset-per-trial close-contact crossings before death, recording displayed and authoritative actor poses at each attack and evaluating both with the same existing contact geometry on isolated world copies. Compare apparent-hit/authoritative-miss count and contact margin for serial/current at normal and asymmetric delay. This resolves whether increased pose-separation exposure changes contact decisions before choosing another scheduler repair. Do not start remote interpolation while this gate remains unresolved.
+
+## Previous verified local result — fewer Arena movement pauses
 
 Verified runtime commits: timing correction `3e3724e989d6e6be01c1ca9ae7c9155d486e9401`; movement scheduler `01a08f319bbce55833dc9d180ad999417ddeff04`. Baseline `6ae537f61114aefebea7cb653ce7d81dee899f5f`. The combined candidate reduces symmetric1600 ms held-input stop time by26.56% /23.31%, with no added stops at0/100/600 ms, preserved authoritative firing and bounded prediction. Full checks, desktop1440×900 and the30-minute real localhost HTTP soak passed. Asymmetric pose lag can increase; local/hosted and movement/FPS claims remain distinct. Exact tables, limits, commands and rollback are below.
 

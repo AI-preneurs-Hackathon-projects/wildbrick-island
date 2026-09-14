@@ -1,0 +1,29 @@
+{
+  "baseline": "6d7220a857d15c286b327b2f88ae3c4535cee33a",
+  "integrationTest": "bd8715bdc7435824d171e684351d11d9ab0e05b1",
+  "main": "dd5dab936fcd25d6e6c50cdf79a1cd4985a96a66",
+  "pre": "6ae537f61114aefebea7cb653ce7d81dee899f5f",
+  "timing": "3e3724e989d6e6be01c1ca9ae7c9155d486e9401",
+  "retainedScheduler": "01a08f319bbce55833dc9d180ad999417ddeff04",
+  "newRuntimeCandidate": "none retained; isolated patches rejected",
+  "unrelatedFilesPreserved": 24,
+  "environment": "macOS 26.6.2 arm64; Node 22.22; Chrome 152.0.7977.83; desktop 1440x900 ANGLE SwiftShader",
+  "virtualComparison": "seed 452067, 60Hz, 4-second stationary warmup plus 24-second measured window, sequential runs",
+  "sourceHashes": {
+    "public/arena-client.js": "fdd173445d511c5cbd3b9932f61e5423631463b8014549d4a14ffa050de3f334",
+    "public/arena-core.js": "89c202357da2d5eda6bb3afad0c0c157a49bb9bcb75de1eb3a76557936a13d3d",
+    "public/arena-view.js": "405d7eb7a0640b769e06a3bc3fe89910aab5e497027402b757337b213fac0ce0",
+    "scripts/check-arena-tradeoffs.mjs": "30f0a977238722fe78bcbd41673ad90833e9f28eca63b59d4cd8f19dbe4e210c",
+    "scripts/diagnose-arena-desktop.mjs": "0931d151b70cf4ae9a881f97e6505546c263d6c47b1e1953d7b1a39548894de6",
+    "scripts/check-arena-tradeoff-gate.mjs": "f7ebba9edceec2a4afa6354af82ae706ce36ea015ce3728ea1884bd4657e95da"
+  },
+  "validation": {
+    "fullSuite": "passed",
+    "build": "passed",
+    "package": "passed",
+    "voicePackage": "passed",
+    "gateTests": "passed",
+    "movementGate": "failed; no runtime candidate retained",
+    "rendered": "six desktop runs passed lifecycle/attachment/error assertions"
+  }
+}
