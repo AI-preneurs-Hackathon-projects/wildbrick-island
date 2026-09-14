@@ -1,5 +1,5 @@
 import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js';
-import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js';
+import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=35';
 import {BUILDS} from './rules.js';
 import {creationControls} from './guidance.js';
 const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -15,7 +15,7 @@ export function createUI(actions){
      <button id="start" class="mode-choice arena-choice" type="submit" name="mode" value="arena"><span class="mode-heading">${icon('sword')}<strong>Arena</strong>${icon('arrow')}</span><span class="mode-detail">Build your advantage and battle other builders.</span><span class="mode-meta">MULTIPLAYER · SHARED ISLAND</span></button>
     </div></fieldset>
    </form><p class="intro-small">Keyboard or touch · Type or speak to build</p></div>
-  <section class="builder-avatar" aria-label="Your builder"><div id="avatar-preview" tabindex="0" role="group" aria-label="Rotate your 3D builder" aria-describedby="avatar-hint"></div><p id="avatar-hint">Drag to rotate · ← → keys</p><fieldset class="avatar-colors"><legend>Choose your color</legend>${AVATAR_COLORS.map((c,i)=>`<label title="${c.name}"><input type="radio" name="avatar-color" value="${c.hex}" aria-label="${c.name}" ${i===0?'checked':''}><span style="--swatch:${c.hex}" aria-hidden="true"></span></label>`).join('')}</fieldset></section>
+  <section class="builder-avatar" aria-label="Your builder"><div id="avatar-preview" role="group" aria-label="Rotate your 3D builder" aria-describedby="avatar-hint"></div><p id="avatar-hint">Drag to rotate</p><fieldset class="avatar-colors"><legend>Choose your color</legend>${AVATAR_COLORS.map((c,i)=>`<label title="${c.name}"><input type="radio" name="avatar-color" value="${c.hex}" aria-label="${c.name}" ${i===0?'checked':''}><span style="--swatch:${c.hex}" aria-hidden="true"></span></label>`).join('')}</fieldset></section>
   <div class="island-label"><span>01 / WILDBRICK ISLAND</span><strong>A little world. Endless possibilities.</strong><span class="label-line"></span></div>
   <div class="intro-caption">An original toy-brick world</div>
  </div>

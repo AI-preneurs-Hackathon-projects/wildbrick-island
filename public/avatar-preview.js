@@ -19,7 +19,6 @@ export function createAvatarPreview(host,color){
  host.addEventListener('pointermove',e=>{if(e.pointerId!==pointer)return;rotate((e.clientX-lastX)*.015);lastX=e.clientX;});
  const release=e=>{if(e.pointerId!==pointer)return;pointer=null;host.classList.remove('dragging');};
  for(const event of ['pointerup','pointercancel','lostpointercapture'])host.addEventListener(event,release);
- host.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();e.stopPropagation();rotate(e.key==='ArrowLeft'?-.25:.25);});
  const observer=new ResizeObserver(resize);observer.observe(host);resize();
  return {setColor(value){model.setColor(value);render();}};
 }
