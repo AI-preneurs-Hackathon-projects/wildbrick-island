@@ -1,4 +1,4 @@
-import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=46';
+import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=47';
 import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=37';
 import {BUILDS} from './rules.js';
 import {creationControls} from './guidance.js';
@@ -24,7 +24,7 @@ export function createUI(actions){
   <div id="practice-map-name" class="arena-map-name">Wildbrick Island</div>
   <div class="top-right"><button id="open-arena" class="arena-top-button">Arena</button><button id="snapshot" class="icon-button" aria-label="Take a snapshot" aria-keyshortcuts="0" title="Snapshot · 0">${icon('camera')}</button><button id="sound" class="icon-button" aria-label="Mute sound">${icon('sound')}</button><button id="help" class="hotkeys-button" aria-label="Show help" aria-keyshortcuts="h" title="Hotkeys · H">${icon('help')}<span>Help</span></button><button id="pause" class="icon-button" aria-label="Pause game">${icon('pause')}</button></div>
   <div id="toast" role="status" aria-live="polite"></div>
-  <div id="generation" class="generation hidden" role="status" aria-live="polite"><span class="generation-mark">${icon('spark')}</span><div><strong id="generation-title">Designing your creation…</strong><p id="generation-text"></p><small class="generation-cancel-hint">Close to cancel</small></div><button id="cancel-design" aria-label="Cancel or dismiss generation" aria-keyshortcuts="X" title="Cancel or close · X">${icon('close')}</button></div>
+  <div id="generation" class="generation hidden" role="status" aria-live="polite"><span class="generation-mark">${icon('spark')}</span><div><strong id="generation-title">Designing your creation…</strong><p id="generation-text"></p><small class="generation-cancel-hint">Press X to cancel</small></div><button id="cancel-design" aria-label="Cancel or dismiss generation" aria-keyshortcuts="X" title="Cancel or close · X">${icon('close')}</button></div>
   <div id="build-progress" class="build-progress hidden"><span>${icon('spark')} <strong id="building-name"></strong></span><small>Close to cancel</small><button id="cancel-build" type="button">Close</button><div class="progress-track"><div id="build-fill"></div></div></div>
   <div class="bottom-left"><div id="mode-pill" class="mode-pill">${icon('foot')} <span>On foot</span></div><div id="joystick" class="joystick" aria-label="Touch movement joystick"><div class="joy-cross"></div><div id="joy-knob"></div></div></div>
   <div class="build-dock"><div id="voice-status" class="voice-status" role="status" aria-live="polite" tabindex="0" aria-label="Speech transcript and status">What will you imagine?</div><div id="voice-options" class="voice-options hidden"><button id="type-voice" type="button">Type an idea</button></div><div class="dock-row"><button id="mic" class="mic-button" aria-label="Describe a creation aloud (Left arrow)" aria-keyshortcuts="ArrowLeft" title="Speak · Left arrow" aria-pressed="false">${icon('mic')}<span>Speak / Build</span><kbd>←</kbd></button></div><div class="dock-caption">Describe anything <span>·</span> OpenAI designs the bricks</div></div>
@@ -122,8 +122,8 @@ export function createUI(actions){
   if(status==='canceled')lastHeard='';
   if(text?.startsWith('“'))lastHeard=text;$('#voice-status').textContent=text||lastHeard||'What will you imagine?';$('#voice-status').title=lastHeard;
  }
- function generationState(state){if(state.status==='designing'){designStarted=Date.now();generationError=false;lastPrompt=state.prompt;$('#generation').classList.remove('hidden','error');$('#generation-title').textContent='Designing your creation…';$('#generation-text').textContent=state.prompt+' · You can keep moving.';$('.generation-cancel-hint').textContent='Close to cancel';}else{designStarted=0;if(!generationError)$('#generation').classList.add('hidden');}}
- function designError(message){designStarted=0;generationError=true;$('#generation').classList.remove('hidden');$('#generation').classList.add('error');$('#generation-title').textContent='This creation isn’t ready';$('#generation-text').textContent=message;$('.generation-cancel-hint').textContent='Close';}
+ function generationState(state){if(state.status==='designing'){designStarted=Date.now();generationError=false;lastPrompt=state.prompt;$('#generation').classList.remove('hidden','error');$('#generation-title').textContent='Designing your creation…';$('#generation-text').textContent=state.prompt+' · You can keep moving.';$('.generation-cancel-hint').textContent='Press X to cancel';}else{designStarted=0;if(!generationError)$('#generation').classList.add('hidden');}}
+ function designError(message){designStarted=0;generationError=true;$('#generation').classList.remove('hidden');$('#generation').classList.add('error');$('#generation-title').textContent='This creation isn’t ready';$('#generation-text').textContent=message;$('.generation-cancel-hint').textContent='Press X to close';}
  function voiceFallback(_message,{draft=''}={}){if(draft)lastPrompt=draft;$('#voice-options').classList.remove('hidden');}
  function connectionState(ready){connected=ready;document.querySelector('.dock-caption').textContent=ready?'Describe anything · your idea becomes bricks':'Saved creations ready · AI setup pending';}
  function connectionVerified(){verified=true;connected=true;document.querySelector('.dock-caption').textContent='Describe anything · your idea becomes bricks';}
@@ -132,4 +132,4 @@ export function createUI(actions){
  function buildComplete(){if(designStarted||$('#mic').classList.contains('listening'))return;lastHeard='';$('#voice-status').textContent='';$('#voice-status').title='';}
  return {playerColor:()=>selectedColor,playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,toggleControls,toggleCollection,closeCollection,voiceState,buildComplete,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
-export {createVoice} from './voice-controller.js?v=46';
+export {createVoice} from './voice-controller.js?v=47';
