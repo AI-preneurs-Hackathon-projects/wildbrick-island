@@ -131,3 +131,15 @@
 #record-voice {background:#254f45;color:#fff8e9;}
 .build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
 .build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}
+
+/* Recent slots share the movement-side HUD, with one collection entry per mode. */
+.creation-shortcuts{width:254px;max-width:calc(100vw - 36px);border-radius:12px;background:#fffaf0eb;padding:6px;box-shadow:0 3px 0 #25413917}
+.creation-shortcuts>.secondary{width:100%;min-height:32px;justify-content:space-between;padding:2px 5px}
+.creation-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.creation-slots button{min-height:48px;min-width:0;border-radius:7px;background:#e8efdc;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.creation-slots button span{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.creation-slots button:disabled{opacity:.5;cursor:default}.creation-slots kbd{font-weight:800}
+.in-arena #open-creations{display:none}.older-creations{margin-top:20px}.older-creations summary{cursor:pointer;padding:12px 0}
+.pause-button{width:auto;min-width:42px;padding:5px 7px;gap:2px}.pause-button kbd{height:15px;font-size:8px}.hotkeys-button kbd{margin-left:2px}
+@media(max-width:700px){.creation-shortcuts{width:234px}.creation-slots button{min-height:44px}.creation-shortcuts>.secondary{font-size:12px}.hotkeys-button kbd,.pause-button kbd{font-size:8px}.bottom-left:has(.creation-shortcuts){gap:8px}}
+@media(max-height:540px) and (min-width:650px){.creation-shortcuts{width:234px}.creation-shortcuts>.secondary{min-height:25px}.creation-slots button{min-height:40px}.bottom-left:has(.creation-shortcuts){gap:7px}}
