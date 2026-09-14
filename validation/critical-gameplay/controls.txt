@@ -1,0 +1,14 @@
+✔ Down is held descent only for foot, armed foot, driving and flying; G and T are distinct edges (247.046281ms)
+✔ pickup while equipped preserves both kits, absent pickup does nothing, dropping retains recoverable records (27.369725ms)
+✔ descent and midair dismount preserve kit until G, hover, position and safe falling (44.899026ms)
+✔ building blocks item edges; KO, intermission, dialogs, typing and composition clear all held gameplay (45.679354ms)
+✔ modifiers, focus loss and combined movement/attack release cleanly without duplicate actions (25.622558ms)
+✔ touch movement/lower/drop/pickup stay independent; shared hints and aria shortcuts agree (44.930985ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 462.03446

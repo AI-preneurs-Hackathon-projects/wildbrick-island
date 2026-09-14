@@ -42,6 +42,7 @@ export function movementBoxes(room){const boxes=[];for(const e of arenaMap(room)
 function destroyCover(room,e,amount,source){if(e.hp<=0)return false;room.damage[e.id]=(room.damage[e.id]||0)+amount;if(room.damage[e.id]<e.hp)return false;room.destroyed[e.id]=room.time+60000;delete room.damage[e.id];event(room,'break',{entity:e.id,by:source,color:e.color||'#ffcf55',x:e.boxes?.[0]?.x??e.x,y:e.boxes?.[0]?.y??e.h/2,z:e.boxes?.[0]?.z??e.z});return true;}
 function dismount(room,p,crashed=false){const old=p.kit.name;p.kit=makeKit();p.mountHealth=0;p.building=null;p.speed=0;p.vertical=0;p.jumpRemaining=0;p.vy=0;p.grounded=false;p.heat=0;p.melee=null;event(room,crashed?'crash':'dismount',{player:p.id,name:old,x:p.x,y:p.y+1,z:p.z});}
 function dropItem(room,p){
+ if(p.building){event(room,'notice',{player:p.id,text:'Let your creation finish assembling before dropping it.'});return;}
  if(p.kit.id==='foot')return;
  room.items??=[];if(room.items.length>=64){event(room,'notice',{player:p.id,text:'There are too many dropped items here. Pick one up before dropping another.'});return;}
  let y=0;for(const {box:b} of solidBoxes(room))if(b.y+b.h/2<=p.y+.1&&Math.abs(p.x-b.x)<b.w/2&&Math.abs(p.z-b.z)<b.d/2)y=Math.max(y,b.y+b.h/2);
@@ -53,7 +54,7 @@ export function nearbyItem(room,p){
 }
 function pickupItem(room,p,id){
  const item=(room.items||[]).find(item=>item.id===id);if(!item||nearbyItem({...room,items:[item]},p)!==item)return;
- if(p.kit.id!=='foot'){event(room,'notice',{player:p.id,text:'Drop your current item first to pick this one up.'});return;}
+ if(p.kit.id!=='foot'){event(room,'notice',{player:p.id,text:'Press G to drop your current item before picking this one up.'});return;}
  const shape=movementShape(item.kit.stats);if(Math.abs(p.x)+shape.radius>53||Math.abs(p.z)+shape.radius>53||!canFit(p,shape,movementBoxes(room))){event(room,'notice',{player:p.id,text:'Move into open space beside the item to pick it up.'});return;}
  p.kit=item.kit;p.mountHealth=item.mountHealth;p.melee=null;p.speed=0;p.vertical=0;p.vy=0;p.jumpRemaining=0;p.grounded=false;p.heat=item.heat||0;p.overheatedUntil=item.overheatedUntil||0;p.nextShot=Math.max(p.nextShot,item.nextShot||0);
  room.items=room.items.filter(d=>d.id!==id);event(room,'item-picked-up',{player:p.id,name:item.kit.name,x:item.x,y:item.y,z:item.z});

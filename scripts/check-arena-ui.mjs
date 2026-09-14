@@ -28,6 +28,7 @@ check('arena entry and health/leaderboard UI bind the joined room and escape nam
 check('arena keyboard and held touch attack remain separate from jump and movement',()=>{state.arena=true;state.mode='foot';key('keydown','ArrowRight');assert.equal(input.read().fire,true);key('keyup','ArrowRight');assert.equal(input.read().fire,false);assert.equal(fires,0);key('keydown','Space');assert.equal(jumps,1);key('keyup','Space');key('keydown','KeyW');const action=document.querySelector('#action'),down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:7});action.dispatchEvent(down);assert.equal(input.read().fire,true);assert.equal(input.read().z,1);action.dispatchEvent(new window.Event('pointercancel'));assert.equal(input.read().fire,false);input.clear();assert.equal(input.read().z,0);});
 check('a quick pointer or keyboard tap is latched once and its click cannot enqueue a second attack',()=>{
  input.clear();state.arena=true;state.mode='foot';const before=fires,action=document.querySelector('#action');
+ document.activeElement.blur();
  const down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:17});action.dispatchEvent(down);action.dispatchEvent(new window.Event('pointerup'));action.dispatchEvent(new window.MouseEvent('click',{detail:1,bubbles:true}));
  assert.equal(fires,before);input.update(1/60);assert.equal(input.read().fire,true);input.update(1/60);assert.equal(input.read().fire,false);
  key('keydown','ArrowRight');key('keydown','ArrowRight',{repeat:true});key('keyup','ArrowRight');input.update(1/60);assert.equal(input.read().fire,true);input.update(1/60);assert.equal(input.read().fire,false);assert.equal(fires,before);
@@ -47,15 +48,15 @@ check('arrow actions combine movement, attack and speech without moving the came
  assert.equal(input.read().z,1);assert.equal(input.read().fire,true);assert.equal(mics,1);
  key('keyup','ArrowLeft');key('keydown','ArrowLeft');assert.equal(mics,2);
  const beforeJump=jumps;key('keydown','ArrowUp');assert.equal(jumps,beforeJump+1);
- input.clear();state.mode='plane';key('keydown','ArrowUp');assert.equal(input.read().up,true);assert.equal(jumps,beforeJump+1);key('keyup','ArrowUp');key('keydown','ArrowDown');assert.equal(input.read().down,false);assert.equal(exits,1);
- input.clear();const yaw=input.yaw;key('keydown','KeyE');input.update(.1);assert.ok(input.yaw<yaw);assert.equal(exits,1);key('keyup','KeyE');key('keydown','Backspace');assert.equal(exits,1);state.mode='bow';key('keydown','ArrowDown');assert.equal(exits,2);state.mode='foot';
+ input.clear();state.mode='plane';key('keydown','ArrowUp');assert.equal(input.read().up,true);assert.equal(jumps,beforeJump+1);key('keyup','ArrowUp');key('keydown','ArrowDown');assert.equal(input.read().down,true);assert.equal(exits,0);key('keydown','KeyG');assert.equal(exits,1);
+ input.clear();const yaw=input.yaw;key('keydown','KeyE');input.update(.1);assert.ok(input.yaw<yaw);assert.equal(exits,1);key('keyup','KeyE');key('keydown','Backspace');assert.equal(exits,1);state.mode='bow';key('keydown','KeyG');assert.equal(exits,2);state.mode='foot';
  key('keydown','Enter');assert.equal(imagines,0);assert.equal(document.querySelector('#menu').open,false);key('keyup','Enter');input.clear();const currentYaw=input.yaw;key('keydown','ArrowRight');input.update(.1);assert.equal(input.yaw,currentYaw);input.clear();key('keydown','KeyR');input.update(.1);assert.equal(input.read().fire,false);input.clear();
  assert.equal(document.querySelector('#mic kbd').textContent,'←');assert.equal(document.querySelector('#imagine'),null);assert.equal(document.querySelector('#arena-crosshair'),null);
 });
 check('Hotkeys opens and closes by button, H and Escape; presets are absent',()=>{
  input.clear();assert.equal(document.querySelectorAll('[data-build]').length,0);assert.equal(document.querySelector('#help span').textContent,'Help');
  const before=builds.length;for(const code of ['Digit1','Digit2','Digit3','Digit4']){key('keydown',code);key('keyup',code);}assert.equal(builds.length,before);
- document.querySelector('#help').click();const menu=document.querySelector('#menu');assert.ok(menu.open);assert.ok(state.paused);assert.equal(menu.querySelectorAll('.arrow-hotkeys kbd').length,4);assert.doesNotMatch(menu.textContent,/Backspace/);assert.match(menu.textContent,/Pick up \/ drop item/);
+ document.querySelector('#help').click();const menu=document.querySelector('#menu');assert.ok(menu.open);assert.ok(state.paused);assert.equal(menu.querySelectorAll('.arrow-hotkeys kbd').length,4);assert.doesNotMatch(menu.textContent,/Backspace/);assert.match(menu.textContent,/Lower \/ descend/);
  key('keydown','KeyH');assert.equal(menu.open,false);assert.equal(state.paused,false);key('keydown','KeyH');assert.ok(menu.open);key('keydown','Escape');assert.equal(menu.open,false);
  document.querySelector('#help').click();document.querySelector('#close-menu').click();assert.equal(menu.open,false);assert.equal(state.paused,false);
 });
@@ -116,7 +117,8 @@ check('expired arena keeps vitals, exposes Rejoin, and hides Lower while the pla
  arenaUI.setStatus('expired');arenaUI.error('Your position is held. Join again.',410);assert.equal(document.querySelector('#arena-lobby').open,true);document.querySelector('#arena-lobby').close();arenaUI.update(client);
  assert.equal(document.querySelector('#arena-health').textContent,'76');assert.match(document.querySelector('#arena-network').textContent,/position held/);assert.equal(document.querySelector('#open-arena').textContent,'Rejoin');assert.equal(document.querySelector('#open-arena').style.display,'inline-flex');
  assert.equal(document.querySelector('#flight-controls').classList.contains('hidden'),true);assert.equal(document.querySelector('#ascend').classList.contains('hidden'),true);assert.equal(document.querySelector('#autorun'),null);
- const down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:12});document.querySelector('#descend').dispatchEvent(down);assert.equal(input.read().down,true);document.querySelector('#descend').dispatchEvent(new window.Event('pointerup'));assert.equal(input.read().down,false);
+ document.activeElement.blur();
+ const down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:12});document.querySelector('#descend').dispatchEvent(down);assert.equal(input.read().down,true);const released=new window.Event('pointerup');Object.assign(released,{pointerId:12});document.querySelector('#descend').dispatchEvent(released);assert.equal(input.read().down,false);
 });
 dom.window.close();for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement','localStorage'])delete globalThis[k];
 console.log(`\n${checks} arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.`);

@@ -1,0 +1,6 @@
+PASS Practice Jump touch button and ArrowUp/Space do not start punch animations or attacks
+PASS independently pressing attack and jump still combines both actions
+PASS Arena jump alone changes height without attack events, damage or animated striking
+PASS generated hammer head strikes forward around its right-hand grip at every facing
+PASS larger ring apertures admit planes and saved flying mounts from either side at actual ring angles
+PASS ring progress requires traversing the opening, not flying beside the rim or hovering nearby

@@ -1,3 +1,4 @@
+import {bindingLabel} from './action-bindings.js';
 import {GATES,RINGS,TARGETS,CRATES} from './rules.js';
 const routes={car:{items:GATES,done:'gates',name:'Mint gate',goal:'Drive through mint gates'},plane:{items:RINGS,done:'rings',name:'Sky ring',goal:'Fly through golden rings'},bow:{items:TARGETS,done:'targets',name:'Striped target',goal:'Face striped targets and shoot'},sword:{items:CRATES,done:'crates',name:'Purple crate',goal:'Get close to purple crates and swing'}};
 export function navigationGoal(s){
@@ -12,7 +13,7 @@ export function navigationGoal(s){
 }
 export function creationControls(s){
  const b=s.custom?.blueprint;
- const move=s.mode==='plane'?'WASD to move · hold ↑ to take off/rise, use Lower to descend · release to hover':s.mode==='car'?b?.movement==='walk'?'Move to ride your creature':'Move to drive':b?.movement==='carry'?'Move to explore with your creation':'Move to explore · Shift to run';
+ const move=s.mode==='plane'?`WASD to move · hold ↑ to take off/rise, ${bindingLabel('lower')} to descend · release to hover`:s.mode==='car'?b?.movement==='walk'?'Move to ride your creature':'Move to drive':b?.movement==='carry'?'Move to explore with your creation':'Move to explore · Shift to run';
  const ability=b?.ability==='pulse'?'Cast / →: aim at striped targets':b?.ability==='swing'?'Swing / →: smash nearby purple crates':!b&&s.mode==='bow'?'Shoot / →: aim at striped targets':!b&&s.mode==='sword'?'Swing / →: smash nearby purple crates':s.mode==='foot'?'Jump / ↑ or Space':s.mode==='car'?'Boost / →':'';
- return [move,ability].filter(Boolean).join(' · ');
+ return [move,ability,(s.mode!=='foot'||b)?`${bindingLabel('drop')} to drop / dismount`:''].filter(Boolean).join(' · ');
 }

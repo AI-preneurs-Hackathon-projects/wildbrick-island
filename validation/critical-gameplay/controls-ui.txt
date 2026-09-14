@@ -1,0 +1,21 @@
+PASS R/F has no aiming effect and no weapon tilt controls remain
+PASS arena entry and health/leaderboard UI bind the joined room and escape names
+PASS arena keyboard and held touch attack remain separate from jump and movement
+PASS a quick pointer or keyboard tap is latched once and its click cannot enqueue a second attack
+PASS camera drag changes view without changing weapon tilt
+PASS remote originals and generated creations assemble and dispose without destroying shared world geometry
+PASS only health, defense and speed parachutes are rendered, including with legacy snapshots
+PASS camera obstruction fades only the landmark without moving the camera
+PASS arrow actions combine movement, attack and speech without moving the camera
+PASS Hotkeys opens and closes by button, H and Escape; presets are absent
+PASS typing, modifiers, menus and focus loss do not trigger gameplay shortcuts
+PASS empty-handed punching animates arms; a confirmed hit flashes and flinches without displacement
+PASS first play shows three illustrated cards; Skip saves once and Help reopens them
+PASS Enter starts once, advances the tour and resumes; text entry and repeat stay safe
+PASS Previous creations opens the existing collection, clears held input and rebuilds once
+PASS pause menu exits to home without a standalone Arena exit
+PASS round countdown, intermission scoreboard and automatic next round stay in Arena
+PASS Arena HUD hides range/interval, keeps connection errors, and final-scoreboard Exit goes home
+PASS expired arena keeps vitals, exposes Rejoin, and hides Lower while the player is on foot
+
+19 arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.

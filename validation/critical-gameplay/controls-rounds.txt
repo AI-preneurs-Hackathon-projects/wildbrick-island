@@ -1,0 +1,9 @@
+PASS both new maps have one unambiguous colored floor surface across every painted overlap
+PASS every mountain ridge level can be reached and landed on with an ordinary jump
+PASS three rounds accumulate independent scores exactly once, clear creations, and end without a fourth round
+PASS automatic support collection waits for contact, landing and a clear path
+PASS support bricks collect automatically on contact without replacing equipment
+PASS Down only descends; G drops and T picks up once while held or repeated keys do not duplicate items
+PASS jumping on foot never offers Lower, while the flight Lower button descends without dropping equipment
+PASS temporary gameplay effects stay outside health and round scores use distinct titles
+PASS Arena health notifications use the centered notification area, and the final board shows round and cumulative scores
