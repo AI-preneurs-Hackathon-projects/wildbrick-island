@@ -27,10 +27,10 @@ await check('both modes require a name and recover from whitespace input',async(
  name('   ');$('start').click();assert.equal(app.starts,0);assert.equal($('player-name').validity.customError,true);
  name('  River  ');$('start').click();await app.entry;assert.equal(app.starts,1);assert.equal(app.ui.playerName(),'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
 });
-await check('Explore keeps newer speech controls and carries the name into shared Arena and rejoin',async()=>{
+await check('Explore keeps newer speech controls and shows the full Practice route without Arena or rewards',async()=>{
  const app=setup();name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);
- $('open-arena').click();await app.entry;assert.equal($('arena-name'),null);assert.equal($('arena-room'),null);assert.equal($('arena-player-name').textContent,'River');assert.deepEqual(app.joins,[{name:'River',room:'ISLAND'}]);
- app.arenaUI.error('Position held',410);assert.equal($('arena-lobby').open,true);await app.arenaUI.play();assert.equal(app.joins.length,2);assert.equal($('arena-lobby').open,false);
+ assert.match($('practice-route').textContent,/Scenic route/);assert.match($('practice-route').textContent,/Right on target/);assert.match($('practice-route').textContent,/Smash & grab/);assert.match($('practice-route').textContent,/Sky is the limit/);assert.equal(document.querySelector('.brick-counter'),null);
+ app.state.gates.push('gate-1');app.ui.update(app.state);assert.equal($('practice-gates').textContent,'1/4');
 });
 await check('failed authentication preserves sign-in and Back to Explore clears the lobby and errors',async()=>{
  const app=setup(async()=>{app.arenaUI.error('Sign in',401);return false;});name('Sky');$('start').click();await app.entry;
@@ -41,7 +41,7 @@ await check('pause exit returns home in online, reconnecting, expired, offline a
  const app=setup();name('River');$('explore-start').click();const room=newRoom(),p=addPlayer(room,'p','River');
  for(const status of ['online','reconnecting','expired','offline','dead']){
   if(!app.state.started)$('explore-start').click();app.state.arena=true;p.health=status==='dead'?0:100;app.ui.update(app.state);app.arenaUI.setStatus(status==='dead'?'online':status);app.arenaUI.update({active:true,self:p,snapshot:roomSnapshot(room,p.id),room:'ISLAND',serverTime:()=>room.time});$('arena-board').open=false;
-  assert.equal($('arena-exit'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('intro').classList.contains('hidden'),false);assert.equal($('hud').classList.contains('hidden'),true);assert.equal(document.activeElement,$('player-name'));assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Jump');assert.match($('objective-title').textContent,/mint gates/);
+  assert.equal($('arena-exit'),null);assert.equal($('arena-vitals').classList.contains('hidden'),false);app.ui.openMenu('pause');$('exit-home').click();assert.equal(app.state.started,false);assert.equal($('intro').classList.contains('hidden'),false);assert.equal($('hud').classList.contains('hidden'),true);assert.equal(document.activeElement,$('player-name'));assert.equal(app.state.arena,false);assert.equal(document.body.classList.contains('in-arena'),false);assert.equal($('arena-vitals').classList.contains('hidden'),true);assert.equal($('arena-board').classList.contains('hidden'),true);assert.equal($('arena-death').classList.contains('hidden'),true);assert.equal($('arena-network').textContent,'');assert.equal($('open-arena').textContent,'Arena');assert.equal($('action').querySelector('span').textContent,'Jump');assert.match($('practice-route').textContent,/Scenic route/);
  }assert.equal(app.leaves,5);
 });
 await check('leaving during pending join prevents the old completion reopening the lobby',async()=>{

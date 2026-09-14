@@ -131,3 +131,8 @@
 #record-voice {background:#254f45;color:#fff8e9;}
 .build-dock .voice-options{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(25rem,calc(100vw - 2rem));max-height:50dvh;overflow:auto;touch-action:pan-y;z-index:2;}
 .build-dock:has(.voice-options:not(.hidden)) .voice-status{display:none}
+
+/* Practice keeps its route visible and removes mode-switch and reward clutter. */
+#open-arena{display:none}
+.practice-route{width:min(360px,calc(100vw - 32px));margin-top:17px;padding:12px 14px;border-radius:14px;background:#fffcf2ed;box-shadow:var(--shadow);pointer-events:none}.practice-route header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:7px;border-bottom:1px solid #25413920}.practice-route header strong{font-size:14px}.practice-route header small{font-size:10px;color:#647a6d}.practice-route-item{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #25413912}.practice-route-item:last-child{border-bottom:0}.practice-route-item>svg{width:21px;height:21px}.practice-route-item span{min-width:0}.practice-route-item span strong,.practice-route-item span small{display:block}.practice-route-item span strong{font-size:13px}.practice-route-item span small{margin-top:2px;font-size:10px;color:#5a6e5f}.practice-route-item>b{font-size:12px;font-variant-numeric:tabular-nums}.practice-route-item.complete{color:#287c65}.in-arena .practice-route{display:none}
+@media(max-width:700px){.practice-route{width:min(300px,calc(100vw - 30px));padding:10px 12px}.practice-route header small,.practice-route-item span small{display:none}.practice-route-item{padding:6px 0}.practice-route-item span strong{font-size:12px}}
