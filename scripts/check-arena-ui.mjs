@@ -78,9 +78,9 @@ check('empty-handed punching animates arms; a confirmed hit flashes and flinches
  p.kit=makeKit('sword');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+170);view.effect({type:'swing',player:p.id,weapon:'blade',yaw:0});view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+300);assert.ok(actor.getObjectByName('creation').rotation.x<-.5);
  p.kit=makeKit('bow');view.update(roomSnapshot(r,p.id),p,new Map(),1/60,r.time+700);scene.updateMatrixWorld(true);assert.ok(new THREE.Box3().setFromObject(actor.getObjectByName('creation')).min.y>=p.y);view.clear();
 });
-check('first play shows three illustrated cards; Skip saves once and Help reopens them',()=>{
+check('first play shows four current gameplay cards; Skip saves once and Help reopens them',()=>{
  localStorage.removeItem('brickwild-tour-v1');ui.showEntry();const before=joins;document.querySelector('#start').click();const tour=document.querySelector('#tutorial');assert.ok(tour.open);assert.equal(joins,before);assert.match(tour.textContent,/Move and look/);assert.match(tour.querySelector('img').src,/move.png/);
- document.querySelector('#tour-next').click();assert.match(tour.textContent,/Speak it/);document.querySelector('#tour-next').click();assert.match(tour.textContent,/Refuel/);document.querySelector('#tour-next').click();assert.equal(joins,before+1);assert.equal(tour.open,false);assert.equal(localStorage.getItem('brickwild-tour-v1'),'seen');
+ document.querySelector('#tour-next').click();assert.match(tour.textContent,/Imagine it/);assert.match(tour.textContent,/Enter to create/);document.querySelector('#tour-next').click();assert.match(tour.textContent,/Use your creations/);assert.match(tour.textContent,/C.*1–5/);document.querySelector('#tour-next').click();assert.match(tour.textContent,/Enter the Arena/);assert.match(tour.textContent,/arena creator starts the game/);assert.match(tour.textContent,/three rounds/);assert.doesNotMatch(tour.textContent,/Hold →/);assert.match(tour.textContent,/H opens Help.*0 saves a snapshot/);document.querySelector('#tour-next').click();assert.equal(joins,before+1);assert.equal(tour.open,false);assert.equal(localStorage.getItem('brickwild-tour-v1'),'seen');
  ui.showEntry();document.querySelector('#start').click();assert.equal(joins,before+2);assert.equal(tour.open,false);ui.openMenu('hotkeys');document.querySelector('#tour-again').click();assert.ok(tour.open);document.querySelector('#tour-skip').click();assert.equal(tour.open,false);globalThis.matchMedia=()=>({matches:true});ui.openTour();assert.match(tour.textContent,/left joystick/);assert.doesNotMatch(tour.textContent,/WASD/);document.querySelector('#tour-skip').click();delete globalThis.matchMedia;assert.equal(state.paused,false);
  ui.openMenu('hotkeys');assert.equal(document.querySelector('#type-fallback'),null);ui.closeMenu();
 });
@@ -89,8 +89,8 @@ check('Enter starts once, advances the tour and resumes; text entry and repeat s
  key('keydown','Enter',{ctrlKey:true});key('keydown','Enter',{repeat:true});assert.equal(state.started,false);
  const field=document.createElement('textarea');document.body.append(field);field.dispatchEvent(new window.KeyboardEvent('keydown',{code:'Enter',bubbles:true}));field.remove();assert.equal(state.started,false);
  key('keydown','Enter');assert.equal(state.started,true);assert.equal(joins,before);assert.ok(document.querySelector('#tutorial').open);
- key('keydown','Enter',{repeat:true});assert.match(document.querySelector('#tutorial').textContent,/1 \/ 3/);
- for(let i=0;i<3;i++)key('keydown','NumpadEnter');assert.equal(joins,before+1);assert.equal(document.querySelector('#tutorial').open,false);
+ key('keydown','Enter',{repeat:true});assert.match(document.querySelector('#tutorial').textContent,/1 \/ 4/);
+ for(let i=0;i<4;i++)key('keydown','NumpadEnter');assert.equal(joins,before+1);assert.equal(document.querySelector('#tutorial').open,false);
  key('keydown','Enter');assert.equal(joins,before+1);state.arena=true;key('keydown','Escape');assert.ok(document.querySelector('#menu').open);key('keydown','Enter');assert.equal(document.querySelector('#menu').open,false);
  assert.match(document.querySelector('#movement-controls').textContent,/R \/ F.*Pitch camera/i);assert.doesNotMatch(document.querySelector('#movement-controls').textContent,/weapon tilt/i);
 });

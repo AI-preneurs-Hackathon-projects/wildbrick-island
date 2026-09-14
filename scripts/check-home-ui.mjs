@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=42/);assert.match(shell,/main\.js\?v=42/);
+assert.match(shell,/style\.css\?v=43/);assert.match(shell,/main\.js\?v=43/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -57,7 +57,7 @@ await check('name survives reload and respects server limits; unavailable storag
  for(const id of ['explore-start','start']){const next=setup();name('Guest');$(id).click();assert.equal(next.starts,1);assert.equal(next.ui.playerName(),'Guest');assert.equal($('tutorial').open,true);$('tour-skip').click();}
 });
 await check('first-play tour respects Explore choice and does not join Arena on completion',()=>{
- localStorage.removeItem('brickwild-tour-v1');const app=setup();name('River');$('explore-start').click();assert.equal($('tutorial').open,true);$('tour-next').click();$('tour-next').click();assert.match($('tutorial').textContent,/Practice at your own pace/);$('tour-next').click();assert.equal(app.joins.length,0);assert.equal(app.state.paused,false);
+ localStorage.removeItem('brickwild-tour-v1');const app=setup();name('River');$('explore-start').click();assert.equal($('tutorial').open,true);$('tour-next').click();assert.match($('tutorial').textContent,/Imagine it/);$('tour-next').click();assert.match($('tutorial').textContent,/Use your creations/);$('tour-next').click();assert.match($('tutorial').textContent,/Follow the Practice route/);for(const label of ['Scenic route','Right on target','Smash & grab','Sky is the limit'])assert.match($('tutorial').textContent,new RegExp(label.replace('&','&')));assert.match($('tutorial').textContent,/Health supplies collect automatically/);$('tour-next').click();assert.equal(app.joins.length,0);assert.equal(app.state.paused,false);
 });
 await check('avatar recoloring leaves other characters and shared world materials intact',()=>{
  const first=character(),other=character();first.setColor('#579fe2');const shirts=model=>model.group.children.filter(g=>g.position.y===1.32).map(g=>g.children[0].material.color.getHex());assert.deepEqual(shirts(first),[0x579fe2]);assert.deepEqual(shirts(other),[C.orange]);first.setColor('#ee634e');assert.deepEqual(shirts(other),[C.orange]);

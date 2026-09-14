@@ -1,4 +1,4 @@
-import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=42';
+import {ACTION_BINDINGS,bindingLabel,gameplayBlocked,typingTarget} from './action-bindings.js?v=43';
 import {AVATAR_COLORS,DEFAULT_AVATAR_COLOR,avatarColor} from './avatar-colors.js?v=37';
 import {BUILDS} from './rules.js';
 import {creationControls} from './guidance.js';
@@ -80,12 +80,13 @@ export function createUI(actions){
  const tour=document.createElement('dialog');tour.id='tutorial';tour.className='game-dialog tutorial';tour.setAttribute('aria-label','How to play');document.querySelector('#ui').appendChild(tour);
  function tourSeen(){try{return localStorage.getItem(tourKey)==='seen';}catch{return false;}}
  function finishTour(){try{localStorage.setItem(tourKey,'seen');}catch{}tour.close();actions.pause(false);const done=tourDone;tourDone=null;done?.();}
- function drawTour(){const cards=[
-  {image:'move',title:'Move and look.',text:touch()?'Move with the left joystick. Drag the world to look. Tap Jump to hop.':'WASD moves. Q / E turns the camera; R / F pitches it up and down. Drag also looks around. ↑ jumps.'},
-  {image:'build',title:'Speak it. Build it.',text:touch()?'Tap Speak / Build and describe your idea. Keep moving while the bricks assemble.':'Press ← and describe your idea. Keep moving while the bricks assemble.'},
-  selectedMode==='explore'&&!actions.state().arena?{image:'move',title:'Practice at your own pace.',text:'Follow the gold beacon. Drive through mint gates, fly through golden rings, and complete island challenges. Your progress saves on this device.'}:{image:'fight',title:'Fight. Refuel. Return.',text:touch()?'Hold Attack to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.':'Hold → to use your creation, or punch with empty hands. Collect supplies. Defeated? You return in 12 seconds.'}
- ];const card=cards[tourIndex];tour.innerHTML=`<div class="tour-top"><span>HOW TO PLAY · ${tourIndex+1} / 3</span><button id="tour-skip" class="text-fallback">Skip</button></div><img class="tour-image" src="/tutorial/${card.image}.png" alt="${['Brickwild builder moving beside a house','A spoken dragon assembling from toy bricks','A builder punching a rival beside a health supply'][tourIndex]}" width="960" height="480"><h2>${card.title}</h2><p>${card.text}</p><button id="tour-next" class="primary" autofocus>${tourIndex===2?'Play':'Next'} ${icon('arrow')}</button>`;
-  document.getElementById('tour-skip').onclick=finishTour;document.getElementById('tour-next').onclick=()=>{if(tourIndex===2)finishTour();else{tourIndex++;drawTour();}};if(tour.open)document.getElementById('tour-next').focus();}
+ function drawTour(){const practice=selectedMode==='explore'&&!actions.state().arena,cards=[
+  {image:'move',alt:'Brickwild builder moving beside a house',title:'Move and look.',text:touch()?'Move with the left joystick. Drag the world to look. Tap Jump to hop.':'WASD moves. Q / E turns the camera; R / F pitches it up and down. Drag also looks around. ↑ or Space jumps.'},
+  {image:'build',alt:'A spoken dragon assembling from toy bricks',title:'Imagine it. Build it.',text:touch()?'Tap Speak / Build and describe your idea. You can also type an idea. Keep moving while the bricks assemble; select Close to cancel.':'Press ← and describe your idea. You can also type an idea and press Enter to create. Keep moving while the bricks assemble; select Close to cancel.'},
+  {image:'build',alt:'A builder choosing and using a brick creation',title:'Use your creations.',text:touch()?'Tap the equipped action to use your creation. Enter drops or picks up nearby items. Open Your creations to choose one of your five newest builds.':'Press → to use your equipped creation. Enter drops or picks up a nearby item. Press C, then 1–5, to choose one of your five newest creations.'},
+  practice?{image:'move',alt:'A builder following the Practice route across Brickwild Island',title:'Follow the Practice route.',text:'Complete Scenic route, Right on target, Smash & grab, and Sky is the limit. Health supplies collect automatically, and your progress saves on this device.'}:{image:'fight',alt:'Brickwild builders battling beside a health supply',title:'Enter the Arena.',text:'Create an arena or join with a code. The arena creator starts the game. Play three rounds; health supplies collect automatically, and defeated builders return in 12 seconds.'}
+ ];const card=cards[tourIndex],last=tourIndex===cards.length-1;tour.innerHTML=`<div class="tour-top"><span>HOW TO PLAY · ${tourIndex+1} / ${cards.length}</span><button id="tour-skip" class="text-fallback">Skip</button></div><img class="tour-image" src="/tutorial/${card.image}.png" alt="${card.alt}" width="960" height="480"><h2>${card.title}</h2><p>${card.text}</p>${last?'<p class="tour-tip"><kbd>H</kbd> opens Help · <kbd>0</kbd> saves a snapshot</p>':''}<button id="tour-next" class="primary" autofocus>${last?'Play':'Next'} ${icon('arrow')}</button>`;
+  document.getElementById('tour-skip').onclick=finishTour;document.getElementById('tour-next').onclick=()=>{if(last)finishTour();else{tourIndex++;drawTour();}};if(tour.open)document.getElementById('tour-next').focus();}
  function openTour(done=null){tourIndex=0;tourDone=done;actions.pause(true);drawTour();if(!tour.open)tour.showModal();}
  tour.addEventListener('cancel',e=>{e.preventDefault();finishTour();});
  // Enter advances entry/tour actions; native focused controls and text fields keep their behavior.
@@ -123,4 +124,4 @@ export function createUI(actions){
  function buildComplete(){if(designStarted||$('#mic').classList.contains('listening'))return;lastHeard='';$('#voice-status').textContent='';$('#voice-status').title='';}
  return {playerColor:()=>selectedColor,playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,toggleControls,toggleCollection,closeCollection,voiceState,buildComplete,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
-export {createVoice} from './voice-controller.js?v=42';
+export {createVoice} from './voice-controller.js?v=43';
