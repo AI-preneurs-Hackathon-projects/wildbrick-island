@@ -160,3 +160,9 @@
 .mode-pill{max-width:min(420px,calc(100vw - 56px))}
 .mode-pill span{max-width:none;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .mode-pill{border-radius:11px}
+
+/* Match Arena's two-column HUD and keep the left dropdowns mutually clear. */
+.practice-route{position:absolute;top:77px;right:26px;margin-top:0}
+.practice-side-controls{position:absolute;top:76px;left:28px;width:250px;display:grid;gap:8px}
+.practice-side-controls .practice-creations,.practice-side-controls .movement-controls{position:static;width:100%;margin:0;transform:none}
+@media(max-width:900px){.practice-route{top:76px;right:16px}.practice-side-controls{top:76px;left:16px;width:220px}}
