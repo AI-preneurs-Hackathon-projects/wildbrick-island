@@ -12,7 +12,7 @@ import {makeKit} from './arena-core.js';
 import {weaponGrip} from './weapon-aim.js';
 import {character,car,plane,bow,sword,arrow,box,material,C} from './models.js';
 import {createSimulation} from './simulation.js';
-import {createUI,createVoice,icon} from './ui.js?v=35';
+import {createUI,createVoice,icon} from './ui.js?v=36';
 import {gameplayBlocked,bindingLabel} from './action-bindings.js';
 import {createInput} from './input.js';
 import {creationSlots} from './creation-slots.js';

@@ -14,7 +14,7 @@ export function createUI(actions){
      <button id="explore-start" class="mode-choice explore-choice" type="submit" name="mode" value="explore"><span class="mode-heading">${icon('toolbox')}<strong>Practice</strong>${icon('arrow')}</span><span class="mode-detail">Roam the island, build creations, and discover challenges.</span><span class="mode-meta">SOLO · YOUR OWN PACE</span></button>
      <button id="start" class="mode-choice arena-choice" type="submit" name="mode" value="arena"><span class="mode-heading">${icon('sword')}<strong>Arena</strong>${icon('arrow')}</span><span class="mode-detail">Build your advantage and battle other builders.</span><span class="mode-meta">MULTIPLAYER · SHARED ISLAND</span></button>
     </div></fieldset>
-   </form><p class="intro-small">Keyboard or touch · Type or speak to build</p></div>
+   </form></div>
   <section class="builder-avatar" aria-label="Your builder"><div id="avatar-preview" role="group" aria-label="Rotate your 3D builder" aria-describedby="avatar-hint"></div><p id="avatar-hint">Drag to rotate</p><fieldset class="avatar-colors"><legend>Choose your color</legend>${AVATAR_COLORS.map((c,i)=>`<label title="${c.name}"><input type="radio" name="avatar-color" value="${c.hex}" aria-label="${c.name}" ${i===0?'checked':''}><span style="--swatch:${c.hex}" aria-hidden="true"></span></label>`).join('')}</fieldset></section>
   <div class="island-label"><span>01 / WILDBRICK ISLAND</span><strong>A little world. Endless possibilities.</strong><span class="label-line"></span></div>
   <div class="intro-caption">An original toy-brick world</div>
@@ -45,7 +45,7 @@ export function createUI(actions){
   field.setCustomValidity(playerName?'':'Enter your builder name to choose a mode.');if(!field.reportValidity())return;
   field.value=playerName;try{window.sessionStorage.setItem('brickwild-player-name',playerName);}catch{}
   started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');$('#hud').setAttribute('aria-hidden','false');actions.start();
-  selectedMode=e.submitter?.value==='arena'?'arena':'explore';const enter=()=>{if(selectedMode==='arena')actions.openArena();else{$('#help').focus();toast('Practice on the island. Follow the gold beacon and Speak / Build to create.',6500);}};if(tourSeen())enter();else openTour(enter);
+  selectedMode=e.submitter?.value==='arena'?'arena':'explore';const enter=()=>{if(selectedMode==='arena')actions.openArena();else{$('#help').focus();toast('Practice on the island.\nFollow the gold beacon and Speak / Build to create.',6500);}};if(tourSeen())enter();else openTour(enter);
  });on('#open-arena',()=>actions.openArena());
  on('#action',e=>{const s=actions.state();if(gameplayBlocked(s)||s.building||document.querySelector('dialog[open]'))return;if(s.arena&&e.detail>0)return;actions.action();});on('#jump-equipped',()=>{if(!gameplayBlocked(actions.state())&&!document.querySelector('dialog[open]'))actions.jump();});on('#mic',()=>actions.voice());on('#record-voice',()=>actions.recordVoice?.());on('#type-voice',()=>openMenu('imagine'));on('#sound',()=>{const muted=actions.sound();$('#sound').innerHTML=icon(muted?'mute':'sound');$('#sound').setAttribute('aria-label',muted?'Unmute sound':'Mute sound');});
  on('#exit-vehicle',()=>{if(!gameplayBlocked(actions.state())&&!actions.state().building&&!document.querySelector('dialog[open]'))(actions.drop||(()=>actions.build('foot')))();});
@@ -94,7 +94,7 @@ export function createUI(actions){
   const primary=tour.open?$('#tour-next'):$('#menu').open&&menuMode==='pause'?$('#resume'):!started&&!document.querySelector('dialog[open]')?$('#start'):null;
   if(primary){e.preventDefault();if(!e.repeat)primary.click();}
  });
- function toast(message,duration=3500){clearTimeout(toastTimer);const target=document.body.classList.contains('in-arena')&&$('#arena-toast')?$('#arena-toast'):$('#toast');for(const node of document.querySelectorAll('#toast,#arena-toast'))node.classList.remove('show');target.textContent=message;target.classList.add('show');toastTimer=setTimeout(()=>target.classList.remove('show'),duration);}
+ function toast(message,duration=3500){clearTimeout(toastTimer);const target=document.body.classList.contains('in-arena')&&$('#arena-toast')?$('#arena-toast'):$('#toast');for(const node of document.querySelectorAll('#toast,#arena-toast'))node.classList.remove('show');target.textContent=String(message).replace(/([.!?])\s+(?=[A-Z])/g,'$1\n');target.classList.add('show');toastTimer=setTimeout(()=>target.classList.remove('show'),duration);}
  function update(s,cameraYaw=Math.PI){
   if(designStarted){const elapsed=Math.floor((Date.now()-designStarted)/1000);$('#generation-title').textContent=`${elapsed<15?'Designing your creation':elapsed<45?'Shaping the details':'Still designing — you can keep moving'}… ${elapsed}s`;}
   let completed=0;for(const [track,total] of [['gates',4],['targets',3],['crates',3],['rings',5]]){const count=s[track].length,node=$(`#practice-${track}`),item=$(`[data-track="${track}"]`);node.textContent=`${count}/${total}`;item.classList.toggle('complete',count===total);completed+=count;}const practiceComplete=completed===15;$('#practice-route').classList.toggle('complete',practiceComplete);$('#practice-reset').classList.toggle('hidden',!practiceComplete);
