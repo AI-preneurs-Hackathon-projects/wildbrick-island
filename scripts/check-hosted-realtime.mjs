@@ -10,6 +10,7 @@ const bypass = process.env.VERCEL_PROTECTION_BYPASS;
 const room = `H${Date.now().toString(36).slice(-7)}`.toUpperCase();
 const FUNCTION_DURATION_MS = Number(process.env.ARENA_FUNCTION_DURATION_MS || 300_000);
 const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || FUNCTION_DURATION_MS + 25_000);
+const ROLLOVER_ONLY = process.env.ARENA_ROLLOVER_ONLY === 'true';
 if (!Number.isFinite(FUNCTION_DURATION_MS) || FUNCTION_DURATION_MS < 30_000 || !Number.isFinite(HOLD_MS) || HOLD_MS < FUNCTION_DURATION_MS + 5_000) throw new Error('Hosted rollover timing must cover the configured Function lifecycle.');
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -218,6 +219,12 @@ try {
 
   assert.ok(first.closeCount + second.closeCount > rolloverBaseline, `expected at least one connection rollover after the ${FUNCTION_DURATION_MS}-millisecond hosted Function lifecycle`);
   await Promise.all([first.ensureConnected(), second.ensureConnected()]);
+  if (ROLLOVER_ONLY) {
+    await second.request('leave');
+    await first.request('leave');
+    console.log(`Hosted Realtime Arena: ${FUNCTION_DURATION_MS}-millisecond diagnostic rollover and full resynchronization passed.`);
+    process.exitCode = 0;
+  } else {
   if (first.lastSnapshot.round.status !== 'finished') await first.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
   if (second.lastSnapshot.round.status !== 'finished') await second.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
   const roundId = first.lastSnapshot.round.id;
@@ -245,6 +252,7 @@ try {
     cleanup: true,
   }, null, 2));
   console.log('Hosted Realtime Arena: two-client movement, stop/reversal/fire, reconnect, Ready, cleanup and >300-second rollover passed.');
+  }
 } finally {
   for (const peer of [first, second]) if (peer.socket?.readyState === WebSocket.OPEN) peer.socket.close(1000, 'Hosted smoke cleanup');
 }

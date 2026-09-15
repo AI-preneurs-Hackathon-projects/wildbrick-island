@@ -41,6 +41,11 @@ const connect=async(bridge,principal,create)=>{const socket=new MockSocket();bri
 
 try{
   const first=await connect(firstBridge,'test:first',true),second=await connect(secondBridge,'test:second',false);
+  const inputStream=redis.backend.streams.get(`${namespace}:VR01:input`),firstEnvelope=JSON.parse(inputStream[0][1][1]);
+  assert.equal(firstEnvelope.raw.includes('authenticate'),true,'fixture captures the relayed admission envelope');
+  await firstBridge.processEnvelope('VR01',firstEnvelope);
+  await new Promise(resolve=>setTimeout(resolve,0));
+  assert.equal(first.socket.messages.some(message=>message.type==='error'),false,'a replayed Redis envelope is discarded before protocol authority');
   first.socket.client({type:'start',requestId:2});
   await first.socket.waitFor(message=>message.type==='result'&&message.requestId===2);
   const before=second.joined.snapshot.players.find(player=>player.id===first.joined.snapshot.self);

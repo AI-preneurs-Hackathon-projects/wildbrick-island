@@ -15,6 +15,7 @@ const MAX_PACKET_BYTES = 110_000;
 const MAX_BUFFERED_BYTES = 512 * 1024;
 const MAX_LOCAL_RELAYS = 256;
 const MAX_OWNED_ROOMS = 8;
+const MAX_RECENT_ENVELOPES = 8_192;
 const VIRTUAL_PEER_IDLE_MS = 6_000;
 const STREAM_EXPIRY_MS = 20 * 60_000;
 const DEFAULT_NAMESPACE = 'brickwild:arena';
@@ -76,6 +77,7 @@ export class RedisArenaBridge {
     this.outputCursor = '0-0';
     this.outputStarting = null;
     this.expiryTouched = new Map();
+    this.processedEnvelopes = new Set();
     this.closed = false;
   }
 
@@ -102,7 +104,7 @@ export class RedisArenaBridge {
       if (relay.closed) return;
       relay.closed = true;
       this.relays.delete(peerId);
-      if (relay.room) void this.forward(relay.room, {kind: 'disconnect', room: relay.room, peerId, replyInstance: this.instanceId, origin}).catch(() => {});
+      if (relay.room) void this.forward(relay.room, {kind: 'disconnect', messageId: randomUUID(), room: relay.room, peerId, replyInstance: this.instanceId, origin}).catch(() => {});
     };
     socket.on('close', close);
     socket.on('error', close);
@@ -120,7 +122,7 @@ export class RedisArenaBridge {
       relay.room = claims.room;
     }
     await this.startOutput();
-    await this.forward(relay.room, {kind: 'message', room: relay.room, peerId: relay.peerId, replyInstance: this.instanceId, origin: relay.origin, raw});
+    await this.forward(relay.room, {kind: 'message', messageId: randomUUID(), room: relay.room, peerId: relay.peerId, replyInstance: this.instanceId, origin: relay.origin, raw});
   }
 
   async forward(room, envelope) {
@@ -175,6 +177,12 @@ export class RedisArenaBridge {
 
   async processEnvelope(room, envelope) {
     if (envelope.room !== room || typeof envelope.peerId !== 'string' || typeof envelope.replyInstance !== 'string') return;
+    if (envelope.messageId !== undefined) {
+      if (typeof envelope.messageId !== 'string' || envelope.messageId.length < 1 || envelope.messageId.length > 64) return;
+      if (this.processedEnvelopes.has(envelope.messageId)) return;
+      this.processedEnvelopes.add(envelope.messageId);
+      if (this.processedEnvelopes.size > MAX_RECENT_ENVELOPES) this.processedEnvelopes.delete(this.processedEnvelopes.values().next().value);
+    }
     const key = `${envelope.replyInstance}:${envelope.peerId}`;
     let peer = this.virtualPeers.get(key);
     if (envelope.kind === 'disconnect') { peer?.close(1000, 'Relay disconnected'); return; }
@@ -253,6 +261,7 @@ export class RedisArenaBridge {
   async close() {
     if (this.closed) return;
     this.closed = true;
+    this.processedEnvelopes.clear();
     for (const state of [...this.owners.values()]) this.stopOwner(state, new LostRoomLeaseError('Arena relay closed'));
     for (const relay of this.relays.values()) relay.socket.close(1012, 'Arena relay closed');
     await this.authority.close();
