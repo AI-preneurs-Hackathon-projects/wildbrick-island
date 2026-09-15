@@ -77,3 +77,8 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 - Live sanitized log established a second Vercel-generated query key, path, with valid attempt UUID. Strip matching internal path too; preserve other parameters. Removed temporary diagnostic. First generation succeeded:34-part Sunny Wing Mini Plane,20.65s total,1624 input/2317 output tokens (roughly $0.039 at catalog rates, not billing receipt).
 
 - Invalid-container probe timed out before provider too, disproving Gateway slowness. Installed Vercel runtime helpers consume the stream but return undefined req.body for audio/webm. Disabled those helpers via supported exported config.helpers=false; our transport and worker already implement parsing/bounds. Local tests assert raw-stream configuration, binary preservation and cancellation. No successful paid transcription has yet occurred.
+
+- Correction: exported config.helpers was ineffective (the setting belongs to Vercel builder configuration). Replaced it with a source-contained bounded data/end event bridge compatible with the exact platform replay mechanism. Actual loopback reproduction now passes for replayed WebM bytes, raw bytes, overflow, routing and cancellation.
+- Current main intentionally exposes only Type an idea after native speech errors. Vercel build will restore the explicit Record instead fallback when canRecord=true, without changing public source/Sites packaging.
+
+- Built Vercel UI fallback tests pass: explicit Record click, readiness before microphone, hidden unavailable action, Type submission, native listening hides fallback; Sites public source unchanged.

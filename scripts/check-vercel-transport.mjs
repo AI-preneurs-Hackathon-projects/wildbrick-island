@@ -2,8 +2,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {once} from 'node:events';
 import {createNodeHandler} from '../server/node-handler.js';
-import {config} from '../api/handler.js';
-assert.equal(config.helpers,false,'Vercel must preserve raw audio streams');
+import {PassThrough} from 'node:stream';
 
 const deferred = () => { let resolve; const promise = new Promise(r => resolve = r); return {promise, resolve}; };
 const received = deferred(), canceled = deferred(), finished = deferred();
@@ -23,6 +22,15 @@ const transport = createNodeHandler(async request => {
   return new Response(bytes, {headers:{'content-type':'application/octet-stream'}});
 });
 const server = http.createServer(async (req,res) => {
+  if (req.url.includes('/replay')) {
+    const chunks = [];
+    await new Promise((resolve,reject) => { req.on('data',chunk=>chunks.push(chunk)); req.on('end',resolve); req.on('error',reject); });
+    const replay = new PassThrough();
+    const on = replay.on.bind(replay), originalOn = req.on.bind(req);
+    req.read = replay.read.bind(replay);
+    req.on = req.addListener = (name, cb) => name === 'data' || name === 'end' ? on(name, cb) : originalOn(name, cb);
+    replay.write(Buffer.concat(chunks)); replay.end();
+  }
   const abortListeners = req.listenerCount('aborted'), closeListeners = res.listenerCount('close');
   await transport(req,res);
   assert.equal(req.listenerCount('aborted'),abortListeners);
@@ -36,6 +44,10 @@ try {
   const binary = Uint8Array.from([0,255,128,13,10,65]);
   const echo = await fetch(base+'/api/echo',{method:'POST',body:binary});
   assert.deepEqual(new Uint8Array(await echo.arrayBuffer()),binary);
+  const replay = await fetch(base+'/api/replay',{method:'POST',headers:{'content-type':'audio/webm'},body:binary,signal:AbortSignal.timeout(3000)});
+  assert.deepEqual(new Uint8Array(await replay.arrayBuffer()),binary,'platform replay preserves exact binary');
+  const tooLarge = await fetch(base+'/api/echo',{method:'POST',body:Buffer.alloc(4*1024*1024+1),signal:AbortSignal.timeout(3000)});
+  assert.equal(tooLarge.status,503,'transport rejects oversized upload');
   assert.equal(normalSignal.aborted,false,'normal completion must not abort work');
   const rewriteEcho = await fetch(base+'/api/transcribe?route=transcribe&path=transcribe',{method:'POST',body:binary});
   assert.deepEqual(new Uint8Array(await rewriteEcho.arrayBuffer()),binary);

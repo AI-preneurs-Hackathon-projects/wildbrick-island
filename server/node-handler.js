@@ -1,4 +1,38 @@
-import {Readable} from 'node:stream';
+const MAX_TRANSPORT_BODY = 4 * 1024 * 1024;
+
+// Vercel replays unsupported MIME bodies through data/end events while the
+// original IncomingMessage's native readable state is already exhausted.
+function requestBody(req) {
+  let cleanup;
+  return new ReadableStream({
+    start(controller) {
+      let bytes = 0, active = true;
+      cleanup = () => {
+        active = false;
+        req.removeListener('data', data);
+        req.removeListener('end', end);
+        req.removeListener('error', error);
+        req.removeListener('aborted', aborted);
+      };
+      const error = reason => { if (!active) return; cleanup(); controller.error(reason); };
+      const aborted = () => error(new Error('Request aborted'));
+      const data = chunk => {
+        if (!active) return;
+        const value = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        bytes += value.length;
+        if (bytes > MAX_TRANSPORT_BODY) { error(new Error('Request body too large')); return; }
+        controller.enqueue(value);
+      };
+      const end = () => { if (!active) return; cleanup(); controller.close(); };
+      req.on('data', data);
+      req.on('end', end);
+      req.on('error', error);
+      req.on('aborted', aborted);
+      if (req.aborted) aborted();
+    },
+    cancel() { cleanup?.(); },
+  });
+}
 
 // Propagate downstream disconnects through the Fetch boundary to paid requests.
 export function createNodeHandler(handle, {waitUntil = () => {}} = {}) {
@@ -17,7 +51,7 @@ export function createNodeHandler(handle, {waitUntil = () => {}} = {}) {
     if (!host || !/^[a-zA-Z0-9.:-]+$/.test(host)) { res.statusCode = 400; res.end(); return; }
     const init = {method: req.method, headers, signal: controller.signal};
     if (!['GET', 'HEAD'].includes(req.method)) {
-      init.body = req.body === undefined ? Readable.toWeb(req) : (Buffer.isBuffer(req.body) || typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
+      init.body = req.body === undefined ? requestBody(req) : (Buffer.isBuffer(req.body) || typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
       init.duplex = 'half';
     }
     const routed = new URL(req.url, `https://${host}`);
