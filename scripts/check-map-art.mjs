@@ -38,11 +38,13 @@ if(process.argv[2]==='--snapshot'){
  assert.ok(process.argv[2],'Usage: node scripts/check-map-art.mjs /path/to/baseline');
  const snapshot=root=>JSON.parse(execFileSync(process.execPath,[import.meta.filename,'--snapshot',root],{encoding:'utf8',maxBuffer:4*1024*1024}));
  const before=snapshot(process.argv[2]),after=snapshot(resolve(import.meta.dirname,'..'));
- const workload=({shape,...stats})=>stats;
+ const workload=({shape,gameplay,...stats})=>stats;
  for(const id of Object.keys(before)){
-  assert.deepEqual(workload(after[id]),workload(before[id]),`${id} sky changes must preserve gameplay, geometry and resource counts`);
-  assert.notEqual(after[id].shape,before[id].shape,`${id} sky instance transforms should change`);
+  assert.deepEqual(workload(after[id]),workload(before[id]),`${id} art changes must preserve geometry buffers and resource counts`);
+  assert.notEqual(after[id].shape,before[id].shape,`${id} visual instance transforms should change`);
+  if(id==='island')assert.notEqual(after[id].gameplay,before[id].gameplay,'island gate axes should change');
+  else assert.equal(after[id].gameplay,before[id].gameplay,`${id} gameplay should remain unchanged`);
  }
  console.log(JSON.stringify({before,after,cyclesPerBuild:3,rendered:false},null,2));
- console.log('PASS identical gameplay, geometry and resource counts with changed sky instance transforms and nine world disposals per build. GPU calls/timings are not measured.');
+ console.log('PASS preserved geometry buffers and resource counts, unchanged non-Island gameplay, intentional Island gate-axis changes, changed visual transforms and nine world disposals per build. GPU calls/timings are not measured.');
 }

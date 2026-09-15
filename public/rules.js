@@ -15,7 +15,7 @@ export function parseCommand(input){
  if(/\b(run|walk|foot|dismount|exit)\b/.test(text))return 'foot';
  return null;
 }
-export const GATES = [{x:0,z:-29,axis:'x'},{x:29,z:0,axis:'z'},{x:0,z:29,axis:'x'},{x:-29,z:0,axis:'z'}];
+export const GATES = [{x:0,z:-29,axis:'z'},{x:29,z:0,axis:'x'},{x:0,z:29,axis:'z'},{x:-29,z:0,axis:'x'}];
 export const RINGS = [{x:-18,y:12,z:-15},{x:18,y:16,z:-29},{x:36,y:19,z:7},{x:7,y:15,z:32},{x:-32,y:12,z:18}];
 export const TARGETS = [{x:15,z:-9},{x:21,z:-14},{x:27,z:-9}];
 export const CRATES = [{x:-13,z:9},{x:-18,z:11},{x:-13,z:16}];
