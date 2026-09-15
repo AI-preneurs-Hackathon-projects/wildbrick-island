@@ -5,7 +5,7 @@ import {arenaStore, ArenaError, hash, nonce} from '../worker/arena-store.js';
 export const REALTIME_TRANSPORT = 'realtime-v1';
 const LEASE_MS = 12_000;
 const ROOM_STALE_MS = 15 * 60_000;
-const SESSION_MS = 90_000;
+const SESSION_MS = 15 * 60_000;
 
 export class LostRoomLeaseError extends Error {}
 
@@ -90,6 +90,7 @@ export class RealtimeRoomStore {
     // makes a lost `joined` response safe to retry without creating a second seat.
     const id = verified?.id || (provisional ? resume.session : randomUUID()), token = verified ? resume.token : (provisional ? resume.token : nonce());
     const row = await this.arena.saveSession({id, tokenHash: await hash(token), principal, roomId, playerId: verified?.player_id || randomUUID()});
+    await this.touchSession(row.id);
     return {row, token, resumed: !!verified};
   }
 

@@ -18,6 +18,11 @@ try {
   const takeover = await second.claim('FENCE', {create: false});
   assert.ok(takeover.ownerEpoch > claimed.ownerEpoch, 'takeover increments the owner epoch');
   await assert.rejects(first.checkpoint('FENCE', claimed.ownerEpoch, claimed.room), LostRoomLeaseError, 'old owner is fenced after takeover');
+  const resume = {session: '10000000-0000-0000-0000-000000000001', token: 'a'.repeat(64)};
+  const session = await second.createSession({principal: 'test:realtime', roomId: 'FENCE', resume});
+  const sessionRow = await local.db.prepare('SELECT expires_at FROM arena_sessions WHERE id = ?').bind(session.row.id).first();
+  assert.ok(sessionRow.expires_at >= now + 14 * 60_000, 'realtime resume remains valid through a full Function lifecycle and bounded handoff');
+  assert.ok(await second.verifyResume(resume, 'test:realtime', 'FENCE'), 'the extended realtime resume token remains verifiable');
 
   const staleAt = Date.now() - 16 * 60_000;
   const legacy = newRoom(staleAt, 'legacy');

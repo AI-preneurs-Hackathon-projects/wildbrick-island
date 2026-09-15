@@ -36,6 +36,7 @@ class HostedPeer {
     this.closeEvents = [];
     this.connectionGeneration = 0;
     this.reconnectRetries = 0;
+    this.principal = null;
   }
 
   async ticket() {
@@ -49,13 +50,19 @@ class HostedPeer {
       }),
       body: JSON.stringify({room, create: this.create}),
     });
-    const setCookie = response.headers.get('set-cookie');
-    if (setCookie) this.cookie = setCookie.split(';', 1)[0];
+    const setCookies = response.headers.getSetCookie?.() || [response.headers.get('set-cookie')].filter(Boolean);
+    for (const setCookie of setCookies) {
+      const guest = setCookie.match(/(?:^|,\s*)(__Host-brickwild-guest=[^;,\s]+)/);
+      if (guest) this.cookie = guest[1];
+    }
     let body;
     try { body = await response.json(); } catch { body = {}; }
     assert.equal(response.status, 200, `${this.name} admission failed (${response.status}): ${body.error || 'invalid response'}`);
     assert.equal(body.enabled, true, `${this.name} did not receive an enabled realtime transport`);
     assert.equal(body.transport, 'realtime-v1');
+    const claims = JSON.parse(Buffer.from(body.ticket.split('.', 1)[0], 'base64url'));
+    this.principal ||= claims.sub;
+    assert.equal(claims.sub, this.principal, `${this.name} guest identity changed during reconnect`);
     return body;
   }
 
