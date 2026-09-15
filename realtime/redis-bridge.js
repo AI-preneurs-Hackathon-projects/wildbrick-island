@@ -19,6 +19,8 @@ const MAX_RECENT_ENVELOPES = 8_192;
 const VIRTUAL_PEER_IDLE_MS = 6_000;
 const STREAM_EXPIRY_MS = 20 * 60_000;
 const DEFAULT_NAMESPACE = 'brickwild:arena';
+const RELAY_RETRY_TYPES = new Set(['authenticate', 'join', 'start', 'ready', 'leave']);
+const RELAY_RETRY_DELAYS_MS = [1_200, 2_400];
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const normalizeNamespace = value => {
@@ -78,6 +80,7 @@ export class RedisArenaBridge {
     this.outputStarting = null;
     this.expiryTouched = new Map();
     this.processedEnvelopes = new Set();
+    this.retryTimers = new Set();
     this.closed = false;
   }
 
@@ -105,6 +108,7 @@ export class RedisArenaBridge {
       relay.closed = true;
       this.relays.delete(peerId);
       if (relay.room) void this.forward(relay.room, {kind: 'disconnect', messageId: randomUUID(), room: relay.room, peerId, replyInstance: this.instanceId, origin}).catch(() => {});
+      if (!this.relays.size) void this.releaseIdleOwners();
     };
     socket.on('close', close);
     socket.on('error', close);
@@ -113,16 +117,29 @@ export class RedisArenaBridge {
   async incoming(relay, data, isBinary) {
     if (relay.closed || isBinary || data.length > MAX_PACKET_BYTES) throw new Error('Invalid Arena packet');
     const raw = data.toString('utf8');
+    let packet;
+    try { packet = JSON.parse(raw); } catch {}
     if (!relay.room) {
-      let packet;
-      try { packet = JSON.parse(raw); } catch { throw new Error('Invalid Arena packet'); }
+      if (!packet) throw new Error('Invalid Arena packet');
       if (packet?.type !== 'authenticate' || typeof packet.ticket !== 'string') throw new Error('Authentication required');
       const claims = verifyRealtimeTicket(packet.ticket, this.ticketSecret, Math.floor(this.now() / 1000));
       if (claims.origin !== relay.origin) throw new Error('Origin mismatch');
       relay.room = claims.room;
     }
     await this.startOutput();
-    await this.forward(relay.room, {kind: 'message', messageId: randomUUID(), room: relay.room, peerId: relay.peerId, replyInstance: this.instanceId, origin: relay.origin, raw});
+    const envelope = {kind: 'message', messageId: randomUUID(), room: relay.room, peerId: relay.peerId, replyInstance: this.instanceId, origin: relay.origin, raw};
+    await this.forward(relay.room, envelope);
+    if (RELAY_RETRY_TYPES.has(packet?.type)) this.scheduleRelayRetries(relay, envelope);
+  }
+
+  scheduleRelayRetries(relay, envelope) {
+    for (const delay of RELAY_RETRY_DELAYS_MS) {
+      const timer = setTimeout(() => {
+        this.retryTimers.delete(timer);
+        if (!this.closed && !relay.closed) void this.forward(envelope.room, envelope).catch(() => relay.socket.close(1012, 'Redis relay unavailable'));
+      }, delay);
+      this.retryTimers.add(timer);
+    }
   }
 
   async forward(room, envelope) {
@@ -222,6 +239,26 @@ export class RedisArenaBridge {
     for (const peer of this.virtualPeers.values()) if (peer.room === state.room) peer.close(1012, 'Arena owner changed; reconnecting');
   }
 
+  async releaseIdleOwners() {
+    if (this.relays.size || this.closed) return;
+    await Promise.allSettled([...this.owners.values()].map(state => this.releaseOwner(state)));
+  }
+
+  async releaseOwner(state) {
+    if (!state.active) return;
+    state.active = false;
+    clearInterval(state.renewTimer);
+    this.owners.delete(state.room);
+    await state.reader.quit().catch(() => {});
+    const runtime = this.authority.rooms.get(state.room);
+    if (runtime) {
+      await runtime.release().catch(error => runtime.fail(error));
+      this.authority.rooms.delete(state.room);
+    }
+    for (const peer of [...this.virtualPeers.values()]) if (peer.room === state.room) peer.close(1012, 'Arena owner changed; reconnecting');
+    await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token).catch(() => {});
+  }
+
   async output(instance, peerId, payload) {
     const key = outputKey(this.namespace, instance);
     await this.redis.xadd(key, 'MAXLEN', '~', OUTPUT_STREAM_MAX, '*', 'p', peerId, 'd', JSON.stringify(payload));
@@ -261,6 +298,8 @@ export class RedisArenaBridge {
   async close() {
     if (this.closed) return;
     this.closed = true;
+    for (const timer of this.retryTimers) clearTimeout(timer);
+    this.retryTimers.clear();
     this.processedEnvelopes.clear();
     for (const state of [...this.owners.values()]) this.stopOwner(state, new LostRoomLeaseError('Arena relay closed'));
     for (const relay of this.relays.values()) relay.socket.close(1012, 'Arena relay closed');

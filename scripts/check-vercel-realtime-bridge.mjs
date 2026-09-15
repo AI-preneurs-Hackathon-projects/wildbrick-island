@@ -37,7 +37,8 @@ const origin='https://brickwild.test',secret='vercel-redis-bridge-secret-'.repea
 const firstBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:first'}),ticketSecret:secret,instanceId:'first',namespace,now});
 const secondBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:second'}),ticketSecret:secret,instanceId:'second',namespace,now});
 const ticket=(principal,create)=>createRealtimeTicket({principal,room:'VR01',create,origin,secret,jti:randomUUID()}).ticket;
-const connect=async(bridge,principal,create)=>{const socket=new MockSocket();bridge.register(socket,origin);socket.client({type:'authenticate',ticket:ticket(principal,create)});await socket.waitFor(message=>message.type==='authenticated');socket.client({type:'join',requestId:1,name:principal,room:'VR01',create,avatarColor:'#ffcf55',motionVersion:2,mapVersion:1});const joined=await socket.waitFor(message=>message.type==='joined');return {socket,joined};};
+const connect=async(bridge,principal,create,resume)=>{const socket=new MockSocket();bridge.register(socket,origin);socket.client({type:'authenticate',ticket:ticket(principal,create)});await socket.waitFor(message=>message.type==='authenticated');socket.client({type:'join',requestId:1,name:principal,room:'VR01',create,avatarColor:'#ffcf55',resume,motionVersion:2,mapVersion:1});const joined=await socket.waitFor(message=>message.type==='joined');return {socket,joined};};
+const waitFor=async predicate=>{for(let attempt=0;attempt<100;attempt++){if(await predicate())return;await new Promise(resolve=>setTimeout(resolve,10));}throw new Error('Timed out waiting for bridge lifecycle');};
 
 try{
   const first=await connect(firstBridge,'test:first',true),second=await connect(secondBridge,'test:second',false);
@@ -57,5 +58,10 @@ try{
   assert.ok([...redis.backend.values.keys(),...redis.backend.streams.keys()].every(key=>key.startsWith(`${namespace}:`)),'every relay key is isolated under the configured preview namespace');
   assert.throws(()=>new RedisArenaBridge({redis,store:new RealtimeRoomStore(local.db),ticketSecret:secret,namespace:'unsafe namespace'}),/namespace/,'unsafe namespaces are rejected before Redis use');
   assert.equal(moved.snapshot.round.status,'active');
-  console.log('Vercel Redis bridge: cross-instance join, single-owner election, 20 Hz snapshot fanout, and movement passed.');
+  first.socket.close(1000,'owner invocation ended');
+  await waitFor(async()=>firstBridge.owners.size===0&&(await firstBridge.store.roomRow('VR01')).owner_id===null);
+  const resumed=await connect(secondBridge,'test:first',true,{session:first.joined.session,token:first.joined.token});
+  assert.equal(resumed.joined.snapshot.self,first.joined.snapshot.self,'a live relay takes over the released room with a full resumed seat');
+  assert.equal(secondBridge.owners.size,1,'the replacement relay becomes the single owner');
+  console.log('Vercel Redis bridge: cross-instance join, single-owner election, deduplication, owner lifecycle handoff, 20 Hz snapshot fanout, and movement passed.');
 }finally{await Promise.all([firstBridge.close(),secondBridge.close()]);local.close();}

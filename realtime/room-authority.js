@@ -63,6 +63,7 @@ class RoomRuntime {
     this.emptySince = null;
     this.checkpointing = null;
     this.lost = false;
+    this.releasing = false;
   }
 
   fail(error) {
@@ -84,7 +85,7 @@ class RoomRuntime {
   }
 
   tick(now) {
-    if (this.lost) return;
+    if (this.lost || this.releasing) return;
     if (now >= this.leaseDeadline) { this.fail(new LostRoomLeaseError(`Lease expired for ${this.id}`)); return; }
     advanceRoom(this.room, now);
     for (const socket of this.clients) {
@@ -115,6 +116,7 @@ class RoomRuntime {
   }
 
   async release() {
+    this.releasing = true;
     if (this.checkpointing) await this.checkpointing;
     if (!this.lost) await this.checkpoint({release: true});
   }
