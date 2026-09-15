@@ -30,12 +30,12 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 - A two-bridge Redis fixture passes cross-instance join/fanout, duplicate-envelope rejection, and verifies exactly one elected room owner. This fixture is local evidence only.
 - `npm run check:hosted-realtime` is the bounded preview-only release gate. It uses two real guest identities, rejects the production URL, exercises movement/stop/reversal/fire/reconnect/Ready/leave, records snapshot cadence and age, and stays connected beyond 300 seconds to require real Function/connection rollover.
 - Preview provisioning is complete: Upstash resource `wildbrick-realtime-preview` and Turso database `brickwild-rt-preview` are connected only to Preview. All four additive migrations applied and reran idempotently. The branch-only namespace, mode, ticket/session secrets, and `ENABLE_REALTIME_ARENA=true` are configured without changing production.
-- A hosted one-minute diagnostic lifecycle reproduced a duplicate Redis append during Function rollover. Bounded envelope deduplication fixed it; both hosted clients then reconnected and received full authoritative resynchronization after the forced one-minute cutoff. The restored 300-second gate remains the final automated preview check.
+- A hosted one-minute diagnostic lifecycle reproduced a duplicate Redis append during Function rollover. Bounded envelope deduplication fixed it; both hosted clients then reconnected and received full authoritative resynchronization after the forced one-minute cutoff.
+- The final hosted gate passed on the exact `891574f` preview: two guest identities, movement, stop, reversal plus fire, manual reconnect, proactive owner rotation and full resync, Ready, and cleanup. Initial snapshot intervals were 32-121 ms and final snapshot ages were 21 ms and 122 ms. Timestamp age is not physical RTT.
 
 ## Remaining review and release steps
 
-1. Run the restored 300-second hosted rollover gate on the exact final preview commit.
-2. Run the two-person desktop review below on that preview. Only after review should the production flag be considered. No production merge or deployment is part of this branch.
+1. Run the two-person desktop review below on the tested preview. Only after review should the production flag be considered. No production merge or deployment is part of this branch.
 
 Local review: run `npm run dev:realtime`, open `http://127.0.0.1:4173/` in two separate desktop browser profiles at 1440x900, create/share one room, start as creator, then test continuous movement, stop/reversal, moving while firing, one disconnect/reconnect, and both Ready buttons between rounds. A four-profile join/fanout glance is optional. Practice is not required.
 

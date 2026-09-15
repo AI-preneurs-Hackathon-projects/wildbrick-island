@@ -280,7 +280,7 @@ try {
     ready: true,
     cleanup: true,
   }, null, 2));
-  console.log('Hosted Realtime Arena: two-client movement, stop/reversal/fire, reconnect, Ready, cleanup and >300-second rollover passed.');
+  console.log('Hosted Realtime Arena: two-client movement, stop/reversal/fire, owner rollover/full resync, Ready, cleanup and >300-second hosted hold passed.');
   }
 } finally {
   for (const peer of [first, second]) if (peer.socket?.readyState === WebSocket.OPEN) peer.socket.close(1000, 'Hosted smoke cleanup');
