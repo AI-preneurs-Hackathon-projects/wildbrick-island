@@ -23,7 +23,13 @@ export default async function handler(req, res) {
       init.body = req.body === undefined ? Readable.toWeb(req) : (Buffer.isBuffer(req.body) || typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
       init.duplex = 'half';
     }
-    const response = await handle(new Request(`https://${host}${req.url}`, init), {waitUntil});
+    const routed = new URL(req.url, `https://${host}`);
+    if (routed.pathname === '/api/handler') {
+      const route = routed.searchParams.get('route') || '';
+      routed.pathname = '/api/' + route;
+      routed.searchParams.delete('route');
+    }
+    const response = await handle(new Request(routed, init), {waitUntil});
     res.statusCode = response.status;
     response.headers.forEach((value, name) => res.setHeader(name, value));
     res.end(Buffer.from(await response.arrayBuffer()));

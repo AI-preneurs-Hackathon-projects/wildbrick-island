@@ -7,7 +7,7 @@
     "hnd1"
   ],
   "functions": {
-    "api/[...path].js": {
+    "api/handler.js": {
       "maxDuration": 60
     }
   },
@@ -24,6 +24,12 @@
           "value": "same-origin"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/handler?route=:path*"
     }
   ]
 }
