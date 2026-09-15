@@ -48,8 +48,8 @@ export function createHttpArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);onStatus('expired');onError(e.message,e.status);}else{onStatus('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
- async function join(name,room,avatarColor,create=false){
-  if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
+ async function join(name,room,avatarColor,create=false,resumeOverride=null){
+  if(joining)return false;joining=true;const generation=++lifecycle;joinTicket=credentials||resumeOverride||joinTicket||{session:crypto.randomUUID(),token:crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-','')};const ticket=joinTicket;credentials=null;clearTimer(timer);closed=false;onStatus('joining');
   try{
    if(generation!==lifecycle)return false;
    const result=await request('/api/arena/join',{name,room,create,avatarColor,motionVersion:1,mapVersion:1,resume:ticket});
@@ -90,7 +90,11 @@ export function createArenaClient(callbacks={},runtime={}){
  const http=createHttpArenaClient(callbacks,runtime);
  if(runtime.realtime!==true)return http;
  const fetcher=runtime.fetcher||globalThis.fetch;
- const realtime=createRealtimeArenaClient(callbacks,{...runtime,async getTicket(room,create){
+ let realtimeJoining=false;
+ const realtime=createRealtimeArenaClient({...callbacks,
+  onStatus(value){if(!(realtimeJoining&&value==='offline'))callbacks.onStatus?.(value);},
+  onError(...args){if(!realtimeJoining)callbacks.onError?.(...args);}
+ },{...runtime,async getTicket(room,create){
   const response=await fetcher('/api/arena/realtime-ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room,create}),cache:'no-store',credentials:'same-origin'});
   let data;try{data=await response.json();}catch{throw Object.assign(Error('The Arena transport returned an invalid response.'),{status:response.status});}
   if(!response.ok)throw Object.assign(Error(data.error||'The Arena transport is unavailable.'),{status:response.status});
@@ -101,7 +105,12 @@ export function createArenaClient(callbacks={},runtime={}){
   let ticket;try{ticket=await realtime.getTicket(room,create);}catch(error){callbacks.onStatus?.('offline');callbacks.onError?.(error.message,error.status);return false;}
   if(ticket?.enabled===false){selected=http;return http.join(name,room,color,create);}
   if(ticket?.enabled!==true||ticket.transport!=='realtime-v1'){callbacks.onStatus?.('offline');callbacks.onError?.('The Arena transport configuration is incomplete.',503);return false;}
-  selected=realtime;return realtime.join(name,room,color,create,ticket);
+  selected=realtime;realtimeJoining=true;let joined=false;try{joined=await realtime.join(name,room,color,create,ticket);}finally{realtimeJoining=false;}
+  if(joined)return true;
+  // A realtime connection can close before its join acknowledgement reaches the
+  // browser. Retry through HTTP with the same proof so the server reuses that
+  // seat instead of leaving the player stranded or creating a duplicate.
+  selected=http;return http.join(name,room,color,create,realtime.resume);
  }
  const call=(name,...args)=>selected?.[name]?.(...args)??false;
  return {join,start:(...a)=>call('start',...a),ready:(...a)=>call('ready',...a),leave:(...a)=>call('leave',...a),tick:(...a)=>call('tick',...a),command:(...a)=>call('command',...a),get blueprints(){return selected?.blueprints||http.blueprints;},get room(){return selected?.room||null;},get active(){return !!selected?.active;},get connected(){return !!selected?.connected;},get self(){return selected?.self||null;},get snapshot(){return selected?.snapshot||null;},get stale(){return selected?selected.stale:true;},serverTime(){return selected?.serverTime?.()||Date.now();}};
