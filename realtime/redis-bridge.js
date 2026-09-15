@@ -7,6 +7,7 @@ import {verifyRealtimeTicket} from '../server/realtime-ticket.js';
 
 const OWNER_LEASE_MS = 8_000;
 const OWNER_RENEW_MS = 2_500;
+const OWNER_MAX_AGE_MS = 240_000;
 const OWNER_LOOKUP_MS = 1_000;
 const STREAM_BLOCK_MS = 1_000;
 const INPUT_STREAM_MAX = 4_096;
@@ -62,14 +63,16 @@ class RedisVirtualSocket extends EventEmitter {
 }
 
 export class RedisArenaBridge {
-  constructor({redis, store, ticketSecret, instanceId = randomUUID(), namespace = DEFAULT_NAMESPACE, now = Date.now}) {
+  constructor({redis, store, ticketSecret, instanceId = randomUUID(), namespace = DEFAULT_NAMESPACE, now = Date.now, ownerMaxAgeMs = OWNER_MAX_AGE_MS}) {
     if (!redis) throw new TypeError('Redis is required for cross-instance Arena routing');
+    if (!Number.isFinite(ownerMaxAgeMs) || ownerMaxAgeMs < 1_000) throw new TypeError('Arena owner lifetime must be at least one second');
     this.redis = redis;
     this.store = store;
     this.ticketSecret = ticketSecret;
     this.instanceId = instanceId;
     this.namespace = normalizeNamespace(namespace);
     this.now = now;
+    this.ownerMaxAgeMs = ownerMaxAgeMs;
     this.authority = new RealtimeRoomAuthority({store, ticketSecret, now});
     this.relays = new Map();
     this.virtualPeers = new Map();
@@ -162,10 +165,11 @@ export class RedisArenaBridge {
       return;
     }
     const tail = await this.redis.xrevrange(inputKey(this.namespace, room), '+', '-', 'COUNT', 1);
-    const state = {room, token, cursor: tail[0]?.[0] || '0-0', active: true, verifiedUntil: this.now() + OWNER_RENEW_MS, reader: this.redis.duplicate(), renewTimer: null};
+    const state = {room, token, cursor: tail[0]?.[0] || '0-0', active: true, verifiedUntil: this.now() + OWNER_RENEW_MS, reader: this.redis.duplicate(), renewTimer: null, releaseTimer: null};
     this.owners.set(room, state);
     state.renewTimer = setInterval(() => void this.renewOwner(state), OWNER_RENEW_MS);
     state.renewTimer.unref?.();
+    state.releaseTimer = setTimeout(() => void this.releaseOwner(state), this.ownerMaxAgeMs);
     void this.ownerLoop(state);
   }
 
@@ -236,6 +240,7 @@ export class RedisArenaBridge {
     if (!state.active) return;
     state.active = false;
     clearInterval(state.renewTimer);
+    clearTimeout(state.releaseTimer);
     this.owners.delete(state.room);
     void state.reader.quit().catch(() => {});
     if (release) void this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token).catch(() => {});
@@ -253,6 +258,7 @@ export class RedisArenaBridge {
     if (!state.active) return;
     state.active = false;
     clearInterval(state.renewTimer);
+    clearTimeout(state.releaseTimer);
     this.owners.delete(state.room);
     await state.reader.quit().catch(() => {});
     const runtime = this.authority.rooms.get(state.room);

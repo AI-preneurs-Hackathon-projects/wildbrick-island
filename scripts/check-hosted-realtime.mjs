@@ -235,7 +235,7 @@ try {
   let nextProgress = 30_000;
   while (Date.now() - startedAt < HOLD_MS) {
     for (const peer of [first, second]) {
-      if (await peer.ensureConnected()) process.stdout.write(`${peer.name} reconnected after hosted Function/connection rollover.\n`);
+      if (await peer.ensureConnected()) process.stdout.write(`${peer.name} reconnected after hosted owner/Function lifecycle rollover.\n`);
       peer.input({z: 0});
     }
     const elapsed = Date.now() - startedAt;
@@ -246,7 +246,7 @@ try {
     await delay(1_000);
   }
 
-  assert.ok(first.closeCount + second.closeCount > rolloverBaseline, `expected at least one connection rollover after the ${FUNCTION_DURATION_MS}-millisecond hosted Function lifecycle`);
+  assert.ok(first.closeCount + second.closeCount > rolloverBaseline, `expected at least one connection rollover within the ${FUNCTION_DURATION_MS}-millisecond hosted lifecycle`);
   await Promise.all([first.ensureConnected(), second.ensureConnected()]);
   if (ROLLOVER_ONLY) {
     await second.request('leave');
