@@ -35,6 +35,7 @@ class HostedPeer {
     this.closeCount = 0;
     this.closeEvents = [];
     this.connectionGeneration = 0;
+    this.reconnectRetries = 0;
   }
 
   async ticket() {
@@ -140,8 +141,20 @@ class HostedPeer {
 
   async ensureConnected() {
     if (this.socket?.readyState === WebSocket.OPEN) return false;
-    await this.connect();
-    return true;
+    let lastError;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        await this.connect();
+        return true;
+      } catch (error) {
+        lastError = error;
+        this.reconnectRetries++;
+        try { this.socket?.close(); } catch {}
+        this.socket = null;
+        if (attempt < 5) await delay(Math.min(8_000, 250 * 2 ** attempt));
+      }
+    }
+    throw lastError;
   }
 }
 
@@ -252,6 +265,7 @@ try {
     initialSnapshotIntervalsMs: intervals,
     finalSnapshotAgeMs: ages,
     connectionRollovers: first.closeEvents.concat(second.closeEvents).map(({code, reason}) => ({code, reason})),
+    reconnectRetries: first.reconnectRetries + second.reconnectRetries,
     movement: true,
     stop: true,
     reversalAndFire: true,
