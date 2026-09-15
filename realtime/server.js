@@ -15,10 +15,10 @@ function allowedOrigins(value) {
   return origins;
 }
 
-export function createRealtimeServer({db, ticketSecret, origins = allowedOrigins(process.env.ARENA_ALLOWED_ORIGINS), ownerId, now, httpHandler} = {}) {
+export function createRealtimeServer({db, ticketSecret, origins = allowedOrigins(process.env.ARENA_ALLOWED_ORIGINS), ownerId, now, httpHandler, authorityFactory = options => new RealtimeRoomAuthority(options)} = {}) {
   if (!db) throw new TypeError('A database is required');
   const store = new RealtimeRoomStore(db, {ownerId, now});
-  const authority = new RealtimeRoomAuthority({store, ticketSecret, now});
+  const authority = authorityFactory({store, ticketSecret, now});
   const wss = new WebSocketServer({noServer: true, maxPayload: 110_000, perMessageDeflate: false, clientTracking: false});
   let ready = true, stopping = false;
   const server = http.createServer((request, response) => {

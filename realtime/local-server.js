@@ -5,6 +5,8 @@ import process from 'node:process';
 import {createRealtimeTicket, normalizeRoomId} from '../server/realtime-ticket.js';
 import {createLocalRealtimeDb} from './local-db.js';
 import {createRealtimeServer} from './server.js';
+import Redis from 'ioredis';
+import {RedisArenaBridge} from './redis-bridge.js';
 
 const secret = randomUUID().replaceAll('-', '') + randomUUID().replaceAll('-', '');
 const root = path.resolve(import.meta.dirname, '../public');
@@ -63,9 +65,28 @@ function localHandler(request, response) {
 }
 
 const local = createLocalRealtimeDb();
-const app = createRealtimeServer({db: local.db, ticketSecret: secret, origins: new Set([`http://127.0.0.1:${port}`, `http://localhost:${port}`]), httpHandler: localHandler});
+// Opt-in loopback fixture. Never read production REDIS_URL or Turso settings.
+let redis;
+let authorityFactory;
+if (process.env.LOCAL_ARENA_REDIS_URL) {
+  const url = new URL(process.env.LOCAL_ARENA_REDIS_URL);
+  if (url.protocol !== 'redis:' || !['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname)) throw new Error('Local handoff review requires a loopback Redis URL');
+  const ownerMaxAgeMs = Number(process.env.LOCAL_ARENA_OWNER_MS || 30_000);
+  if (!Number.isSafeInteger(ownerMaxAgeMs) || ownerMaxAgeMs < 5_000) throw new Error('LOCAL_ARENA_OWNER_MS must be at least 5000');
+  redis = new Redis(url.href, {lazyConnect: true, connectTimeout: 5000, maxRetriesPerRequest: 1});
+  redis.on('error', () => {});
+  await redis.connect();
+  await redis.ping();
+  const namespace = `brickwild:local-handoff:${randomUUID()}`;
+  authorityFactory = options => {
+    const bridge = new RedisArenaBridge({...options, redis, namespace, ownerMaxAgeMs});
+    return {rooms: bridge.authority.rooms, attach: (socket, origin) => bridge.register(socket, origin), heartbeat: () => bridge.authority.heartbeat(), close: () => bridge.close()};
+  };
+  process.stdout.write(`Local Redis owner handoff every ${ownerMaxAgeMs / 1000}s; isolated namespace, no cloud databases.\n`);
+}
+const app = createRealtimeServer({db: local.db, ticketSecret: secret, origins: new Set([`http://127.0.0.1:${port}`, `http://localhost:${port}`]), httpHandler: localHandler, authorityFactory});
 await new Promise((resolve, reject) => { app.server.once('error', reject); app.server.listen(port, '127.0.0.1', resolve); });
 process.stdout.write(`Brickwild local realtime Arena: http://127.0.0.1:${port}/\n`);
-const shutdown = () => void app.close().finally(() => { local.close(); process.exit(0); });
+const shutdown = () => void app.close().finally(() => { redis?.disconnect(); local.close(); process.exit(0); });
 process.once('SIGTERM', shutdown);
 process.once('SIGINT', shutdown);
