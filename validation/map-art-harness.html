@@ -9,7 +9,7 @@ import {newRoom,addPlayer,makeKit,roomSnapshot} from '/arena-core.js';
 import {gameCamera} from '/game-camera.js';
 import {arrow} from '/models.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),scene=new THREE.Scene();
-scene.background=new THREE.Color(0xb4dedd);scene.fog=new THREE.Fog(0xb4dedd,95,240);
+scene.background=new THREE.Color(0x8bc9ec);scene.fog=new THREE.Fog(0x8bc9ec,95,240);
 let renderer;try{renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});}catch{$('status').textContent='WebGL unavailable. No rendered acceptance or runtime measurement.';throw Error('WebGL unavailable');}
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(1440,900);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;document.body.prepend(renderer.domElement);
 const camera=new THREE.PerspectiveCamera(48,1440/900,.1,500);

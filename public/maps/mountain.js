@@ -118,7 +118,7 @@ for(const [i,[x,z]] of [[-12,-40],[12,-40],[-12,40],[12,40]].entries())
     primitive(x,1.95,z,2.2,.5,2.2,P.lightStone,true)]);
 
 export const MOUNTAIN_MAP={
-  id:'mountain',name:'Mountain Village',groundColor:0x83b87b,oceanColor:0xb4dedd,
+  id:'mountain',name:'Mountain Village',groundColor:0x83b87b,oceanColor:0xa4d8e3,
   pieces,entities,
   // Every point has at least an 8 × 8 m footprint clear of solid map geometry.
   spawns:[[0,-45],[0,45],[-45,0],[45,0],[-12,-32],[12,-32],[-12,32],[12,32],

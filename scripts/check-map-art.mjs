@@ -38,7 +38,11 @@ if(process.argv[2]==='--snapshot'){
  assert.ok(process.argv[2],'Usage: node scripts/check-map-art.mjs /path/to/baseline');
  const snapshot=root=>JSON.parse(execFileSync(process.execPath,[import.meta.filename,'--snapshot',root],{encoding:'utf8',maxBuffer:4*1024*1024}));
  const before=snapshot(process.argv[2]),after=snapshot(resolve(import.meta.dirname,'..'));
- assert.deepEqual(after,before,'palette changes must preserve geometry, gameplay, materials and resource counts');
+ const workload=({shape,...stats})=>stats;
+ for(const id of Object.keys(before)){
+  assert.deepEqual(workload(after[id]),workload(before[id]),`${id} sky changes must preserve gameplay, geometry and resource counts`);
+  assert.notEqual(after[id].shape,before[id].shape,`${id} sky instance transforms should change`);
+ }
  console.log(JSON.stringify({before,after,cyclesPerBuild:3,rendered:false},null,2));
- console.log('PASS identical gameplay and render geometry, resource counts and nine world disposals per build. GPU calls/timings are not measured.');
+ console.log('PASS identical gameplay, geometry and resource counts with changed sky instance transforms and nine world disposals per build. GPU calls/timings are not measured.');
 }

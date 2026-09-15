@@ -34,7 +34,7 @@ if(renderer)bootGame().catch(error=>{console.error(error);fatal('The island coul
 async function bootGame(){
  const coarse=matchMedia('(pointer:coarse)').matches;
  renderer.setPixelRatio(Math.min(devicePixelRatio,coarse?1.5:1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;dom.appendChild(renderer.domElement);
- const scene=new THREE.Scene();scene.background=new THREE.Color(0xb4dedd);scene.fog=new THREE.Fog(0xb4dedd,95,240);
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0x8bc9ec);scene.fog=new THREE.Fog(0x8bc9ec,95,240);
  const camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,500);camera.position.set(22,21,40);
  scene.add(new THREE.HemisphereLight(0xe9fcff,0x66854d,2.0));const sun=new THREE.DirectionalLight(0xffecc5,2.65);sun.position.set(-28,50,24);sun.castShadow=true;sun.shadow.mapSize.set(coarse?1024:2048,coarse?1024:2048);sun.shadow.camera.left=-40;sun.shadow.camera.right=40;sun.shadow.camera.top=40;sun.shadow.camera.bottom=-40;sun.shadow.camera.near=1;sun.shadow.camera.far=140;sun.shadow.normalBias=.035;sun.shadow.bias=-.00015;sun.shadow.radius=3;scene.add(sun);scene.add(sun.target);
  let poseKit,poseBlueprint,poseMode,practiceShot=null;const practiceAimGuide=createWeaponGuide(scene);
