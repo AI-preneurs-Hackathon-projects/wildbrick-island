@@ -60,7 +60,7 @@ export class RealtimeRoomStore {
       let room = expired ? newRoom(now, randomUUID()) : JSON.parse(row.snapshot);
       // A recovered checkpoint is authoritative world state, not permission to
       // replay held input from a dead owner. Reconnected peers send fresh input.
-      for (const player of Object.values(room.players || {})) Object.assign(player, {input: {}, inputAt: 0, speed: 0, vertical: 0});
+      for (const player of Object.values(room.players || {})) Object.assign(player, {input: {}, inputAt: 0, speed: 0, vertical: 0, lastSeen: now});
       room.revision = Number(row.revision);
       return {room, ownerEpoch: nextEpoch, revision: Number(row.revision), leaseUntil: now + LEASE_MS};
     }

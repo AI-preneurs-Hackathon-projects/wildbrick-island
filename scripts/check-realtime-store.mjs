@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {newRoom} from '../public/arena-core.js';
+import {addPlayer, newRoom} from '../public/arena-core.js';
 import {createLocalRealtimeDb} from '../realtime/local-db.js';
 import {LostRoomLeaseError, RealtimeRoomStore} from '../realtime/room-store.js';
 import {arenaStore} from '../worker/arena-store.js';
@@ -10,6 +10,8 @@ try {
   const first = new RealtimeRoomStore(local.db, {ownerId: 'owner:first', now: () => now});
   const claimed = await first.claim('FENCE', {create: true});
   claimed.room.marker = 'first';
+  const recoveringPlayer = addPlayer(claimed.room, 'recovering-player', 'Recovering');
+  recoveringPlayer.lastSeen = now - 60_000;
   claimed.room.revision++;
   await first.checkpoint('FENCE', claimed.ownerEpoch, claimed.room);
 
@@ -17,6 +19,8 @@ try {
   const second = new RealtimeRoomStore(local.db, {ownerId: 'owner:second', now: () => now});
   const takeover = await second.claim('FENCE', {create: false});
   assert.ok(takeover.ownerEpoch > claimed.ownerEpoch, 'takeover increments the owner epoch');
+  assert.equal(takeover.room.players['recovering-player'].lastSeen, now, 'owner recovery gives checkpointed seats fresh reconnect grace without replaying input');
+  assert.deepEqual(takeover.room.players['recovering-player'].input, {}, 'owner recovery clears held input before reconnect');
   await assert.rejects(first.checkpoint('FENCE', claimed.ownerEpoch, claimed.room), LostRoomLeaseError, 'old owner is fenced after takeover');
   const resume = {session: '10000000-0000-0000-0000-000000000001', token: 'a'.repeat(64)};
   const session = await second.createSession({principal: 'test:realtime', roomId: 'FENCE', resume});

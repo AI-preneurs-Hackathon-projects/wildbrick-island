@@ -19,6 +19,7 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 - Ordered input acknowledgements, local prediction/reconciliation, reconnect backoff/full resync, 75 ms render jitter window, 100 ms maximum extrapolation, bounded correction, and discontinuity resets.
 - Signed admission from the trusted Vercel guest boundary, origin checks, packet/rate/queue/backpressure bounds, heartbeat, room expiry, fenced checkpoints, and crash recovery from the last checkpoint.
 - Realtime resume leases are refreshed to the same bounded 15-minute recovery horizon as stale rooms, so a five-minute Function lifecycle plus reconnect backoff cannot silently turn a returning player into a new mid-match seat.
+- Ownership recovery clears held input and velocity, then refreshes checkpointed players' presence timestamps so normal stale-player cleanup cannot delete valid seats during the bounded handoff grace.
 - Successful authentication and join now cancel their admission timers; the desktop check caught and fixed the prior five-second disconnect.
 - Between-round Ready is authoritative, round-scoped, and idempotent. The 15-second automatic timer remains. When at least two eligible connected players are ready, the remaining wait becomes at most three seconds and is never lengthened. Eligibility has a five-second disconnect grace; a stale or lone seat cannot trigger an immediate round. Readiness resets on the next round. Match-complete behavior is unchanged: everyone exits before a fresh host lobby is created.
 
