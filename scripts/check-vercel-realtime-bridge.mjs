@@ -23,6 +23,7 @@ class FakeRedis {
   async xrevrange(key,_max,_min,_count,_one){const stream=this.backend.streams.get(key)||[];return stream.length?[stream.at(-1)]:[];}
   async xread(...args){const key=args.at(-2),cursor=args.at(-1),read=()=>{const entries=(this.backend.streams.get(key)||[]).filter(([id])=>Number(id.split('-')[0])>Number(cursor.split('-')[0]));return entries.length?[[key,entries]]:null;};let found=read();if(found)return found;await new Promise(resolve=>{const timer=setTimeout(()=>{this.backend.waiters.delete(wake);resolve();},50),wake=()=>{clearTimeout(timer);resolve();};this.backend.waiters.add(wake);});return read();}
   async quit(){this.closed=true;this.backend.wake();return 'OK';}
+  disconnect(){this.closed=true;this.backend.wake();}
 }
 
 class MockSocket extends EventEmitter {
@@ -59,6 +60,22 @@ try{
   assert.ok([...redis.backend.values.keys(),...redis.backend.streams.keys()].every(key=>key.startsWith(`${namespace}:`)),'every relay key is isolated under the configured preview namespace');
   assert.throws(()=>new RedisArenaBridge({redis,store:new RealtimeRoomStore(local.db),ticketSecret:secret,namespace:'unsafe namespace'}),/namespace/,'unsafe namespaces are rejected before Redis use');
   assert.equal(moved.snapshot.round.status,'active');
+  const owner=firstBridge.owners.get('VR01');
+  // A queued QUIT cannot overtake an outstanding blocking Redis read. Model a
+  // stalled reader without making this authority regression a network soak.
+  clearTimeout(owner.releaseTimer);
+  owner.reader.quit=()=>new Promise(()=>{});
+  const closes=[],output=firstBridge.output.bind(firstBridge);
+  firstBridge.output=(instance,peer,payload)=>{
+    if(payload.type==='close')closes.push(redis.backend.values.has(`${namespace}:VR01:owner`));
+    return output(instance,peer,payload);
+  };
+  let released=false;
+  void firstBridge.releaseOwner(owner).then(()=>{released=true;});
+  await waitFor(()=>released);
+  assert.equal(owner.reader.closed,true,'handoff aborts the read-only connection instead of waiting for QUIT');
+  assert.equal(await redis.get(`${namespace}:VR01:owner`),null,'old Redis ownership is released');
+  assert.ok(closes.length>=2&&closes.every(BooleanValue=>!BooleanValue),'clients reconnect only after Redis ownership is released');
   await waitFor(async()=>firstBridge.owners.size===0&&(await firstBridge.store.roomRow('VR01')).owner_id===null);
   const resumed=await connect(secondBridge,'test:first',true,{session:first.joined.session,token:first.joined.token});
   assert.equal(resumed.joined.snapshot.self,first.joined.snapshot.self,'a live relay takes over the released room with a full resumed seat');

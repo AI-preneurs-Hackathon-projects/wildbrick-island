@@ -1,5 +1,12 @@
 Original prompt: Merge Hadrien camera branch, resolve conflicts, complete useful local voice/readiness work, validate, push authored changes, and prepare a creator-account follow-up master prompt and WhatsApp draft.
 
+## Scheduled Arena handoff follow-up — 2026-09-15
+
+- Scope: reconnect pauses only, on `fix/arena-owner-handoff`; production and AI settings unchanged. User reports recurring 4–5 minute pauses matching the 240-second owner rotation / 300-second function limit.
+- Regression: a stalled Redis reader QUIT prevented release from finishing; the existing bridge fixture timed out on the original code. Fixed by disconnecting the read-only reader without waiting, releasing fenced ownership before notifying clients, and invalidating cached ownership on owner-change close.
+- Focused fixture passes single-owner election, movement, deduplication, stalled-reader release, release-before-close ordering and full same-seat recovery. This establishes the eliminated wait, not hosted latency or removal of periodic reconnects.
+- Next: isolated localhost Redis handoff mode for manual desktop review. Keep owner timer, prediction limits and authority fencing intact; no database resets/restarts or new paid services.
+
 - Base main: 256ef38. Camera: 3f35086. Existing untracked planning files and .DS_Store preserved.
 - UI conflicts resolved by retaining voice controls and adding camera labels.
 - In progress: pre-recording server availability check, camera/voice regression tests, local browser review.

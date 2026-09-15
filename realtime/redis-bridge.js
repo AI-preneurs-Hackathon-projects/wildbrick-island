@@ -242,7 +242,7 @@ export class RedisArenaBridge {
     clearInterval(state.renewTimer);
     clearTimeout(state.releaseTimer);
     this.owners.delete(state.room);
-    void state.reader.quit().catch(() => {});
+    state.reader.disconnect();
     if (release) void this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token).catch(() => {});
     const runtime = this.authority.rooms.get(state.room);
     if (runtime) { runtime.fail(error); this.authority.rooms.delete(state.room); }
@@ -259,15 +259,21 @@ export class RedisArenaBridge {
     state.active = false;
     clearInterval(state.renewTimer);
     clearTimeout(state.releaseTimer);
-    this.owners.delete(state.room);
-    await state.reader.quit().catch(() => {});
+    // QUIT queues behind XREAD BLOCK. This read-only connection has nothing
+    // to flush; disconnect it without delaying the fenced checkpoint.
+    state.reader.disconnect();
     const runtime = this.authority.rooms.get(state.room);
-    if (runtime) {
-      await runtime.release().catch(error => runtime.fail(error));
-      this.authority.rooms.delete(state.room);
+    try {
+      if (runtime) await runtime.release();
+      await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token);
+    } catch (error) {
+      // Failed release recovers through lease expiry; never bypass fencing.
+      if (runtime) runtime.fail(error);
+    } finally {
+      this.owners.delete(state.room);
+      if (runtime) this.authority.rooms.delete(state.room);
+      for (const peer of [...this.virtualPeers.values()]) if (peer.room === state.room) peer.close(1012, 'Arena owner changed; reconnecting');
     }
-    for (const peer of [...this.virtualPeers.values()]) if (peer.room === state.room) peer.close(1012, 'Arena owner changed; reconnecting');
-    await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token).catch(() => {});
   }
 
   async output(instance, peerId, payload) {
@@ -294,7 +300,11 @@ export class RedisArenaBridge {
           if (!relay || relay.closed) continue;
           let payload;
           try { payload = JSON.parse(entry.d); } catch { continue; }
-          if (payload.type === 'close') relay.socket.close(payload.code || 1012, String(payload.reason || '').slice(0, 120));
+          if (payload.type === 'close') {
+            // Replacement admission must not reuse the owner that just closed.
+            if (payload.code === 1012) this.remoteOwners.delete(relay.room);
+            relay.socket.close(payload.code || 1012, String(payload.reason || '').slice(0, 120));
+          }
           else if (payload.type === 'data' && relay.socket.readyState === WebSocket.OPEN) {
             if (relay.socket.bufferedAmount > MAX_BUFFERED_BYTES) relay.socket.close(1013, 'Arena connection is too slow');
             else relay.socket.send(payload.data);
