@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import {once} from 'node:events';
 import {createNodeHandler} from '../server/node-handler.js';
+import {config} from '../api/handler.js';
+assert.equal(config.helpers,false,'Vercel must preserve raw audio streams');
 
 const deferred = () => { let resolve; const promise = new Promise(r => resolve = r); return {promise, resolve}; };
 const received = deferred(), canceled = deferred(), finished = deferred();

@@ -6,6 +6,9 @@ import {createTursoDb} from '../server/turso-db.js';
 import {createVercelHandler} from '../server/vercel-handler.js';
 import {createGatewayWorker} from '../server/ai-gateway.js';
 
+// Keep the original request stream: platform helpers consume unsupported audio MIME bodies.
+export const config = {helpers: false};
+
 let db;
 const handle = createVercelHandler({worker: createGatewayWorker(worker), getDb() {
   if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) throw new Error('Database configuration missing');
