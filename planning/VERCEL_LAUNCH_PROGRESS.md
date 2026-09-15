@@ -55,3 +55,15 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 -29/30 original check commands pass; one main keyboard-hint test misses X. New database/handler checks pass. Existing gameplay source is untouched.
 - AI generation and recorded transcription are not complete: require owner's server-side API key and explicit public paid-feature configuration. Never claim the entire feature set enabled.
 - Deployment uses latest verified main dd5dab9 plus deployment-branch adapters, not the experimental performance branch. No GitHub main push.
+
+## Gateway activation follow-up — 2026-09-15
+
+- Refreshed origin/main; still dd5dab9. Production AI_GATEWAY_API_KEY exists (names-only check). Never downloaded or printed the secret. Older OPENAI_API_KEY remains unchanged.
+- Implementing a Vercel-only Gateway provider adapter with no fallback after Gateway errors; preserve Sites and gameplay source. Existing durable admission limits remain applicable.
+- Increased function maximum to120s to accommodate the existing85s generation deadline and cleanup; this is within the documented Fluid Hobby maximum.
+- Automatic approval review rejected setting ENABLE_PUBLIC_GENERATION=true due to public paid-use exposure. No flag changed. Finish code/local validation/deployment with gates closed, then request the explicit public billing approval. Do not claim live AI acceptance or incur paid calls before that step.
+
+- Added Node disconnect propagation so canceled uploads/responses abort the shared worker request. Actual loopback HTTP cancellation, binary transport, nested routing and listener cleanup pass.
+- Gateway mock acceptance: six groups pass, including actual worker schema/reasoning validation, key precedence, sanitized errors, no retries, WebM/MP4 translation and SQLite duplicate admission.
+- All new Vercel checks pass. Shared suite33/34 passes; unchanged main test check-round-refinements still omits X from expected help hints. Sites build plus both package checks pass (66 assets, three migrations).
+- Paid gates remain disabled; no billable provider requests made. Prepared launch requires approval of public paid AI use, then bounded live generation/transcription acceptance.

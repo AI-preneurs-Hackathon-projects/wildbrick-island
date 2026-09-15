@@ -11,7 +11,7 @@
     "diagnose:combat": "node scripts/diagnose-hit-registration.mjs",
     "check:voice": "node scripts/check-voice.mjs && node scripts/check-transcription.mjs && node scripts/check-voice-ui.mjs && node scripts/check-voice-harness.mjs && node scripts/check-voice-availability.mjs",
     "build:vercel": "node scripts/build-vercel.mjs",
-    "check:vercel": "node scripts/check-turso-db.mjs && node scripts/check-vercel-handler.mjs",
+    "check:vercel": "node scripts/check-turso-db.mjs && node scripts/check-vercel-handler.mjs && node scripts/check-ai-gateway.mjs && node scripts/check-vercel-transport.mjs",
     "db:migrate:vercel": "node scripts/migrate-vercel.mjs"
   },
   "devDependencies": {
