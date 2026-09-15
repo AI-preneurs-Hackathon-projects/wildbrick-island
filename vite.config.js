@@ -7,6 +7,7 @@ const root=import.meta.dirname;
 function apiPreview(){return {name:'brickwild-private-api-preview',configureServer(server){
  server.middlewares.use(async(req,res,next)=>{
   // Isolated development-only HUD validation, including when WebGL is unavailable.
+  if(req.url?.split('?')[0]==='/__map-art'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/map-art-harness.html')));return;}
   if(req.url?.split('?')[0]==='/__maps'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/map-harness.html')));return;}
   if(req.url?.split('?')[0]==='/__controls'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ui-harness.html')));return;}
   if(req.url==='/__rings'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(fs.readFileSync(path.join(root,'validation/ring-harness.html')));return;}
