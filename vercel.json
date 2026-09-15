@@ -9,6 +9,9 @@
   "functions": {
     "api/handler.js": {
       "maxDuration": 120
+    },
+    "api/arena-realtime.js": {
+      "maxDuration": 300
     }
   },
   "headers": [
@@ -27,6 +30,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/arena/realtime",
+      "destination": "/api/arena-realtime"
+    },
     {
       "source": "/api/:path*",
       "destination": "/api/handler?route=:path*"

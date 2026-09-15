@@ -30,12 +30,14 @@ async function ticketRequest(request, principal, env, now, uuid, getDb) {
   } catch { return reply({error: 'Arena transport discovery is temporarily unavailable.', code: 'unavailable'}, 503); }
   if (transport === 'http-v1') return reply({enabled: false, transport});
   if (transport !== 'realtime-v1') return reply({error: 'This Arena transport is not supported.', code: 'transport'}, 409);
-  if (typeof env.REALTIME_TICKET_SECRET !== 'string' || env.REALTIME_TICKET_SECRET.length < 32 || typeof env.REALTIME_ARENA_URL !== 'string') {
+  const vercelRedis = env.REALTIME_ARENA_MODE === 'vercel-redis';
+  const configuredUrl = vercelRedis ? `${new URL(request.url).origin.replace(/^http/, 'ws')}/api/arena/realtime` : env.REALTIME_ARENA_URL;
+  if (typeof env.REALTIME_TICKET_SECRET !== 'string' || env.REALTIME_TICKET_SECRET.length < 32 || typeof configuredUrl !== 'string' || (vercelRedis && typeof env.REDIS_URL !== 'string')) {
     return reply({error: 'Realtime Arena setup is incomplete.', code: 'not_configured'}, 503);
   }
   let endpoint;
   try {
-    endpoint = new URL(env.REALTIME_ARENA_URL);
+    endpoint = new URL(configuredUrl);
     if (!['wss:', 'ws:'].includes(endpoint.protocol) || (endpoint.protocol === 'ws:' && !['localhost', '127.0.0.1', '::1'].includes(endpoint.hostname))) throw new Error();
   } catch { return reply({error: 'Realtime Arena setup is incomplete.', code: 'not_configured'}, 503); }
   const {ticket} = createRealtimeTicket({principal: `vercel-guest:${principal}`, room, create: packet.create, origin: new URL(request.url).origin, secret: env.REALTIME_TICKET_SECRET, now, jti: uuid()});
