@@ -92,6 +92,7 @@
 @media(max-width:700px){.arena-round-clock{top:92px;font-size:14px;padding:7px 12px}.arena-results{padding:20px;max-height:60vh}}
 
 .arena-results > .secondary{width:100%;min-height:44px;margin-top:8px}
+.arena-ready-row{display:flex;align-items:center;justify-content:center;gap:14px;margin:12px 0}.arena-ready-row .primary{min-width:132px}.arena-ready-row strong{font-size:14px;font-variant-numeric:tabular-nums}
 
 /* Keep speech text out of the main control's layout, with a readable scroll area. */
 .build-dock{width:156px;left:50%;transform:translateX(-50%)}

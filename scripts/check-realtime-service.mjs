@@ -93,6 +93,22 @@ try {
   const built=await second.waitFor(message=>message.type==='snapshot'&&message.snapshot.players.some(player=>player.id===first.joined.snapshot.self&&player.lastCommand===2));
   assert.equal(built.snapshot.players.find(player=>player.id===first.joined.snapshot.self).lastCommand,2,'large valid stored creation remains buildable over realtime');
 
+  const runtime=app.authority.rooms.get('RT01');
+  runtime.room.round.endsAt=Date.now();
+  const finished=await second.waitFor(message=>message.type==='snapshot'&&message.snapshot.round.status==='finished');
+  const originalIntermission=finished.snapshot.round.intermissionEndsAt;
+  first.socket.send(JSON.stringify({type:'ready',requestId:30,roundId:finished.snapshot.round.id}));
+  const firstReady=await first.waitFor(message=>message.type==='result'&&message.requestId===30);
+  assert.equal(firstReady.snapshot.readiness.readyCount,1,'first Ready is acknowledged without starting the next round');
+  assert.equal(firstReady.snapshot.round.intermissionEndsAt,originalIntermission,'one Ready keeps the automatic timeout');
+  second.socket.send(JSON.stringify({type:'ready',requestId:31,roundId:finished.snapshot.round.id}));
+  const allReady=await second.waitFor(message=>message.type==='result'&&message.requestId===31);
+  assert.equal(allReady.snapshot.readiness.allReady,true,'Ready is authoritative across realtime peers');
+  assert.ok(allReady.snapshot.round.intermissionEndsAt<=allReady.snapshot.time+3000,'all eligible peers shorten the remaining wait to at most three seconds');
+  first.socket.send(JSON.stringify({type:'ready',requestId:32,roundId:finished.snapshot.round.id}));
+  const duplicateReady=await first.waitFor(message=>message.type==='result'&&message.requestId===32);
+  assert.equal(duplicateReady.snapshot.round.intermissionEndsAt,allReady.snapshot.round.intermissionEndsAt,'repeated Ready cannot lengthen or double-start the countdown');
+
   second.socket.close();
   await new Promise(resolve => second.socket.once('close', resolve));
   const resumed = await connect('test:second', false, {session: second.joined.session, token: second.joined.token});
@@ -112,7 +128,7 @@ try {
   assert.equal(fanout.snapshot.players.length,4,'four connected clients share one authoritative room and fanout');
   for(let i=0;i<four.length;i++){four[i].socket.send(JSON.stringify({type:'leave',requestId:20+i}));await four[i].waitFor(message=>message.type==='result'&&message.requestId===20+i);}
   const intervals=times.slice(1).map((time,index)=>time-times[index]);
-  console.log(JSON.stringify({transport:'realtime-v1',authorityHz:20,snapshotIntervalsMs:intervals,snapshotAgeMs:ages,maxSnapshotAgeMs:Math.max(...ages),idempotentFirstJoin:true,largeCreationPacket:true,reconnectFullSync:true,fourClientFanout:true},null,2));
+  console.log(JSON.stringify({transport:'realtime-v1',authorityHz:20,snapshotIntervalsMs:intervals,snapshotAgeMs:ages,maxSnapshotAgeMs:Math.max(...ages),idempotentFirstJoin:true,largeCreationPacket:true,roundReady:true,reconnectFullSync:true,fourClientFanout:true},null,2));
   console.log('Realtime Arena: two-client 20 Hz movement/reconnect smoke plus four-client join/fanout/cleanup passed.');
 } finally {
   await app.close();

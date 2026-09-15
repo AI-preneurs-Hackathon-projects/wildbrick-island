@@ -1,6 +1,6 @@
 import {WebSocket} from 'ws';
 import {avatarColor} from '../public/avatar-colors.js';
-import {advanceRoom, applyInput, makeKit, queuePlayer, removePlayer, roomSnapshot, startRoom} from '../public/arena-core.js';
+import {advanceRoom, applyInput, makeKit, queuePlayer, readyForNextRound, removePlayer, roomSnapshot, startRoom} from '../public/arena-core.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {ArenaError} from '../worker/arena-store.js';
 import {verifyRealtimeTicket} from '../server/realtime-ticket.js';
@@ -18,7 +18,7 @@ const JOIN_TIMEOUT_MS = 10_000;
 const MAX_CONNECTIONS = 512;
 const MAX_ROOMS = 128;
 const MAX_PLAYERS_PER_ROOM = 64;
-const REQUEST_TYPES = new Set(['start', 'leave']);
+const REQUEST_TYPES = new Set(['start', 'ready', 'leave']);
 const COMMAND_TYPES = new Set(['fire', 'jump', 'exit', 'pickup', 'cancel-build', 'build']);
 
 const statusOf = error => Number.isInteger(error?.status) ? error.status : error instanceof LostRoomLeaseError ? 409 : 503;
@@ -173,8 +173,11 @@ export class RealtimeRoomAuthority {
       if (packet.type === 'input') return await this.input(socket, packet);
       if (REQUEST_TYPES.has(packet.type)) {
         if (!validRequestId(packet.requestId)) throw new ArenaError('Invalid Arena request.');
-        if (Object.keys(packet).some(key => !['type', 'requestId'].includes(key))) throw new ArenaError('Invalid Arena request.');
-        return packet.type === 'start' ? await this.start(socket, packet) : await this.leave(socket, packet);
+        const allowed = packet.type === 'ready' ? ['type', 'requestId', 'roundId'] : ['type', 'requestId'];
+        if (Object.keys(packet).some(key => !allowed.includes(key))) throw new ArenaError('Invalid Arena request.');
+        if (packet.type === 'start') return await this.start(socket, packet);
+        if (packet.type === 'ready') return await this.ready(socket, packet);
+        return await this.leave(socket, packet);
       }
       throw new ArenaError('Unknown Arena action.', 404);
     } catch (error) { error.requestId ??= packet.requestId;error.seq ??= packet.seq;error.commandId ??= packet.command?.id;throw error; }
@@ -268,6 +271,14 @@ export class RealtimeRoomAuthority {
     const state = socket.arena, runtime = state.runtime;
     advanceRoom(runtime.room, this.now());
     startRoom(runtime.room, state.playerId, this.now());
+    send(socket, {type: 'result', requestId: packet.requestId, snapshot: roomSnapshot(runtime.room, state.playerId, state.afterEvent)});
+  }
+
+  ready(socket, packet) {
+    if (!Number.isSafeInteger(packet.roundId) || packet.roundId < 1) throw new ArenaError('Invalid Arena round.');
+    const state = socket.arena, runtime = state.runtime;
+    advanceRoom(runtime.room, this.now());
+    readyForNextRound(runtime.room, state.playerId, packet.roundId, this.now());
     send(socket, {type: 'result', requestId: packet.requestId, snapshot: roomSnapshot(runtime.room, state.playerId, state.afterEvent)});
   }
 

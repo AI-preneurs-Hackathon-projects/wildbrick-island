@@ -1,7 +1,7 @@
 import {avatarColor} from '../public/avatar-colors.js';
 import {newMotion,validFrames} from '../public/movement-stream.js';
 import {arenaStore,ArenaError,hash,nonce} from './arena-store.js';
-import {queuePlayer,startRoom,removePlayer,applyInput,roomSnapshot,makeKit} from '../public/arena-core.js';
+import {queuePlayer,startRoom,removePlayer,applyInput,roomSnapshot,makeKit,readyForNextRound} from '../public/arena-core.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {SUPPLY_BLUEPRINTS} from '../public/supply-catalog.js';
 const response=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -29,6 +29,7 @@ export async function handleArenaAPI(request,env,ctx={}){try{
  const session=await store.session(request,packet);
  if(url.pathname==='/api/arena/leave'){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));return response({left:true});}
  if(url.pathname==='/api/arena/start'){const {room}=await store.mutate(session.room_id,(r,t)=>startRoom(r,session.player_id,t));return response({snapshot:roomSnapshot(room,session.player_id)});}
+ if(url.pathname==='/api/arena/ready'){if(!Number.isSafeInteger(packet.roundId)||packet.roundId<1)throw new ArenaError('Invalid Arena round.');const {room}=await store.mutate(session.room_id,(r,t)=>readyForNextRound(r,session.player_id,packet.roundId,t));return response({snapshot:roomSnapshot(room,session.player_id)});}
  if(!['/api/arena/sync','/api/arena/build'].includes(url.pathname))return response({error:'Not found.'},404);
  if(!Number.isSafeInteger(packet.seq)||packet.seq<1||packet.seq>1e12)throw new ArenaError('Invalid input sequence.');
  if(packet.frames!==undefined&&(!validFrames(packet.frames)||!Number.isSafeInteger(packet.motionEpoch)||packet.motionEpoch<0))throw new ArenaError('Invalid movement frames.');
