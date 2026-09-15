@@ -10,7 +10,7 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 - `api/arena-realtime.js` is the Vercel upgrade endpoint. `realtime/redis-bridge.js` elects and fences the single owner, relays sockets across Function instances, bounds streams/backpressure, and forces a full client reconnect when ownership changes. The existing standalone/local service remains the no-Redis development path. The unapproved Render Blueprint was removed.
 - `REALTIME_ARENA_NAMESPACE` scopes every owner, input, and output key. Preview uses its own namespace so a shared provider can never route candidate traffic through production room keys.
 - Relay envelopes carry bounded unique IDs. The owner discards a repeated Redis append before it can replay authentication, requests, or input; ordered gameplay sequence IDs remain an independent deduplication layer.
-- A Vercel owner checkpoints and releases both fenced leases when its last local WebSocket invocation ends. The next live relay can then claim the room, and bounded retries carry admission/control envelopes across the brief handoff without creating duplicate actions.
+- A Vercel owner checkpoints and releases both fenced leases when its last local WebSocket invocation ends. A resumed Redis reader verifies its lease synchronously before consuming queued packets, so an expired Function cannot authenticate peers onto a frozen owner. The next live relay can claim the room, and bounded retries carry admission/control envelopes across the brief handoff without creating duplicate actions.
 - Transport remains pinned per room as `http-v1` or `realtime-v1`. Rollback is `ENABLE_REALTIME_ARENA=false` for newly created rooms; a live room never runs both authorities.
 
 ## Implemented

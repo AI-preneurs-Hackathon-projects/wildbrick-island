@@ -162,7 +162,7 @@ export class RedisArenaBridge {
       return;
     }
     const tail = await this.redis.xrevrange(inputKey(this.namespace, room), '+', '-', 'COUNT', 1);
-    const state = {room, token, cursor: tail[0]?.[0] || '0-0', active: true, reader: this.redis.duplicate(), renewTimer: null};
+    const state = {room, token, cursor: tail[0]?.[0] || '0-0', active: true, verifiedUntil: this.now() + OWNER_RENEW_MS, reader: this.redis.duplicate(), renewTimer: null};
     this.owners.set(room, state);
     state.renewTimer = setInterval(() => void this.renewOwner(state), OWNER_RENEW_MS);
     state.renewTimer.unref?.();
@@ -171,8 +171,11 @@ export class RedisArenaBridge {
 
   async renewOwner(state) {
     if (!state.active) return;
+    const hasLocalRelay = [...this.relays.values()].some(relay => relay.room === state.room && !relay.closed && relay.socket.readyState === WebSocket.OPEN);
+    if (!hasLocalRelay) { await this.releaseOwner(state); return; }
     const renewed = await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('pexpire',KEYS[1],ARGV[2]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token, OWNER_LEASE_MS).catch(() => 0);
     if (Number(renewed) !== 1) this.stopOwner(state, new LostRoomLeaseError(`Redis lease lost for ${state.room}`));
+    else state.verifiedUntil = this.now() + OWNER_RENEW_MS;
   }
 
   async ownerLoop(state) {
@@ -180,6 +183,8 @@ export class RedisArenaBridge {
       try {
         const result = await state.reader.xread('BLOCK', STREAM_BLOCK_MS, 'STREAMS', inputKey(this.namespace, state.room), state.cursor);
         if (!result) { this.expireVirtualPeers(state.room); continue; }
+        if (this.now() >= state.verifiedUntil) await this.renewOwner(state);
+        if (!state.active) break;
         for (const [, entries] of result) for (const [id, flat] of entries) {
           state.cursor = id;
           const data = fields(flat).d;
