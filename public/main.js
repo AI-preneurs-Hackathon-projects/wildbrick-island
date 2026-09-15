@@ -23,7 +23,7 @@ import {createCreationService} from './creation-service.js';
 import {createAdventure} from './adventure.js';
 import {createArenaClient} from './arena-client.js?v=41';
 import {createArenaView} from './arena-view.js';
-import {createArenaUI} from './arena-ui.js?v=49';
+import {createArenaUI} from './arena-ui.js?v=50';
 import {navigationGoal,creationControls} from './guidance.js';
 import {composeGameSnapshot} from './snapshot.js';
 const dom=document.querySelector('#scene');
@@ -106,7 +106,9 @@ async function bootGame(){
  arenaUI=createArenaUI({pickup:actions.pickup,getPlayerName:ui.playerName,leave:leaveArena,exitHome:actions.exitHome,openCollection:()=>ui.openMenu('collection'),toast:ui.toast,start:()=>arena.start(),ready:()=>arena.ready(),async join(name,room,create){const returnPose={x:sim.state.x,y:sim.state.y,z:sim.state.z,yaw:sim.state.yaw};creations.cancel();voice.stop();input?.clear();const ok=await arena.join(name,room,ui.playerColor(),create);if(!ok)return false;arenaView.clear();if(!arenaMode){practicePose=returnPose;arenaMode=true;}restoreAssembly();assembly=null;for(const m of [activeGenerated,pendingGenerated,readyModel])m?.dispose();activeGenerated=pendingGenerated=readyModel=null;sim.state.building=null;sim.state.custom=null;sim.state.arena=true;sim.state.paused=false;sim.state.autoRun=false;projectiles.forEach(p=>p.mesh.removeFromParent());projectiles.length=0;placedModels.forEach(p=>p.model.group.visible=false);actor.visible=false;ui.toast(create?'Arena created. Share the code, then press Start Game when everyone is ready.':'Arena joined. Waiting for the arena creator to start.',6500);return true;}});
 
  input=createInput({onPickup:actions.pickup,onDrop:actions.drop,onAction:actions.action,onJump:actions.jump,onPause:()=>ui.toggleMenu('pause'),onMic:actions.voice,onHotkeys:()=>ui.toggleMenu('hotkeys'),onControls:()=>ui.toggleControls(),onCollection:()=>ui.toggleCollection(),onSnapshot:actions.snapshot,onSlot:index=>{if(!actions.recent()[index])return false;if(document.querySelector('#menu')?.open)ui.closeMenu();ui.closeCollection();actions.rebuild(index);return true;},getState:controlsState});
- window.addEventListener('pagehide',()=>{arena.leave();saveAdventure();creations.cancel();voice.stop();});
+ // Refresh/navigation closes the socket naturally. Do not turn it into an
+ // explicit leave: the short-lived resume token must keep the seat recoverable.
+ window.addEventListener('pagehide',()=>{saveAdventure();creations.cancel();voice.stop();});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&sim.state.started&&!snapshotBusy){saveAdventure();sim.state.autoRun=false;ui.openMenu('pause');}});
  renderer.domElement.addEventListener('webglcontextlost',e=>{e.preventDefault();sim.state.paused=true;fatal('3D graphics were interrupted. Tap Try again to rebuild the island.');});
  window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});

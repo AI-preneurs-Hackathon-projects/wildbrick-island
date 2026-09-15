@@ -89,8 +89,30 @@ try {
   const reversed = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === first.joined.snapshot.self && player.lastSeq === 3));
   assert.equal(reversed.snapshot.players.find(player => player.id === first.joined.snapshot.self).lastCommand, 1, 'move-and-fire command is deduplicated and acknowledged');
 
+  // Relays may deliver a short backlog between owner ticks. Superseded movement
+  // state must collapse to the newest sequence without disconnecting the peer.
+  for(let seq=4;seq<64;seq++)first.socket.send(JSON.stringify({type:'input',seq,roundId:1,input:{z:1},afterEvent:0}));
+  await new Promise(resolve=>setTimeout(resolve,10));
+  for(let seq=64;seq<124;seq++)first.socket.send(JSON.stringify({type:'input',seq,roundId:1,input:{z:seq===123?0:1},afterEvent:0}));
+  const backlog=await first.waitFor(message=>message.type==='snapshot'&&message.snapshot.players.some(player=>player.id===first.joined.snapshot.self&&player.lastSeq===123));
+  assert.equal(first.socket.readyState,WebSocket.OPEN,'a relayed input backlog keeps the connection open');
+  assert.equal(backlog.snapshot.players.find(player=>player.id===first.joined.snapshot.self).lastSeq,123,'the newest coalesced input sequence is acknowledged');
+
+  const late=await connect('test:late',false,undefined);
+  const latePlayer=late.joined.snapshot.players.find(player=>player.id===late.joined.snapshot.self);
+  assert.equal(late.joined.snapshot.round.status,'active','a new player can enter an active match');
+  assert.equal(latePlayer.roundId,late.joined.snapshot.round.id,'a late arrival participates in the current round');
+  assert.ok(latePlayer.protectedUntil>=late.joined.snapshot.time+2900,'a late arrival receives bounded spawn protection');
+  late.socket.send(JSON.stringify({type:'leave',requestId:33}));
+  await late.waitFor(message=>message.type==='result'&&message.requestId===33);
+  const lateReturned=await connect('test:late',false,undefined);
+  assert.equal(lateReturned.joined.snapshot.round.status,'active','an explicit leaver can return while the match is active');
+  assert.notEqual(lateReturned.joined.snapshot.self,late.joined.snapshot.self,'an explicit leave creates a fresh authenticated seat');
+  lateReturned.socket.send(JSON.stringify({type:'leave',requestId:34}));
+  await lateReturned.waitFor(message=>message.type==='result'&&message.requestId===34);
+
   const largeBlueprint={version:3,traits:{weapon:'pulse',armor:'medium',mass:'medium',emitter:[1.23456789,2.34567891,3.45678912]},name:'Large preserved creation',description:'A deliberately detailed valid creation used to verify the preserved Arena build packet boundary.',movement:'carry',ability:'pulse',palette:['#ffcf55','#16392e'],seat:[0.12345678,1.23456789,-0.98765432],joints:[],parts:Array.from({length:128},(_,index)=>({shape:'box',position:[(index%8)-4.12345678,Math.floor(index/16)+0.12345678,(index%16)-8.12345678],size:[1.12345678,.98765432,.87654321],rotation:[12.345678,23.456789,34.567891],color:index%2,joint:-1,studs:index%2===0}))};
-  const largePacket={type:'input',seq:4,roundId:1,input:{z:0},command:{type:'build',id:2},blueprint:largeBlueprint,afterEvent:0};
+  const largePacket={type:'input',seq:124,roundId:1,input:{z:0},command:{type:'build',id:2},blueprint:largeBlueprint,afterEvent:0};
   assert.ok(Buffer.byteLength(JSON.stringify(largePacket))>16_384,'valid creation exercises the expanded build-only packet allowance');
   first.socket.send(JSON.stringify(largePacket));
   const built=await second.waitFor(message=>message.type==='snapshot'&&message.snapshot.players.some(player=>player.id===first.joined.snapshot.self&&player.lastCommand===2));
@@ -122,6 +144,11 @@ try {
   await assert.rejects(arenaStore(local.db).mutate('RT01', room => room), error => error.status === 409, 'HTTP authority cannot mutate a live realtime-v1 room');
   resumed.socket.send(JSON.stringify({type: 'leave', requestId: 4}));
   await resumed.waitFor(message => message.type === 'result' && message.requestId === 4);
+  const returned=await connect('test:second',false,undefined);
+  assert.equal(returned.joined.snapshot.round.status,'finished','an explicit leaver can also return during intermission');
+  assert.notEqual(returned.joined.snapshot.self,second.joined.snapshot.self,'an explicit leave creates a fresh authenticated seat');
+  returned.socket.send(JSON.stringify({type:'leave',requestId:6}));
+  await returned.waitFor(message=>message.type==='result'&&message.requestId===6);
   first.socket.send(JSON.stringify({type: 'leave', requestId: 5}));
   await first.waitFor(message => message.type === 'result' && message.requestId === 5);
 

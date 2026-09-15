@@ -1,6 +1,6 @@
 import {WebSocket} from 'ws';
 import {avatarColor} from '../public/avatar-colors.js';
-import {advanceRoom, applyInput, makeKit, queuePlayer, readyForNextRound, removePlayer, roomSnapshot, startRoom} from '../public/arena-core.js';
+import {advanceRoom, applyInput, joinPlayer, makeKit, readyForNextRound, removePlayer, roomSnapshot, startRoom} from '../public/arena-core.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {ArenaError} from '../worker/arena-store.js';
 import {verifyRealtimeTicket} from '../server/realtime-ticket.js';
@@ -227,8 +227,7 @@ export class RealtimeRoomAuthority {
     try {
       player = runtime.room.players[session.player_id];
       if (!player && Object.keys(runtime.room.players).length >= MAX_PLAYERS_PER_ROOM) throw new ArenaError('This Arena is full. Create or join another room.', 409);
-      if (!player && runtime.room.round?.status !== 'waiting' && !(runtime.room.match?.complete && !Object.keys(runtime.room.players).length)) throw new ArenaError('This match is already in progress. Join after the current game ends.', 409);
-      player ||= queuePlayer(runtime.room, session.player_id, name, this.now());
+      player ||= joinPlayer(runtime.room, session.player_id, name, this.now());
     } catch (error) { if (!created.resumed) await this.store.expireSession(session.id); throw error; }
     Object.assign(player, {lastSeen: this.now(), name, avatarColor: avatarColor(packet.avatarColor), input: {}, inputAt: 0, speed: 0, vertical: 0});
     player.motion = {version: 2, frame: 0, at: this.now()};
@@ -249,6 +248,21 @@ export class RealtimeRoomAuthority {
   async input(socket, packet) {
     validateInput(packet);
     const state = socket.arena;
+    const previous = state.inputs.at(-1), commandId = packet.command?.id;
+    // A relay can deliver several 20 Hz packets just before one authority tick.
+    // Movement is state, so only the newest contiguous state is useful. Retried
+    // commands keep their first validated payload/kit but take the newest input
+    // sequence, preserving both command order and the acknowledgement boundary.
+    if (previous && commandId && previous.packet.command?.id === commandId) {
+      previous.packet = {...packet, command: previous.packet.command, blueprint: previous.packet.blueprint};
+      state.afterEvent = packet.afterEvent ?? state.afterEvent;
+      return;
+    }
+    if (!packet.command && previous && !previous.packet.command) {
+      previous.packet = packet;
+      state.afterEvent = packet.afterEvent ?? state.afterEvent;
+      return;
+    }
     if (state.inputs.length >= MAX_INPUT_QUEUE) throw new ArenaError('Arena input queue is full. Reconnecting…', 429);
     let kit = null;
     if (packet.command?.type === 'build') {
