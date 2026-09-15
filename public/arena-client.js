@@ -37,12 +37,13 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   if(lastEvent===0)lastEvent=s.eventCursor??Math.max(0,...s.events.map(e=>e.id));for(const e of s.events)if(e.id>lastEvent){onEvent({...e,predicted:e.player===s.self&&['shot','swing'].includes(e.type)&&predictedCommands.delete(e.commandId)},s.self);lastEvent=e.id;}lastEvent=Math.max(lastEvent,s.eventCursor||0);
   onStatus('online');
  }
- function schedule(delay=120){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
- async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const current=credentials,command=commands[0],packet={...current,mapVersion:1,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
+ function schedule(delay=0){clearTimer(timer);if(credentials&&!closed)timer=setTimer(sync,delay);}
+ async function sync(){if(!credentials||closed||inFlight)return;inFlight=true;const sentAt=clock(),current=credentials,command=commands[0],packet={...current,mapVersion:1,seq:++seq,input:{...input,fire:input.fire&&clock()-fireHeldAt>=Math.max(180,(self?.kit.stats.interval||.5)*1000)},afterEvent:lastEvent,frames:frames.slice(),motionEpoch,roundId:snapshot?.round?.id,command:command?{id:command.id,type:command.type,mode:command.mode,roundId:command.roundId}:undefined};if(command?.blueprint)packet.blueprint=command.blueprint;
   try{const result=await request(command?.blueprint?'/api/arena/build':'/api/arena/sync',packet);if(current!==credentials)return;
    // A rejected old-round build must never replace the retained kit's model.
    // accept() fetches unknown blueprints by their authoritative server IDs.
-   accept(result.snapshot);schedule();}
+   // Pace from request start, not response arrival: no extra network-idle gap.
+   accept(result.snapshot);schedule(Math.max(0,100-(clock()-sentAt)));}
   catch(e){if(current!==credentials)return;if(e.status===400||e.status===413){if(command)commands=commands.filter(c=>c.id!==command.id);onError(e.message,e.status);schedule(600);}else if([401,410].includes(e.status)){credentials=null;input={};jumpQueued=false;accumulator=0;clearTimer(timer);onStatus('expired');onError(e.message,e.status);}else{onStatus('reconnecting');schedule(e.status===429?1500:650);}}
   finally{inFlight=false;if(current!==credentials&&credentials&&!closed)schedule();}
  }
