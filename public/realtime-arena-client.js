@@ -100,5 +100,5 @@ export function createRealtimeArenaClient({onSnapshot=()=>{},onStatus=()=>{},onE
   }else{accumulator=0;if(self){self.speed=0;self.vertical=0;}}
   const moving=Math.hypot(input.x,input.z)>.06||input.up||input.down,pose=self?view.update(self,fresh?dt:0,{correct:!!moving&&fresh}):null;if(pose)pose.aimPitch=weaponAim(pose,input.weaponPitch).pitch;return pose;
  }
- return {join,start,ready,leave,tick,command,getTicket,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return connected;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !connected||clock()-lastSuccess>1000;},serverTime};
+ return {join,start,ready,leave,tick,command,getTicket,blueprints,get resume(){return joinTicket;},get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return connected;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !connected||clock()-lastSuccess>1000;},serverTime};
 }

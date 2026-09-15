@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {createRealtimeArenaClient} from '../public/realtime-arena-client.js';
+import {createArenaClient} from '../public/arena-client.js';
 import {joinPlayer,newRoom,roomSnapshot} from '../public/arena-core.js';
 
 class MemoryStorage {
@@ -34,4 +35,27 @@ await first.leave();
 
 const main=fs.readFileSync(new URL('../public/main.js',import.meta.url),'utf8');
 assert.doesNotMatch(main,/pagehide[^\n]*arena\.leave\(/,'page refresh is not sent as an explicit Arena leave');
-console.log('Realtime Arena client: same-tab refresh resume and explicit-leave cleanup passed.');
+
+class ClosingSocket {
+ static OPEN=1;
+ constructor(){this.readyState=ClosingSocket.OPEN;queueMicrotask(()=>this.onopen?.());}
+ send(raw){if(JSON.parse(raw).type==='authenticate')queueMicrotask(()=>this.onclose?.());}
+ close(){this.readyState=3;}
+}
+let fallbackResume=null;
+const knownResume={session:'10000000-0000-4000-8000-000000000001',token:'1'.repeat(64)},fallbackStorage=new MemoryStorage();
+fallbackStorage.setItem('brickwild.arena.resume.v1:FALL01',JSON.stringify(knownResume));
+const fallbackRoom=newRoom(2000,'fallback-test'),fallbackPlayer=joinPlayer(fallbackRoom,'fallback-player','Fallback',2000);
+fallbackPlayer.motion={version:1,frame:0,credit:6,at:2000};
+const fallbackErrors=[];
+const fallback=createArenaClient({onError:error=>fallbackErrors.push(error)}, {realtime:true,WebSocket:ClosingSocket,resumeStorage:fallbackStorage,baseUrl:'https://brickwild.test',setTimer:()=>0,clearTimer(){},fetcher:async(path,options)=>{
+ const body=JSON.parse(options.body||'{}');
+ if(path==='/api/arena/realtime-ticket')return Response.json({enabled:true,transport:'realtime-v1',url:'wss://arena.test',ticket:'ticket'});
+ if(path==='/api/arena/join'){fallbackResume=body.resume;return Response.json({room:'FALL01',session:body.resume.session,token:body.resume.token,snapshot:roomSnapshot(fallbackRoom,fallbackPlayer.id)});}
+ throw Error('Unexpected fallback request: '+path);
+}});
+assert.equal(await fallback.join('Fallback','FALL01','#ffcf55',true),true,'a closed realtime handshake falls back to HTTP');
+assert.deepEqual(fallbackResume,knownResume,'HTTP fallback reuses the realtime join proof');
+assert.deepEqual(fallbackErrors,[],'the recoverable realtime close is not shown to the player');
+assert.equal(fallback.active,true);
+console.log('Realtime Arena client: refresh resume, explicit-leave cleanup and closed-handshake HTTP fallback passed.');

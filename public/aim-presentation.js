@@ -12,11 +12,12 @@ export function poseRangedModel(model,p,solution){
 }
 export function createWeaponGuide(parent){
  const root=new THREE.Group();root.name='weapon-path-guide';root.visible=false;root.userData.prediction=true;parent.add(root);
- const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineDashedMaterial({color:0xfff3d4,transparent:true,opacity:.28,dashSize:.22,gapSize:.18,depthWrite:false}));
- const end=new THREE.Mesh(new THREE.RingGeometry(.72,1,24),new THREE.MeshBasicMaterial({color:0xfff3d4,transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));end.name='weapon-path-end';
+ const guideColor=0xbfb69f;
+ const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineDashedMaterial({color:guideColor,transparent:true,opacity:.28,dashSize:.22,gapSize:.18,depthWrite:false}));
+ const end=new THREE.Mesh(new THREE.RingGeometry(.72,1,24),new THREE.MeshBasicMaterial({color:guideColor,transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));end.name='weapon-path-end';
  // Independent yaw/pitch samples have a rectangular angular envelope, not an ellipse.
  const points=[];for(const x of [-1,1])for(const y of [-1,1])points.push(new THREE.Vector3(x*.65,y,0),new THREE.Vector3(x,y,0),new THREE.Vector3(x,y,0),new THREE.Vector3(x,y*.65,0));
- const spread=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:0xfff3d4,transparent:true,opacity:.23,depthWrite:false}));spread.name='weapon-spread-envelope';root.add(line,end,spread);
+ const spread=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:guideColor,transparent:true,opacity:.23,depthWrite:false}));spread.name='weapon-spread-envelope';root.add(line,end,spread);
  function update(path,camera){root.visible=!!path;if(!path)return;const a=new THREE.Vector3(path.from.x,path.from.y,path.from.z),b=new THREE.Vector3(path.to.x,path.to.y,path.to.z),positions=line.geometry.attributes.position;positions.setXYZ(0,a.x,a.y,a.z);positions.setXYZ(1,b.x,b.y,b.z);positions.needsUpdate=true;line.geometry.computeBoundingSphere();line.computeLineDistances();end.position.copy(b);end.quaternion.copy(camera.quaternion);end.scale.setScalar(.10);
   spread.position.copy(b);spread.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(path.direction.x,path.direction.y,path.direction.z));const length=a.distanceTo(b);spread.scale.set(Math.tan(path.spread/2)*length,Math.tan(path.spread*.35)*length/Math.cos(path.spread/2),1);spread.visible=path.spread>0&&!path.launch;root.userData.launch=path.launch;
  }
