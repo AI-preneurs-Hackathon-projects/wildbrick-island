@@ -11,7 +11,7 @@
       "maxDuration": 120
     },
     "api/arena-realtime.js": {
-      "maxDuration": 300
+      "maxDuration": 60
     }
   },
   "headers": [

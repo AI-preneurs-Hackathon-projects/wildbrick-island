@@ -211,7 +211,7 @@ export class RealtimeRoomAuthority {
 
   async join(socket, packet) {
     const allowed = new Set(['type', 'requestId', 'name', 'room', 'create', 'avatarColor', 'resume', 'motionVersion', 'mapVersion']);
-    if (packet.type !== 'join') throw new ArenaError('Arena join protocol was out of order.');
+    if (packet.type !== 'join') throw new ArenaError(`Arena join protocol was out of order (${packet.type || 'unknown'}).`);
     if (!validRequestId(packet.requestId)) throw new ArenaError('Invalid Arena join request identifier.');
     if (Object.keys(packet).some(key => !allowed.has(key))) throw new ArenaError('Arena join request contained unexpected fields.');
     const claims = socket.arena.claims;

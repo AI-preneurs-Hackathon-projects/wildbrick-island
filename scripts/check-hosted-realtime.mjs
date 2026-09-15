@@ -8,8 +8,9 @@ if (base.protocol !== 'https:' || base.hostname === 'wildbrick-island.vercel.app
 const origin = base.origin;
 const bypass = process.env.VERCEL_PROTECTION_BYPASS;
 const room = `H${Date.now().toString(36).slice(-7)}`.toUpperCase();
-const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || 325_000);
-if (!Number.isFinite(HOLD_MS) || HOLD_MS < 305_000) throw new Error('ARENA_ROLLOVER_MS must cover the 300-second Function lifecycle.');
+const FUNCTION_DURATION_MS = Number(process.env.ARENA_FUNCTION_DURATION_MS || 300_000);
+const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || FUNCTION_DURATION_MS + 25_000);
+if (!Number.isFinite(FUNCTION_DURATION_MS) || FUNCTION_DURATION_MS < 30_000 || !Number.isFinite(HOLD_MS) || HOLD_MS < FUNCTION_DURATION_MS + 5_000) throw new Error('Hosted rollover timing must cover the configured Function lifecycle.');
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const requestHeaders = extra => ({
@@ -215,7 +216,7 @@ try {
     await delay(1_000);
   }
 
-  assert.ok(first.closeCount + second.closeCount > rolloverBaseline, 'expected at least one connection rollover after the 300-second hosted Function lifecycle');
+  assert.ok(first.closeCount + second.closeCount > rolloverBaseline, `expected at least one connection rollover after the ${FUNCTION_DURATION_MS}-millisecond hosted Function lifecycle`);
   await Promise.all([first.ensureConnected(), second.ensureConnected()]);
   if (first.lastSnapshot.round.status !== 'finished') await first.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
   if (second.lastSnapshot.round.status !== 'finished') await second.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
