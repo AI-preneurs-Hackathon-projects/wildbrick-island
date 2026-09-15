@@ -73,3 +73,5 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 - Yerzhan explicitly approved public paid creation/transcription using the shared hackathon key. Both production feature flags are now enabled.
 - Deployment EmkpobiFx87UEX1PFdrvKWqrCq1d: authenticated Gateway readiness succeeds for openai/gpt-5.4; transcription configuration ready.
 - First synthetic voice attempt returned400 before admission/provider call: Vercel preserves the source pathname and appends its rewrite route parameter. Corrected Node transport to strip that matching internal parameter while preserving all other query parameters for validation. Added real loopback regression coverage. No paid retry occurred.
+
+- Live sanitized log established a second Vercel-generated query key, path, with valid attempt UUID. Strip matching internal path too; preserve other parameters. Removed temporary diagnostic. First generation succeeded:34-part Sunny Wing Mini Plane,20.65s total,1624 input/2317 output tokens (roughly $0.039 at catalog rates, not billing receipt).

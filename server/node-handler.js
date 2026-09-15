@@ -27,6 +27,7 @@ export function createNodeHandler(handle, {waitUntil = () => {}} = {}) {
       routed.pathname = '/api/' + route;
       routed.searchParams.delete('route');
     }
+    if (routed.searchParams.get('path') === routed.pathname.slice('/api/'.length)) routed.searchParams.delete('path');
     const response = await handle(new Request(routed, init), {waitUntil});
     if (res.destroyed) { await response.body?.cancel(); return; }
     res.statusCode = response.status;

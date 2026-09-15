@@ -35,11 +35,11 @@ try {
   const echo = await fetch(base+'/api/echo',{method:'POST',body:binary});
   assert.deepEqual(new Uint8Array(await echo.arrayBuffer()),binary);
   assert.equal(normalSignal.aborted,false,'normal completion must not abort work');
-  const rewriteEcho = await fetch(base+'/api/transcribe?route=transcribe',{method:'POST',body:binary});
+  const rewriteEcho = await fetch(base+'/api/transcribe?route=transcribe&path=transcribe',{method:'POST',body:binary});
   assert.deepEqual(new Uint8Array(await rewriteEcho.arrayBuffer()),binary);
   assert.equal(normalUrl.pathname,'/api/transcribe');
   assert.equal(normalUrl.search,'');
-  const extra = await fetch(base+'/api/transcribe?route=transcribe&unexpected=1',{method:'POST',body:binary});
+  const extra = await fetch(base+'/api/transcribe?route=transcribe&path=transcribe&unexpected=1',{method:'POST',body:binary});
   await extra.arrayBuffer(); assert.equal(normalUrl.search,'?unexpected=1');
   const client = http.request(base+'/api/handler?route=generate',{method:'POST',headers:{'content-type':'application/json'} });
   client.on('error',()=>{});
