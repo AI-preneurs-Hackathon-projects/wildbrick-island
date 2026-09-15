@@ -33,9 +33,9 @@ class MockSocket extends EventEmitter {
   async waitFor(predicate,timeout=3000){const started=Date.now();while(Date.now()-started<timeout){const index=this.messages.findIndex(predicate);if(index>=0)return this.messages.splice(index,1)[0];await new Promise((resolve,reject)=>{const timer=setTimeout(()=>{const index=this.waiters.indexOf(wake);if(index>=0)this.waiters.splice(index,1);reject(new Error('timeout'));},100),wake=()=>{clearTimeout(timer);resolve();};this.waiters.push(wake);}).catch(()=>{});}throw new Error('Timed out waiting for bridged message');}
 }
 
-const origin='https://brickwild.test',secret='vercel-redis-bridge-secret-'.repeat(2),local=createLocalRealtimeDb(),redis=new FakeRedis(),now=Date.now;
-const firstBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:first'}),ticketSecret:secret,instanceId:'first',now});
-const secondBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:second'}),ticketSecret:secret,instanceId:'second',now});
+const origin='https://brickwild.test',secret='vercel-redis-bridge-secret-'.repeat(2),local=createLocalRealtimeDb(),redis=new FakeRedis(),now=Date.now,namespace='brickwild:preview-fixture';
+const firstBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:first'}),ticketSecret:secret,instanceId:'first',namespace,now});
+const secondBridge=new RedisArenaBridge({redis:redis.duplicate(),store:new RealtimeRoomStore(local.db,{ownerId:'vercel:second'}),ticketSecret:secret,instanceId:'second',namespace,now});
 const ticket=(principal,create)=>createRealtimeTicket({principal,room:'VR01',create,origin,secret,jti:randomUUID()}).ticket;
 const connect=async(bridge,principal,create)=>{const socket=new MockSocket();bridge.register(socket,origin);socket.client({type:'authenticate',ticket:ticket(principal,create)});await socket.waitFor(message=>message.type==='authenticated');socket.client({type:'join',requestId:1,name:principal,room:'VR01',create,avatarColor:'#ffcf55',motionVersion:2,mapVersion:1});const joined=await socket.waitFor(message=>message.type==='joined');return {socket,joined};};
 
@@ -49,6 +49,8 @@ try{
   const after=moved.snapshot.players.find(player=>player.id===first.joined.snapshot.self);
   assert.ok(Math.hypot(after.x-before.x,after.z-before.z)>.01,'one fenced owner advances input relayed from another Function instance');
   assert.equal(firstBridge.owners.size+secondBridge.owners.size,1,'Redis lease elects exactly one room owner');
+  assert.ok([...redis.backend.values.keys(),...redis.backend.streams.keys()].every(key=>key.startsWith(`${namespace}:`)),'every relay key is isolated under the configured preview namespace');
+  assert.throws(()=>new RedisArenaBridge({redis,store:new RealtimeRoomStore(local.db),ticketSecret:secret,namespace:'unsafe namespace'}),/namespace/,'unsafe namespaces are rejected before Redis use');
   assert.equal(moved.snapshot.round.status,'active');
   console.log('Vercel Redis bridge: cross-instance join, single-owner election, 20 Hz snapshot fanout, and movement passed.');
 }finally{await Promise.all([firstBridge.close(),secondBridge.close()]);local.close();}

@@ -23,7 +23,13 @@ function getBridge() {
   const redis = new Redis(process.env.REDIS_URL, {maxRetriesPerRequest: null, retryStrategy: attempts => Math.min(attempts * 200, 5_000)});
   const db = createTursoDb(createClient({url: process.env.TURSO_DATABASE_URL, authToken: process.env.TURSO_AUTH_TOKEN}));
   const store = new RealtimeRoomStore(db, {ownerId: `vercel:${instanceId}`});
-  bridge = new RedisArenaBridge({redis, store, ticketSecret: process.env.REALTIME_TICKET_SECRET, instanceId});
+  bridge = new RedisArenaBridge({
+    redis,
+    store,
+    ticketSecret: process.env.REALTIME_TICKET_SECRET,
+    instanceId,
+    namespace: process.env.REALTIME_ARENA_NAMESPACE,
+  });
   return bridge;
 }
 

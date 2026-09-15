@@ -17,11 +17,17 @@ const MAX_LOCAL_RELAYS = 256;
 const MAX_OWNED_ROOMS = 8;
 const VIRTUAL_PEER_IDLE_MS = 6_000;
 const STREAM_EXPIRY_MS = 20 * 60_000;
+const DEFAULT_NAMESPACE = 'brickwild:arena';
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const inputKey = room => `brickwild:arena:${room}:input`;
-const ownerKey = room => `brickwild:arena:${room}:owner`;
-const outputKey = instance => `brickwild:arena:instance:${instance}:output`;
+const normalizeNamespace = value => {
+  const namespace = String(value || DEFAULT_NAMESPACE).trim();
+  if (!/^[A-Za-z0-9:_-]{1,80}$/.test(namespace)) throw new TypeError('Redis Arena namespace must use 1-80 letters, numbers, colons, underscores or hyphens');
+  return namespace;
+};
+const inputKey = (namespace, room) => `${namespace}:${room}:input`;
+const ownerKey = (namespace, room) => `${namespace}:${room}:owner`;
+const outputKey = (namespace, instance) => `${namespace}:instance:${instance}:output`;
 const fields = flat => Object.fromEntries(Array.from({length: Math.floor(flat.length / 2)}, (_, index) => [flat[index * 2], flat[index * 2 + 1]]));
 
 class RedisVirtualSocket extends EventEmitter {
@@ -53,12 +59,13 @@ class RedisVirtualSocket extends EventEmitter {
 }
 
 export class RedisArenaBridge {
-  constructor({redis, store, ticketSecret, instanceId = randomUUID(), now = Date.now}) {
+  constructor({redis, store, ticketSecret, instanceId = randomUUID(), namespace = DEFAULT_NAMESPACE, now = Date.now}) {
     if (!redis) throw new TypeError('Redis is required for cross-instance Arena routing');
     this.redis = redis;
     this.store = store;
     this.ticketSecret = ticketSecret;
     this.instanceId = instanceId;
+    this.namespace = normalizeNamespace(namespace);
     this.now = now;
     this.authority = new RealtimeRoomAuthority({store, ticketSecret, now});
     this.relays = new Map();
@@ -75,7 +82,7 @@ export class RedisArenaBridge {
   async startOutput() {
     if (this.outputStarting) return this.outputStarting;
     this.outputStarting = (async () => {
-      const key = outputKey(this.instanceId), tail = await this.redis.xrevrange(key, '+', '-', 'COUNT', 1);
+      const key = outputKey(this.namespace, this.instanceId), tail = await this.redis.xrevrange(key, '+', '-', 'COUNT', 1);
       this.outputCursor = tail[0]?.[0] || '0-0';
       this.outputReader = this.redis.duplicate();
       void this.outputLoop(key);
@@ -118,7 +125,7 @@ export class RedisArenaBridge {
 
   async forward(room, envelope) {
     await this.ensureOwner(room);
-    const key = inputKey(room);
+    const key = inputKey(this.namespace, room);
     await this.redis.xadd(key, 'MAXLEN', '~', INPUT_STREAM_MAX, '*', 'd', JSON.stringify(envelope));
     await this.touchExpiry(key);
   }
@@ -127,7 +134,7 @@ export class RedisArenaBridge {
     if (this.owners.has(room)) return;
     const cached = this.remoteOwners.get(room);
     if (cached && cached.until > this.now()) return;
-    const key = ownerKey(room), current = await this.redis.get(key);
+    const key = ownerKey(this.namespace, room), current = await this.redis.get(key);
     if (current) { this.remoteOwners.set(room, {value: current, until: this.now() + OWNER_LOOKUP_MS}); return; }
     if (this.owners.size >= MAX_OWNED_ROOMS) throw new Error('This Arena relay owns its room limit');
     const token = `${this.instanceId}:${randomUUID()}`;
@@ -135,7 +142,7 @@ export class RedisArenaBridge {
       this.remoteOwners.set(room, {value: 'remote', until: this.now() + OWNER_LOOKUP_MS});
       return;
     }
-    const tail = await this.redis.xrevrange(inputKey(room), '+', '-', 'COUNT', 1);
+    const tail = await this.redis.xrevrange(inputKey(this.namespace, room), '+', '-', 'COUNT', 1);
     const state = {room, token, cursor: tail[0]?.[0] || '0-0', active: true, reader: this.redis.duplicate(), renewTimer: null};
     this.owners.set(room, state);
     state.renewTimer = setInterval(() => void this.renewOwner(state), OWNER_RENEW_MS);
@@ -145,14 +152,14 @@ export class RedisArenaBridge {
 
   async renewOwner(state) {
     if (!state.active) return;
-    const renewed = await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('pexpire',KEYS[1],ARGV[2]) else return 0 end", 1, ownerKey(state.room), state.token, OWNER_LEASE_MS).catch(() => 0);
+    const renewed = await this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('pexpire',KEYS[1],ARGV[2]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token, OWNER_LEASE_MS).catch(() => 0);
     if (Number(renewed) !== 1) this.stopOwner(state, new LostRoomLeaseError(`Redis lease lost for ${state.room}`));
   }
 
   async ownerLoop(state) {
     while (state.active && !this.closed) {
       try {
-        const result = await state.reader.xread('BLOCK', STREAM_BLOCK_MS, 'STREAMS', inputKey(state.room), state.cursor);
+        const result = await state.reader.xread('BLOCK', STREAM_BLOCK_MS, 'STREAMS', inputKey(this.namespace, state.room), state.cursor);
         if (!result) { this.expireVirtualPeers(state.room); continue; }
         for (const [, entries] of result) for (const [id, flat] of entries) {
           state.cursor = id;
@@ -201,14 +208,14 @@ export class RedisArenaBridge {
     clearInterval(state.renewTimer);
     this.owners.delete(state.room);
     void state.reader.quit().catch(() => {});
-    if (release) void this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(state.room), state.token).catch(() => {});
+    if (release) void this.redis.eval("if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end", 1, ownerKey(this.namespace, state.room), state.token).catch(() => {});
     const runtime = this.authority.rooms.get(state.room);
     if (runtime) { runtime.fail(error); this.authority.rooms.delete(state.room); }
     for (const peer of this.virtualPeers.values()) if (peer.room === state.room) peer.close(1012, 'Arena owner changed; reconnecting');
   }
 
   async output(instance, peerId, payload) {
-    const key = outputKey(instance);
+    const key = outputKey(this.namespace, instance);
     await this.redis.xadd(key, 'MAXLEN', '~', OUTPUT_STREAM_MAX, '*', 'p', peerId, 'd', JSON.stringify(payload));
     await this.touchExpiry(key);
   }

@@ -8,6 +8,7 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 - Vercel is the candidate host. Current Vercel WebSocket Functions pin a connection to one Function instance, but later connections can land elsewhere and every connection ends at the Function maximum duration. A process-local map is therefore only a cache of rooms currently owned by that instance.
 - The candidate uses Redis Streams for cross-instance input/output relay, an 8-second compare-and-expire Redis owner lease, and the existing 12-second Turso owner epoch as the durable fencing check. Only the fenced owner runs a room at 20 Hz. Turso is checkpointed every two seconds, not on frames or inputs.
 - `api/arena-realtime.js` is the Vercel upgrade endpoint. `realtime/redis-bridge.js` elects and fences the single owner, relays sockets across Function instances, bounds streams/backpressure, and forces a full client reconnect when ownership changes. The existing standalone/local service remains the no-Redis development path. The unapproved Render Blueprint was removed.
+- `REALTIME_ARENA_NAMESPACE` scopes every owner, input, and output key. Preview uses its own namespace so a shared provider can never route candidate traffic through production room keys.
 - Transport remains pinned per room as `http-v1` or `realtime-v1`. Rollback is `ENABLE_REALTIME_ARENA=false` for newly created rooms; a live room never runs both authorities.
 
 ## Implemented
@@ -23,14 +24,16 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 - Build and round/UI checks pass, including Ready reset, stale request rejection, disconnect grace, completed-match behavior, and preserved automatic timeout.
 - Local realtime smoke passes two-player movement, stop/reversal, moving-and-firing, Ready, reconnect/full sync, cleanup, and four-client fanout. The post-fix loopback sample stayed within 35–51 ms between snapshots and at most 26 ms snapshot age; this is local evidence only.
 - A two-bridge Redis fixture passes cross-instance join/fanout and verifies exactly one elected room owner. No hosted Vercel/Redis performance claim has been made.
+- `npm run check:hosted-realtime` is the bounded preview-only release gate. It uses two real guest identities, rejects the production URL, exercises movement/stop/reversal/fire/reconnect/Ready/leave, records snapshot cadence and age, and stays connected beyond 300 seconds to require real Function/connection rollover.
 
 ## Review and release steps (not performed)
 
-1. Review and approve a Redis integration in the existing Vercel project. It must expose native `REDIS_URL`; provider commands, bandwidth, connection limits, and any paid tier must be accepted before provisioning. No subscription has been created.
-2. Add `REALTIME_ARENA_MODE=vercel-redis`, `REALTIME_TICKET_SECRET` (32+ random characters), and `REDIS_URL` to a preview environment. Keep the existing Turso variables. Do not set `REALTIME_ARENA_URL` in this mode.
-3. Apply additive migration `drizzle/0003_authoritative_realtime_rooms.sql` once through `npm run db:migrate:vercel`; it preserves existing data.
-4. Deploy a preview with `ENABLE_REALTIME_ARENA=true`. The WebSocket Function is configured for 300 seconds, so clients reconnect at or before that lifecycle boundary. Function compute/duration plus Redis command and bandwidth usage are the material cost drivers.
-5. Run the two-person desktop review below on the preview. Only after review should the production flag be considered. No production merge or deployment is part of this branch.
+1. Accept the Upstash Marketplace terms for the explicitly selected free plan, then retry the prepared preview-only resource install. The requested configuration is hnd1, eviction enabled, production pack off, and automatic paid upgrade off. No subscription or Redis resource has been created because terms acceptance requires the account owner.
+2. Finish the separate $0 Turso Starter preview database setup. Its attempted hnd1 provisioning also stopped at provider setup; the existing `wildbrick-arena` database remains connected only to production and was not modified.
+3. Add `REALTIME_ARENA_MODE=vercel-redis`, `REALTIME_ARENA_NAMESPACE=brickwild:preview:authoritative-v1`, `REALTIME_TICKET_SECRET` (32+ random characters), and `REDIS_URL` to the `feature/authoritative-realtime-rooms` Preview branch. Keep Turso credentials branch-scoped to the new preview database. Do not set `REALTIME_ARENA_URL` in this mode.
+4. Apply additive migration `drizzle/0003_authoritative_realtime_rooms.sql` once through `npm run db:migrate:vercel`; it preserves existing data.
+5. Deploy a preview with `ENABLE_REALTIME_ARENA=true`. The WebSocket Function is configured for 300 seconds, so clients reconnect at or before that lifecycle boundary. Function compute/duration plus Redis command and bandwidth usage are the material cost drivers.
+6. Run the two-person desktop review below on the preview. Only after review should the production flag be considered. No production merge or deployment is part of this branch.
 
 Local review: run `npm run dev:realtime`, open `http://127.0.0.1:4173/` in two separate desktop browser profiles at 1440x900, create/share one room, start as creator, then test continuous movement, stop/reversal, moving while firing, one disconnect/reconnect, and both Ready buttons between rounds. A four-profile join/fanout glance is optional. Practice is not required.
 

@@ -14,6 +14,7 @@
     "check:voice": "node scripts/check-voice.mjs && node scripts/check-transcription.mjs && node scripts/check-voice-ui.mjs && node scripts/check-voice-harness.mjs && node scripts/check-voice-availability.mjs",
     "build:vercel": "node scripts/build-vercel.mjs",
     "check:vercel": "node scripts/check-turso-db.mjs && node scripts/check-vercel-handler.mjs && node scripts/check-ai-gateway.mjs && node scripts/check-vercel-transport.mjs && node scripts/check-vercel-realtime-bridge.mjs",
+    "check:hosted-realtime": "node scripts/check-hosted-realtime.mjs",
     "check:realtime": "node scripts/check-realtime-store.mjs && node scripts/check-realtime-service.mjs",
     "db:migrate:vercel": "node scripts/migrate-vercel.mjs",
     "check:vercel-ui": "node scripts/build-vercel.mjs && node scripts/check-vercel-voice-ui.mjs"

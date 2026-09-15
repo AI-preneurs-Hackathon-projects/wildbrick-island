@@ -1,0 +1,228 @@
+import assert from 'node:assert/strict';
+import {WebSocket} from 'ws';
+
+const rawUrl = process.env.ARENA_PREVIEW_URL;
+if (!rawUrl) throw new Error('Set ARENA_PREVIEW_URL to the isolated Vercel preview deployment.');
+const base = new URL(rawUrl);
+if (base.protocol !== 'https:' || base.hostname === 'wildbrick-island.vercel.app') throw new Error('Hosted Arena smoke is preview-only and refuses the production URL.');
+const origin = base.origin;
+const bypass = process.env.VERCEL_PROTECTION_BYPASS;
+const room = `H${Date.now().toString(36).slice(-7)}`.toUpperCase();
+const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || 325_000);
+if (!Number.isFinite(HOLD_MS) || HOLD_MS < 305_000) throw new Error('ARENA_ROLLOVER_MS must cover the 300-second Function lifecycle.');
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const requestHeaders = extra => ({
+  ...(bypass ? {'x-vercel-protection-bypass': bypass} : {}),
+  ...extra,
+});
+
+class HostedPeer {
+  constructor(name, create) {
+    this.name = name;
+    this.create = create;
+    this.cookie = '';
+    this.resume = undefined;
+    this.socket = null;
+    this.messages = [];
+    this.waiters = [];
+    this.seq = 0;
+    this.requestId = 0;
+    this.lastSnapshot = null;
+    this.snapshotTimes = [];
+    this.closeCount = 0;
+    this.closeEvents = [];
+  }
+
+  async ticket() {
+    const response = await fetch(new URL('/api/arena/realtime-ticket', base), {
+      method: 'POST',
+      redirect: 'manual',
+      headers: requestHeaders({
+        'content-type': 'application/json',
+        origin,
+        ...(this.cookie ? {cookie: this.cookie} : {}),
+      }),
+      body: JSON.stringify({room, create: this.create}),
+    });
+    const setCookie = response.headers.get('set-cookie');
+    if (setCookie) this.cookie = setCookie.split(';', 1)[0];
+    let body;
+    try { body = await response.json(); } catch { body = {}; }
+    assert.equal(response.status, 200, `${this.name} admission failed (${response.status}): ${body.error || 'invalid response'}`);
+    assert.equal(body.enabled, true, `${this.name} did not receive an enabled realtime transport`);
+    assert.equal(body.transport, 'realtime-v1');
+    return body;
+  }
+
+  receive(raw) {
+    const message = JSON.parse(String(raw));
+    if (message.snapshot) {
+      this.lastSnapshot = message.snapshot;
+      if (message.type === 'snapshot') this.snapshotTimes.push(Date.now());
+    }
+    this.messages.push(message);
+    for (const wake of this.waiters.splice(0)) wake();
+  }
+
+  async waitFor(predicate, timeout = 12_000) {
+    const started = Date.now();
+    while (Date.now() - started < timeout) {
+      const index = this.messages.findIndex(predicate);
+      if (index >= 0) return this.messages.splice(index, 1)[0];
+      await new Promise(resolve => {
+        const wake = () => { clearTimeout(timer); resolve(); };
+        const timer = setTimeout(() => {
+          const index = this.waiters.indexOf(wake);
+          if (index >= 0) this.waiters.splice(index, 1);
+          resolve();
+        }, 250);
+        this.waiters.push(wake);
+      });
+    }
+    throw new Error(`${this.name} timed out waiting for a hosted realtime message`);
+  }
+
+  send(packet) {
+    assert.equal(this.socket?.readyState, WebSocket.OPEN, `${this.name} socket is not open`);
+    this.socket.send(JSON.stringify(packet));
+  }
+
+  async connect() {
+    const admission = await this.ticket();
+    const headers = requestHeaders(this.cookie ? {cookie: this.cookie} : {});
+    const socket = new WebSocket(admission.url, {origin, headers});
+    this.socket = socket;
+    socket.on('message', raw => this.receive(raw));
+    socket.on('close', (code, reason) => {
+      if (this.socket === socket) this.socket = null;
+      this.closeCount++;
+      this.closeEvents.push({code, reason: String(reason).slice(0, 80), at: Date.now()});
+      for (const wake of this.waiters.splice(0)) wake();
+    });
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`${this.name} WebSocket handshake timed out`)), 15_000);
+      socket.once('open', () => { clearTimeout(timer); resolve(); });
+      socket.once('error', error => { clearTimeout(timer); reject(error); });
+    });
+    this.send({type: 'authenticate', ticket: admission.ticket});
+    await this.waitFor(message => message.type === 'authenticated');
+    this.send({type: 'join', requestId: ++this.requestId, name: this.name, room, create: this.create, avatarColor: '#ffcf55', resume: this.resume, motionVersion: 2, mapVersion: 1});
+    const joined = await this.waitFor(message => message.type === 'joined' || message.type === 'error');
+    assert.equal(joined.type, 'joined', joined.message);
+    this.resume = {session: joined.session, token: joined.token};
+    this.lastSnapshot = joined.snapshot;
+    return joined;
+  }
+
+  input(input, command) {
+    const packet = {type: 'input', seq: ++this.seq, roundId: this.lastSnapshot?.round?.id, input, afterEvent: 0};
+    if (command) packet.command = command;
+    this.send(packet);
+    return packet.seq;
+  }
+
+  async request(type, extra = {}) {
+    const requestId = ++this.requestId;
+    this.send({type, requestId, ...extra});
+    const result = await this.waitFor(message => message.requestId === requestId && ['result', 'error'].includes(message.type));
+    assert.equal(result.type, 'result', result.message);
+    return result;
+  }
+
+  async ensureConnected() {
+    if (this.socket?.readyState === WebSocket.OPEN) return false;
+    await this.connect();
+    return true;
+  }
+}
+
+const first = new HostedPeer('Hosted One', true);
+const second = new HostedPeer('Hosted Two', false);
+const startedAt = Date.now();
+
+try {
+  const firstJoin = await first.connect();
+  await second.connect();
+  assert.equal(firstJoin.snapshot.players.length, 1);
+  await first.request('start');
+  await second.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'active');
+
+  const playerId = first.resume && first.lastSnapshot.self;
+  const initial = second.lastSnapshot.players.find(player => player.id === playerId);
+  const movingSeq = first.input({z: 1, cameraYaw: 0});
+  const moved = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= movingSeq));
+  const movedPlayer = moved.snapshot.players.find(player => player.id === playerId);
+  assert.ok(Math.hypot(movedPlayer.x - initial.x, movedPlayer.z - initial.z) > 0.01, 'remote player advances from owner-clock snapshots');
+
+  while (second.snapshotTimes.length < 6) await second.waitFor(message => message.type === 'snapshot');
+  const focusedTimes = second.snapshotTimes.slice(-6);
+  const intervals = focusedTimes.slice(1).map((time, index) => time - focusedTimes[index]);
+  assert.ok(intervals.every(value => value < 180), `hosted snapshot gap exceeded focused bound: ${intervals.join(', ')}`);
+
+  const stopSeq = first.input({z: 0});
+  await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= stopSeq));
+  const stopA = await second.waitFor(message => message.type === 'snapshot');
+  const stopB = await second.waitFor(message => message.type === 'snapshot' && message.snapshotSeq >= stopA.snapshotSeq + 2);
+  const stopPlayerA = stopA.snapshot.players.find(player => player.id === playerId);
+  const stopPlayerB = stopB.snapshot.players.find(player => player.id === playerId);
+  assert.ok(Math.hypot(stopPlayerA.x - stopPlayerB.x, stopPlayerA.z - stopPlayerB.z) < 0.001, 'stop does not coast between authoritative snapshots');
+
+  const reverseSeq = first.input({z: -1}, {type: 'fire', id: 1});
+  const reversed = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= reverseSeq));
+  assert.equal(reversed.snapshot.players.find(player => player.id === playerId).lastCommand, 1, 'move-and-fire is acknowledged once');
+
+  second.socket.close(1000, 'Focused reconnect smoke');
+  await second.waitFor(() => !second.socket, 5_000).catch(() => {});
+  const secondPlayerId = second.lastSnapshot.self;
+  await second.connect();
+  assert.equal(second.lastSnapshot.self, secondPlayerId, 'reconnect preserves the authoritative seat');
+  assert.equal(second.lastSnapshot.players.length, 2, 'reconnect receives a full two-player snapshot');
+  const rolloverBaseline = first.closeCount + second.closeCount;
+
+  let nextProgress = 30_000;
+  while (Date.now() - startedAt < HOLD_MS) {
+    for (const peer of [first, second]) {
+      if (await peer.ensureConnected()) process.stdout.write(`${peer.name} reconnected after hosted Function/connection rollover.\n`);
+      if (peer.lastSnapshot?.round?.status === 'active') peer.input({z: 0});
+    }
+    const elapsed = Date.now() - startedAt;
+    if (elapsed >= nextProgress) {
+      process.stdout.write(`Hosted rollover smoke ${Math.floor(elapsed / 1000)}s: snapshot age ${Math.max(0, Date.now() - (second.lastSnapshot?.time || Date.now()))}ms, closes ${first.closeCount + second.closeCount}.\n`);
+      nextProgress += 30_000;
+    }
+    await delay(1_000);
+  }
+
+  assert.ok(first.closeCount + second.closeCount > rolloverBaseline, 'expected at least one connection rollover after the 300-second hosted Function lifecycle');
+  await Promise.all([first.ensureConnected(), second.ensureConnected()]);
+  if (first.lastSnapshot.round.status !== 'finished') await first.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
+  if (second.lastSnapshot.round.status !== 'finished') await second.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
+  const roundId = first.lastSnapshot.round.id;
+  const readyOne = await first.request('ready', {roundId});
+  assert.equal(readyOne.snapshot.readiness.readyCount, 1);
+  const readyTwo = await second.request('ready', {roundId});
+  assert.equal(readyTwo.snapshot.readiness.allReady, true);
+  assert.ok(readyTwo.snapshot.round.intermissionEndsAt <= readyTwo.snapshot.time + 3_000);
+
+  await second.request('leave');
+  await first.request('leave');
+  const ages = [first, second].map(peer => Math.max(0, Date.now() - (peer.lastSnapshot?.time || Date.now())));
+  console.log(JSON.stringify({
+    preview: origin,
+    room,
+    transport: 'realtime-v1',
+    initialSnapshotIntervalsMs: intervals,
+    finalSnapshotAgeMs: ages,
+    connectionRollovers: first.closeEvents.concat(second.closeEvents).map(({code, reason}) => ({code, reason})),
+    movement: true,
+    stop: true,
+    reversalAndFire: true,
+    reconnectFullSync: true,
+    ready: true,
+    cleanup: true,
+  }, null, 2));
+  console.log('Hosted Realtime Arena: two-client movement, stop/reversal/fire, reconnect, Ready, cleanup and >300-second rollover passed.');
+} finally {
+  for (const peer of [first, second]) if (peer.socket?.readyState === WebSocket.OPEN) peer.socket.close(1000, 'Hosted smoke cleanup');
+}
