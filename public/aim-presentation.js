@@ -12,7 +12,7 @@ export function poseRangedModel(model,p,solution){
 }
 export function createWeaponGuide(parent){
  const root=new THREE.Group();root.name='weapon-path-guide';root.visible=false;root.userData.prediction=true;parent.add(root);
- const guideColor=0xbfb69f;
+ const guideColor=0x605b50;
  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3()]),new THREE.LineDashedMaterial({color:guideColor,transparent:true,opacity:.28,dashSize:.22,gapSize:.18,depthWrite:false}));
  const end=new THREE.Mesh(new THREE.RingGeometry(.72,1,24),new THREE.MeshBasicMaterial({color:guideColor,transparent:true,opacity:.65,side:THREE.DoubleSide,depthWrite:false}));end.name='weapon-path-end';
  // Independent yaw/pitch samples have a rectangular angular envelope, not an ellipse.

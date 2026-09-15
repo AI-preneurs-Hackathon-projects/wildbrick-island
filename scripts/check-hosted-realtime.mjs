@@ -259,8 +259,8 @@ try {
   const readyOne = await first.request('ready', {roundId});
   assert.equal(readyOne.snapshot.readiness.readyCount, 1);
   const readyTwo = await second.request('ready', {roundId});
-  assert.equal(readyTwo.snapshot.readiness.allReady, true);
-  assert.ok(readyTwo.snapshot.round.intermissionEndsAt <= readyTwo.snapshot.time + 3_000);
+  assert.equal(readyTwo.snapshot.round.id, roundId + 1);
+  assert.equal(readyTwo.snapshot.round.status, 'active');
 
   await second.request('leave');
   await first.request('leave');

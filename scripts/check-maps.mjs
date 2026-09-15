@@ -258,7 +258,7 @@ await check('replacing all three rendered worlds removes old geometry and preser
   world.setDestroyed([map.entities.find(e=>e.hp>0).id]);world.setDestroyed([]);world.dispose();assert.deepEqual(scene.children,[retained]);
  }
 });
-await check('SQLite-backed API rejects stale map clients and late joins while accepting an updated reconnect',async()=>{
+await check('SQLite-backed API rejects stale map clients while updated reconnects and active-room recovery use the current map',async()=>{
  const sqlite=new DatabaseSync(':memory:');
  try{
   for(const name of fs.readdirSync(new URL('../drizzle',import.meta.url)).filter(n=>n.endsWith('.sql')).sort())sqlite.exec(fs.readFileSync(new URL('../drizzle/'+name,import.meta.url),'utf8'));
@@ -279,7 +279,7 @@ await check('SQLite-backed API rejects stale map clients and late joins while ac
   const oldJoin=await api('join',{name:'Old late join',room:'MAPTEST',motionVersion:1},'old-late');assert.equal(oldJoin.status,410);assert.equal(sqlite.prepare('SELECT COUNT(*) AS count FROM arena_sessions').get().count,sessions,'rejected joins do not leak a reserved session');
   const reconnect=await api('join',{name:'Refreshed',room:'MAPTEST',motionVersion:1,mapVersion:1,resume:credentials});assert.equal(reconnect.status,200);
   const resumed=await reconnect.json();assert.equal(resumed.snapshot.self,joined.snapshot.self);assert.equal(resumed.snapshot.round.mapId,'beach');
-  const late=await api('join',{name:'Current late join',room:'MAPTEST',motionVersion:1,mapVersion:1},'new-late');assert.equal(late.status,409);assert.match((await late.json()).error,/already in progress/);
+  const late=await api('join',{name:'Current late join',room:'MAPTEST',motionVersion:1,mapVersion:1},'new-late');assert.equal(late.status,200);const recovered=await late.json();assert.equal(recovered.snapshot.round.status,'active');assert.equal(recovered.snapshot.round.mapId,'beach');assert.equal(recovered.snapshot.players.find(p=>p.id===recovered.snapshot.self).roundId,recovered.snapshot.round.id);
   await api('leave',credentials);
  }finally{sqlite.close();}
 });

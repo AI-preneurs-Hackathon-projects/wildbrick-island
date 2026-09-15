@@ -15,7 +15,7 @@ const joins=[];
 class FakeSocket {
   static OPEN=1;
   constructor(){this.readyState=FakeSocket.OPEN;this.bufferedAmount=0;queueMicrotask(()=>this.onopen?.());}
-  send(raw){const packet=JSON.parse(raw);if(packet.type==='authenticate')return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'authenticated'})}));if(packet.type==='join'){joins.push(packet);const room=newRoom(1000,'client-test'),player=joinPlayer(room,'trusted-player','Tester',1000);player.motion={version:2,frame:0,at:1000};const credential=packet.resume;return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'joined',requestId:packet.requestId,room:packet.room,session:credential.session,token:credential.token,snapshot:roomSnapshot(room,player.id)})}));}if(packet.type==='leave')return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'result',requestId:packet.requestId})}));}
+  send(raw){const packet=JSON.parse(raw);if(packet.type==='authenticate')return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'authenticated'})}));if(packet.type==='join'){joins.push(packet);const room=newRoom(1000,'client-test'),player=joinPlayer(room,'trusted-player','Tester',1000);player.motion={version:2,frame:0,at:1000};const credential=packet.resume;this.joinSnapshot=roomSnapshot(room,player.id);return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'joined',requestId:packet.requestId,room:packet.room,session:credential.session,token:credential.token,snapshot:this.joinSnapshot})}));}if(packet.type==='leave'){const late={...this.joinSnapshot,revision:this.joinSnapshot.revision+1,round:{...this.joinSnapshot.round,mapId:'mountain'}};queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'snapshot',snapshot:late})}));return queueMicrotask(()=>this.onmessage?.({data:JSON.stringify({type:'result',requestId:packet.requestId})}));}}
   close(){if(this.readyState!==FakeSocket.OPEN)return;this.readyState=3;queueMicrotask(()=>this.onclose?.());}
 }
 
@@ -26,15 +26,20 @@ const persisted=joins[0].resume;
 first.tick(1/60,{});
 
 // A page refresh creates a new client but keeps sessionStorage in the tab.
-const refreshed=createRealtimeArenaClient({},runtime);
+let refreshedSnapshots=0;
+const refreshed=createRealtimeArenaClient({onSnapshot:()=>refreshedSnapshots++},runtime);
 assert.equal(await refreshed.join('Tester','KEEP01','#ffcf55',false),true);
 assert.deepEqual(joins[1].resume,persisted,'refresh reuses the authenticated seat credential');
+assert.equal(refreshedSnapshots,1);
 await refreshed.leave();
+assert.equal(refreshedSnapshots,1,'a late Arena snapshot cannot replace the home background after leave starts');
 assert.equal(storage.getItem('brickwild.arena.resume.v1:KEEP01'),null,'explicit leave clears the refresh credential');
 await first.leave();
 
 const main=fs.readFileSync(new URL('../public/main.js',import.meta.url),'utf8');
 assert.doesNotMatch(main,/pagehide[^\n]*arena\.leave\(/,'page refresh is not sent as an explicit Arena leave');
+assert.doesNotMatch(main,/renderer\.setPixelRatio\(1\)/,'desktop rendering never falls back to blurry one-to-one pixels');
+assert.match(main,/if\(coarse&&frameCost\/240>/,'adaptive resolution is limited to coarse-pointer devices');
 
 class ClosingSocket {
  static OPEN=1;
