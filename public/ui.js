@@ -32,7 +32,7 @@ export function createUI(actions){
   <div id="compass" class="compass"><span>N</span><i></i><span id="speed">0 km/h</span></div>
  </div>
  <dialog id="menu" class="game-dialog"><button id="close-menu" class="close-button" aria-label="Close menu">${icon('close')}</button><div id="menu-content"></div></dialog>`;
- const $=s=>document.querySelector(s);let started=false,lastMode='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='';
+ const $=s=>document.querySelector(s);let started=false,lastMode='',toastTimer=0,menuMode='help',connected=false,verified=false,lastPrompt='',generationError=false,designStarted=0,lastHeard='',practiceMapNameUntil=0;
  const on=(selector,fn)=>$(selector).addEventListener('click',fn);
  let playerName='',selectedMode='arena',selectedColor=DEFAULT_AVATAR_COLOR;
  try{selectedColor=avatarColor(window.localStorage.getItem('brickwild-avatar-color-v2'));}catch{}
@@ -45,7 +45,7 @@ export function createUI(actions){
   field.setCustomValidity(playerName?'':'Enter your builder name to choose a mode.');if(!field.reportValidity())return;
   field.value=playerName;try{window.sessionStorage.setItem('brickwild-player-name',playerName);}catch{}
   started=true;$('#intro').classList.add('hidden');$('#hud').classList.remove('hidden');$('#hud').setAttribute('aria-hidden','false');actions.start();
-  selectedMode=e.submitter?.value==='arena'?'arena':'explore';const enter=()=>{if(selectedMode==='arena')actions.openArena();else{$('#help').focus();toast('Practice on the island.\nFollow the gold beacon and Speak / Build to create.',6500);}};if(tourSeen())enter();else openTour(enter);
+  selectedMode=e.submitter?.value==='arena'?'arena':'explore';const enter=()=>{if(selectedMode==='arena')actions.openArena();else{practiceMapNameUntil=Date.now()+3500;$('#practice-map-name').classList.remove('hidden');$('#help').focus();toast('Practice on the island.\nFollow the gold beacon and Speak / Build to create.',6500);}};if(tourSeen())enter();else openTour(enter);
  });on('#open-arena',()=>actions.openArena());
  on('#snapshot',()=>actions.snapshot?.());
  on('#action',e=>{const s=actions.state();if(gameplayBlocked(s)||s.building||document.querySelector('dialog[open]'))return;if(s.arena&&e.detail>0)return;actions.action();});on('#mic',()=>actions.voice());on('#type-voice',()=>openMenu('imagine'));on('#sound',()=>{const muted=actions.sound();$('#sound').innerHTML=icon(muted?'mute':'sound');$('#sound').setAttribute('aria-label',muted?'Unmute sound':'Mute sound');});
@@ -107,6 +107,8 @@ export function createUI(actions){
  });
  function toast(message,duration=3500){clearTimeout(toastTimer);const target=document.body.classList.contains('in-arena')&&$('#arena-toast')?$('#arena-toast'):$('#toast');for(const node of document.querySelectorAll('#toast,#arena-toast'))node.classList.remove('show');target.textContent=String(message).replace(/([.!?])\s+(?=[A-Z])/g,'$1\n');target.classList.add('show');toastTimer=setTimeout(()=>target.classList.remove('show'),duration);}
  function update(s,cameraYaw=Math.PI){
+  const moving=!!s.started&&!s.paused&&Math.abs(Number(s.speed)||0)>.35;document.body.classList.toggle('hud-in-motion',moving);
+  if(!s.arena)$('#practice-map-name').classList.toggle('hidden',!practiceMapNameUntil||Date.now()>=practiceMapNameUntil);
   if(designStarted){const elapsed=Math.floor((Date.now()-designStarted)/1000);$('#generation-title').textContent=`${elapsed<15?'Designing your creation':elapsed<45?'Shaping the details':'Still designing — you can keep moving'}… ${elapsed}s`;}
   let completed=0;for(const [track,total] of [['gates',4],['targets',3],['crates',3],['rings',5]]){const count=s[track].length,node=$(`#practice-${track}`),item=$(`[data-track="${track}"]`);node.textContent=`${count}/${total}`;item.classList.toggle('complete',count===total);completed+=count;}const practiceComplete=completed===15;$('#practice-route').classList.toggle('complete',practiceComplete);$('#practice-reset').classList.toggle('hidden',!practiceComplete);
   $('#flight-controls').classList.toggle('hidden',s.mode!=='plane'&&s.y<.02);$('#ascend').classList.toggle('hidden',s.mode!=='plane');
@@ -128,8 +130,8 @@ export function createUI(actions){
  function voiceFallback(_message,{draft=''}={}){if(draft)lastPrompt=draft;$('#voice-options').classList.remove('hidden');}
  function connectionState(ready){connected=ready;document.querySelector('.dock-caption').textContent=ready?'Describe anything · your idea becomes bricks':'Saved creations ready · AI setup pending';}
  function connectionVerified(){verified=true;connected=true;document.querySelector('.dock-caption').textContent='Describe anything · your idea becomes bricks';}
- function resetPlayUI(){lastMode='';tourDone=null;tour.close();closeMenu();clearTimeout(toastTimer);$('#toast').classList.remove('show');$('#toast').textContent='';}
- function showEntry(){started=false;$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');$('#hud').setAttribute('aria-hidden','true');$('#player-name').focus();}
+ function resetPlayUI(){lastMode='';practiceMapNameUntil=0;tourDone=null;tour.close();closeMenu();clearTimeout(toastTimer);document.body.classList.remove('hud-in-motion');$('#toast').classList.remove('show');$('#toast').textContent='';}
+ function showEntry(){started=false;document.body.classList.remove('hud-in-motion');$('#intro').classList.remove('hidden');$('#hud').classList.add('hidden');$('#hud').setAttribute('aria-hidden','true');$('#player-name').focus();}
  function buildComplete(){if(designStarted||$('#mic').classList.contains('listening'))return;lastHeard='';$('#voice-status').textContent='';$('#voice-status').title='';}
  return {playerColor:()=>selectedColor,playerName:()=>playerName,resetPlayUI,showEntry,openTour,update,toast,openMenu,closeMenu,toggleMenu,toggleControls,toggleCollection,closeCollection,voiceState,buildComplete,generationState,designError,connectionState,connectionVerified,voiceFallback};
 }
