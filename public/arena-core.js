@@ -178,6 +178,10 @@ export function advanceRoom(room,now){ensureRound(room);now=Math.max(room.time,n
  if(room.round.status==='finished'&&!room.match.complete&&now>=room.round.intermissionEndsAt){room.time=room.round.intermissionEndsAt;restartRound(room,room.round.id);room.time=now;}
  return room;}
 export function applyInput(room,id,packet,now,kit=null,aimSolver=solveWeaponAim){const p=room.players[id];if(!p)throw Object.assign(Error('Your arena session expired. Join again.'),{status:410});p.lastSeen=now;if(!Number.isSafeInteger(packet.seq)||packet.seq<=p.lastSeq)return;p.lastSeq=packet.seq;if(p.motion&&Number.isSafeInteger(packet.motionEpoch)&&packet.motionEpoch!==(p.spawnSerial||0)){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}const round=ensureRound(room);if(packet.roundId!==undefined&&packet.roundId!==round.id){if(Number.isSafeInteger(packet.command?.id))p.lastCommand=Math.max(p.lastCommand,packet.command.id);return;}if(round.status!=='active'){const c=packet.command;if(c&&Number.isSafeInteger(c.id)&&c.id>p.lastCommand){p.lastCommand=c.id;}p.input={};return;}p.input=cleanInput(packet.input);p.aimPitch=weaponAim(p,p.input.weaponPitch).pitch;p.inputAt=now;applyFrames(room,p,packet,now);
+ // A fresh held-fire update must not depend on another request arriving before
+ // it expires. Attempt once at the current authoritative pose/time; never replay
+ // a skipped firing window or turn a retried command into a new held attack.
+ if(!packet.command&&p.input.fire)shoot(room,p,p.input,null,aimSolver);
  const command=packet.command;if(!command||!Number.isSafeInteger(command.id)||command.id<=p.lastCommand)return;p.lastCommand=command.id;if(p.health<=0)return;
  if(command.type==='fire')shoot(room,p,p.input,command.id,aimSolver);
  if(command.type==='jump')startJump(p,p.kit.stats.mounted);
