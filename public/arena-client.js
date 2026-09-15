@@ -2,12 +2,13 @@ import {solveWeaponAim} from './aiming.js';
 import {MAP_CYCLE} from './map-catalog.js';
 import {weaponAim} from './weapon-aim.js';
 import {createMotionView} from './motion-view.js';
-import {predictPlayer,cleanInput} from './arena-core.js?v=40';
+import {predictPlayer,cleanInput} from './arena-core.js?v=41';
 import {MOVE_DT} from './movement.js';
 import {packFrame,frameInput,MAX_MOVE_FRAMES} from './movement-stream.js';
 import {validateBlueprint} from './blueprint.js';
 import {SUPPLY_BLUEPRINTS} from './supply-catalog.js';
-export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
+import {createRealtimeArenaClient} from './realtime-arena-client.js';
+export function createHttpArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=>{},onError=()=>{}}={},runtime={}){
  const fetcher=runtime.fetcher||globalThis.fetch,clock=runtime.clock||(()=>performance.now()),setTimer=runtime.setTimer||setTimeout,clearTimer=runtime.clearTimer||clearTimeout;
  let roomCode=null,credentials=null,snapshot=null,self=null,timer=null,seq=0,commandId=0,commands=[],input={},joining=false,closed=false,lastEvent=0,revision=-1,lastSuccess=0,inFlight=false,epoch=null,lifecycle=0;
  let previewAt=-Infinity,fireHeldAt=0,joinTicket=null;
@@ -78,4 +79,29 @@ export function createArenaClient({onSnapshot=()=>{},onStatus=()=>{},onEvent=()=
   const pose=self?view.update(self,fresh?dt:0,{correct:!!moving&&!!fresh}):null;if(pose){pose.aimPitch=weaponAim(pose,input.weaponPitch).pitch;}return pose;
  }
  return {join,start,leave,tick,command,blueprints,get room(){return roomCode;},get active(){return !!snapshot&&!!self&&!closed;},get connected(){return !!credentials;},get self(){return view.state||self;},get snapshot(){return snapshot;},get stale(){return !credentials||clock()-lastSuccess>1000;},serverTime};
+}
+
+// Production opts into transport discovery explicitly from main.js. Existing
+// fixtures keep exercising the recoverable HTTP implementation unless they ask
+// for realtime, so rollback remains a small server flag rather than a second
+// authority racing an already-open room.
+export function createArenaClient(callbacks={},runtime={}){
+ const http=createHttpArenaClient(callbacks,runtime);
+ if(runtime.realtime!==true)return http;
+ const fetcher=runtime.fetcher||globalThis.fetch;
+ const realtime=createRealtimeArenaClient(callbacks,{...runtime,async getTicket(room,create){
+  const response=await fetcher('/api/arena/realtime-ticket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({room,create}),cache:'no-store',credentials:'same-origin'});
+  let data;try{data=await response.json();}catch{throw Object.assign(Error('The Arena transport returned an invalid response.'),{status:response.status});}
+  if(!response.ok)throw Object.assign(Error(data.error||'The Arena transport is unavailable.'),{status:response.status});
+  return data;
+ }});
+ let selected=null;
+ async function join(name,room,color,create=false){
+  let ticket;try{ticket=await realtime.getTicket(room,create);}catch(error){callbacks.onStatus?.('offline');callbacks.onError?.(error.message,error.status);return false;}
+  if(ticket?.enabled===false){selected=http;return http.join(name,room,color,create);}
+  if(ticket?.enabled!==true||ticket.transport!=='realtime-v1'){callbacks.onStatus?.('offline');callbacks.onError?.('The Arena transport configuration is incomplete.',503);return false;}
+  selected=realtime;return realtime.join(name,room,color,create,ticket);
+ }
+ const call=(name,...args)=>selected?.[name]?.(...args)??false;
+ return {join,start:(...a)=>call('start',...a),leave:(...a)=>call('leave',...a),tick:(...a)=>call('tick',...a),command:(...a)=>call('command',...a),get blueprints(){return selected?.blueprints||http.blueprints;},get room(){return selected?.room||null;},get active(){return !!selected?.active;},get connected(){return !!selected?.connected;},get self(){return selected?.self||null;},get snapshot(){return selected?.snapshot||null;},get stale(){return selected?selected.stale:true;},serverTime(){return selected?.serverTime?.()||Date.now();}};
 }

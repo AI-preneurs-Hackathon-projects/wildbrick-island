@@ -1,9 +1,46 @@
 import {createHmac, timingSafeEqual, randomUUID} from 'node:crypto';
+import {createRealtimeTicket, normalizeRoomId} from './realtime-ticket.js';
 
 const COOKIE = '__Host-brickwild-guest';
 const MAX_AGE = 60 * 60 * 24 * 30;
 const reply = (body, status = 200) => Response.json(body, {status, headers: {'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'}});
 const signature = (value, secret) => createHmac('sha256', secret).update(value).digest('base64url');
+
+async function ticketRequest(request, principal, env, now, uuid, getDb) {
+  if (!request.headers.get('content-type')?.includes('application/json')) return reply({error: 'Use a game action.'}, 415);
+  if (Number(request.headers.get('content-length')) > 1024) return reply({error: 'That arena request is too large.'}, 413);
+  let packet;
+  try {
+    const text = await request.text();
+    if (text.length > 1024) return reply({error: 'That arena request is too large.'}, 413);
+    packet = JSON.parse(text);
+  } catch { return reply({error: 'The arena request was not valid.'}, 400); }
+  if (!packet || Array.isArray(packet) || typeof packet !== 'object' || Object.keys(packet).some(key => !['room', 'create'].includes(key)) || typeof packet.create !== 'boolean') {
+    return reply({error: 'Choose whether to create or join an arena.'}, 400);
+  }
+  let room;
+  try { room = normalizeRoomId(packet.room); }
+  catch (error) { return reply({error: error.message}, error.status || 400); }
+  let transport = env.ENABLE_REALTIME_ARENA === 'true' ? 'realtime-v1' : 'http-v1';
+  try {
+    const db = await getDb();
+    const row = await db.prepare('SELECT transport, updated_at, lease_until FROM arena_rooms WHERE id = ?').bind(room).first();
+    const current = now * 1000;
+    if (row && (row.updated_at >= current - 15 * 60_000 || row.lease_until >= current)) transport = row.transport;
+  } catch { return reply({error: 'Arena transport discovery is temporarily unavailable.', code: 'unavailable'}, 503); }
+  if (transport === 'http-v1') return reply({enabled: false, transport});
+  if (transport !== 'realtime-v1') return reply({error: 'This Arena transport is not supported.', code: 'transport'}, 409);
+  if (typeof env.REALTIME_TICKET_SECRET !== 'string' || env.REALTIME_TICKET_SECRET.length < 32 || typeof env.REALTIME_ARENA_URL !== 'string') {
+    return reply({error: 'Realtime Arena setup is incomplete.', code: 'not_configured'}, 503);
+  }
+  let endpoint;
+  try {
+    endpoint = new URL(env.REALTIME_ARENA_URL);
+    if (!['wss:', 'ws:'].includes(endpoint.protocol) || (endpoint.protocol === 'ws:' && !['localhost', '127.0.0.1', '::1'].includes(endpoint.hostname))) throw new Error();
+  } catch { return reply({error: 'Realtime Arena setup is incomplete.', code: 'not_configured'}, 503); }
+  const {ticket} = createRealtimeTicket({principal: `vercel-guest:${principal}`, room, create: packet.create, origin: new URL(request.url).origin, secret: env.REALTIME_TICKET_SECRET, now, jti: uuid()});
+  return reply({enabled: true, transport: 'realtime-v1', url: endpoint.toString(), ticket});
+}
 
 function guestFromCookie(header, secret, now) {
   const values = (header || '').split(';').map(s => s.trim()).filter(s => s.startsWith(`${COOKIE}=`));
@@ -44,6 +81,10 @@ export function createVercelHandler({worker, getDb, env = process.env, now = () 
       if (cookie) headers.append('Set-Cookie', cookie);
       return new Response(response.body, {status: response.status, headers});
     };
+    if (url.pathname === '/api/arena/realtime-ticket') {
+      if (request.method !== 'POST') return finish(reply({error: 'Use an arena action.'}, 405));
+      return finish(await ticketRequest(request, principal, env, time, uuid, getDb));
+    }
     const transcription = ['/api/transcription-status', '/api/transcribe'].includes(url.pathname);
     const generation = ['/api/generate', '/api/generation-status'].includes(url.pathname);
     if (transcription && env.ENABLE_PUBLIC_TRANSCRIPTION !== 'true') {

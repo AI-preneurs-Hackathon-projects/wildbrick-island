@@ -8,10 +8,13 @@
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs && node scripts/check-generations.mjs && node scripts/check-adventure.mjs && node scripts/check-live-replays.mjs && node scripts/check-arena.mjs && node scripts/check-arena-ui.mjs && node scripts/check-firing.mjs && node scripts/check-rounds.mjs && node scripts/check-round-refinements.mjs && node scripts/check-maps.mjs && node scripts/check-support.mjs && node scripts/check-join-recovery.mjs && node scripts/check-control-fixes.mjs && node scripts/check-item-effects.mjs && node scripts/check-home-ui.mjs && node scripts/check-snapshot.mjs && node scripts/check-movement.mjs && node scripts/check-network-movement.mjs && node scripts/check-generation-budget.mjs && node scripts/check-current-replays.mjs && node scripts/check-hit-registration.mjs && node scripts/check-hit-registration-network.mjs && node scripts/check-emitter-space.mjs && node scripts/check-handheld-aiming.mjs && node scripts/check-aiming-harness.mjs && node scripts/check-aim-attachment.mjs && node scripts/check-control-separation.mjs && node scripts/check-combat-balance.mjs && node scripts/check-camera-pitch.mjs && npm run check:voice",
     "dev": "vite",
+    "dev:realtime": "node realtime/local-server.js",
+    "start:realtime": "node realtime/server.js",
     "diagnose:combat": "node scripts/diagnose-hit-registration.mjs",
     "check:voice": "node scripts/check-voice.mjs && node scripts/check-transcription.mjs && node scripts/check-voice-ui.mjs && node scripts/check-voice-harness.mjs && node scripts/check-voice-availability.mjs",
     "build:vercel": "node scripts/build-vercel.mjs",
     "check:vercel": "node scripts/check-turso-db.mjs && node scripts/check-vercel-handler.mjs && node scripts/check-ai-gateway.mjs && node scripts/check-vercel-transport.mjs",
+    "check:realtime": "node scripts/check-realtime-store.mjs && node scripts/check-realtime-service.mjs",
     "db:migrate:vercel": "node scripts/migrate-vercel.mjs",
     "check:vercel-ui": "node scripts/build-vercel.mjs && node scripts/check-vercel-voice-ui.mjs"
   },
@@ -24,6 +27,7 @@
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",
-    "@vercel/functions": "^3.9.7"
+    "@vercel/functions": "^3.9.7",
+    "ws": "^8.18.3"
   }
 }

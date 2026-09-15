@@ -24,7 +24,7 @@ const client = {
 };
 const db = createTursoDb(client);
 try {
-  for (const file of ['0000_cultured_mother_askani.sql', '0001_curly_wildside.sql', '0002_robust_silver_samurai.sql']) sqlite.exec(readFileSync(new URL(`../drizzle/${file}`, import.meta.url), 'utf8'));
+  for (const file of ['0000_cultured_mother_askani.sql', '0001_curly_wildside.sql', '0002_robust_silver_samurai.sql', '0003_authoritative_realtime_rooms.sql']) sqlite.exec(readFileSync(new URL(`../drizzle/${file}`, import.meta.url), 'utf8'));
   sqlite.exec('CREATE TABLE adapter_test (id INTEGER PRIMARY KEY, value INTEGER NOT NULL)');
   assert.equal((await db.prepare('INSERT INTO adapter_test VALUES (?, ?)').bind(1, 0).run()).meta.changes, 1);
   const before = executions;

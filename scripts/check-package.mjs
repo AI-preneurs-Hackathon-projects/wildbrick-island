@@ -10,5 +10,5 @@ async function walk(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:tr
 await walk('public');
 for(const path of ['/__creations','/validation/creation-shortcuts-harness.html','/__combat','/__combat-fixtures.js','/validation/live/arena-dragon.json','/__controls','/__layouts','/.sites-runtime/api-preview.json','/worker/index.js'])assert.equal((await worker.fetch(new Request('https://brickwild.test'+path),{},{})).status,404);
 assert.equal((await worker.fetch(new Request('https://brickwild.test/api/arena/join',{method:'POST'}),{},{})).status,401);
-const migrations=fs.readdirSync('dist/.openai/drizzle').filter(x=>x.endsWith('.sql')).length;assert.equal(migrations,3);
+const migrations=fs.readdirSync('dist/.openai/drizzle').filter(x=>x.endsWith('.sql')).length;assert.equal(migrations,4);
 console.log(JSON.stringify({assets,migrations,byteIdentical:true,developmentFilesExcluded:true,unauthenticatedArenaStatus:401,publicSecretScan:'passed'},null,2));
