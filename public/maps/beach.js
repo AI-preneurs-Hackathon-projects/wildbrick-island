@@ -108,7 +108,7 @@ for(let i=0;i<56;i++){
 }
 
 export const BEACH_MAP={
- id:'beach',name:'Stranded Beach',groundColor:C.sand,oceanColor:C.water,pieces,entities,
+ id:'beach',name:'Stranded Beach',groundColor:C.sand,oceanColor:0xb4dedd,pieces,entities,
  // Every pad has >=4m clearance from solid cover, including palm canopies, so
  // both players and an 8x8 mounted body can join without intersecting scenery.
  spawns:[[-45,-45],[-18,-44],[16,-46],[46,-44],[-46,14],[-20,9],[0,9],[20,9],[47,0],[-46,45],[-16,45],[21,46],[47,45],[0,-30],[22,-27],[-20,25]],

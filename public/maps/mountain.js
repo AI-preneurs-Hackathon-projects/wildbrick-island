@@ -2,9 +2,9 @@
 // Decorative paving stays below 10 cm; substantial geometry has matching boxes.
 const pieces=[];
 const entities=[];
-const P={stone:0x8198ac,darkStone:0x647c96,lightStone:0xa5b9cb,snow:0xe9f3ec,
-  pine:0x357d73,pineLight:0x55a18a,wood:0x98744f,path:0xd5c8a1,
-  cream:0xffecc7,roof:0xd16a49,blue:0x79b8d2,ink:0x344559,gold:0xffcd61};
+const P={stone:0x649eaf,darkStone:0x477d98,lightStone:0x97c5d1,snow:0xe5f2ef,
+  pine:0x287b57,pineLight:0x53a66e,wood:0xa67a4e,path:0xe0c58f,
+  cream:0xffecc7,roof:0xdb754c,blue:0x79b8d2,ink:0x344559,gold:0xffcd61};
 const primitive=(x,y,z,w,h,d,color,studs=false,shape='brick')=>({shape,x,y,z,w,h,d,color,studs});
 function solid(id,kind,hp,color,parts){
   entities.push({id:'mountain:'+id,kind,hp,color,
@@ -22,8 +22,8 @@ paving(35,0,10,79);
 paving(0,-35,80,9);
 paving(0,35,80,9);
 for(let i=-4;i<=4;i++){
-  if(Math.abs(i)>1){paving(-7.8,i*10,1.1,3.6,0xb6b8a1);paving(7.8,i*10,1.1,3.6,0xb6b8a1);}
-  if(Math.abs(i)>1){paving(i*10,-6.8,3.6,1.1,0xb6b8a1);paving(i*10,6.8,3.6,1.1,0xb6b8a1);}
+  if(Math.abs(i)>1){paving(-7.8,i*10,1.1,3.6,0xa9b894);paving(7.8,i*10,1.1,3.6,0xa9b894);}
+  if(Math.abs(i)>1){paving(i*10,-6.8,3.6,1.1,0xa9b894);paving(i*10,6.8,3.6,1.1,0xa9b894);}
 }
 // Flush colored market tiles are visual decoration, never movement blockers.
 for(const [x,z,c] of [[-11,-10,0x79b8d2],[11,-10,0xffcd61],[-11,10,0xe7a594],[11,10,0x75b79d]])
@@ -118,7 +118,7 @@ for(const [i,[x,z]] of [[-12,-40],[12,-40],[-12,40],[12,40]].entries())
     primitive(x,1.95,z,2.2,.5,2.2,P.lightStone,true)]);
 
 export const MOUNTAIN_MAP={
-  id:'mountain',name:'Mountain Village',groundColor:0x9fb7a1,oceanColor:0x98b9d0,
+  id:'mountain',name:'Mountain Village',groundColor:0x83b87b,oceanColor:0xb4dedd,
   pieces,entities,
   // Every point has at least an 8 × 8 m footprint clear of solid map geometry.
   spawns:[[0,-45],[0,45],[-45,0],[45,0],[-12,-32],[12,-32],[-12,32],[12,32],
