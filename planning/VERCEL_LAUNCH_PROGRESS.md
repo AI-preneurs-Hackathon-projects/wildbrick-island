@@ -46,3 +46,12 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 - SESSION_SECRET set as production sensitive variable. Database credentials remain within Vercel. An attempt to pull all production secrets was denied by approval review; no bulk production env download occurred.
 - Existing main check-round-refinements expects keyboard hints without X, while current UI includes X. Do not weaken that assertion as part of this hosting change.
 - AI generation and recorded transcription intentionally fail closed until explicit public-use flags and server API configuration are supplied. Native voice and saved client creations remain available. This is not yet full paid-feature acceptance.
+
+## Live verification
+
+- Production backend deployment succeeded; nested API routing corrected in434f367 after the first live404.
+- Public unauthenticated two-guest create/join/start and five paired syncs passed against actual Vercel/Turso. Both players left through the API. Observed ten sync durations:158,199,220,139,117,553,182,218,178,225ms. This short smoke is not a controlled Sites comparison or a stability benchmark.
+- Desktop Chrome1440×900 created/started Arena and rendered the full map. Guest-access lobby copy replaces Sites invitation text only in the Vercel output.
+-29/30 original check commands pass; one main keyboard-hint test misses X. New database/handler checks pass. Existing gameplay source is untouched.
+- AI generation and recorded transcription are not complete: require owner's server-side API key and explicit public paid-feature configuration. Never claim the entire feature set enabled.
+- Deployment uses latest verified main dd5dab9 plus deployment-branch adapters, not the experimental performance branch. No GitHub main push.
