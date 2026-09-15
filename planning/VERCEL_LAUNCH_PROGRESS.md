@@ -82,3 +82,15 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 - Current main intentionally exposes only Type an idea after native speech errors. Vercel build will restore the explicit Record instead fallback when canRecord=true, without changing public source/Sites packaging.
 
 - Built Vercel UI fallback tests pass: explicit Record click, readiness before microphone, hidden unavailable action, Type submission, native listening hides fallback; Sites public source unchanged.
+
+## Remote movement iteration
+
+User reports Vercel feels slightly better with two players and no heavy stalls observed, but remote movement remains delayed. This is user acceptance feedback, not a controlled performance measurement. User requested direct changes and manual playtest rather than long verification suites.
+
+- Port only the four-line held-fire correction from3e3724e; no scheduler experiment or historical evidence bundle merged.
+- Serial sync now schedules from request start with a100ms minimum start interval; removes the extra120ms wait after responses. At RTT above100ms, the next request can start immediately after completion. Failure backoff remains unchanged. More frequent polling increases database traffic.
+- Remote presentation improvement in progress: bounded between-snapshot motion with lifecycle resets. Server collision/damage/local prediction remain unchanged.
+- Vercel WebSockets are currently beta-supported, but cross-instance room broadcasting and reconnect lifecycle require a separate transport design. Do not claim polling is server push or eliminates network latency.
+- Validation scope this iteration: syntax/build only; no automated comparison/soak/browser matrices. Yerzhan will perform the movement playtest.
+
+- Implemented remote horizontal extrapolation capped at200ms and kit speed, with solid-obstacle sweeps and island bounds. Resets on spawn/round/epoch/kit/death/discontinuity; fresh stopped snapshots stop extrapolation. Remote correction response increased from12 to18. Unseen stops can briefly overshoot until a new snapshot arrives. This is a candidate for manual playtest, not a measured improvement claim.
