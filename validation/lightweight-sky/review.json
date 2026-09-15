@@ -1,0 +1,38 @@
+{
+  "desktopCssViewport": "1440x900",
+  "devicePixelRatio": 1.8,
+  "capturedPixels": "2592x1620",
+  "views": [
+    "mountain/foot/180",
+    "mountain/elevated/90",
+    "beach/foot/180",
+    "beach/elevated/90",
+    "island/foot/180",
+    "island/elevated/90"
+  ],
+  "visualReview": {
+    "mountain": "Approved green, teal, blue, snow, path and roof palette remains unchanged; the terrain edge now sits in a bluer, matte atmosphere.",
+    "beach": "Sand, props, character, pickup and health label remain readable against the cooler surroundings.",
+    "island": "Existing ground and landmark colors remain unchanged; the surrounding band no longer has a reflective ocean-like finish.",
+    "clouds": "The same three boxes per cluster now form wider stepped silhouettes at varied edge heights; no cloud mesh or material was added."
+  },
+  "matchedMountainElevatedResources": {
+    "baseline": {
+      "calls": 136,
+      "triangles": 167518,
+      "gpuGeometries": 8,
+      "gpuTextures": 2,
+      "sceneMaterials": 278,
+      "sceneTextureBytesEstimate": 273067
+    },
+    "candidate": {
+      "calls": 136,
+      "triangles": 167518,
+      "gpuGeometries": 8,
+      "gpuTextures": 2,
+      "sceneMaterials": 278,
+      "sceneTextureBytesEstimate": 273067
+    }
+  },
+  "timingLimitation": "Single Chrome samples varied materially with local scheduling. CPU submission and requestAnimationFrame intervals are not GPU timings and do not establish hardware-cost neutrality."
+}

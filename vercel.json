@@ -1,0 +1,42 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "vercel-public",
+  "framework": null,
+  "regions": [
+    "sin1"
+  ],
+  "functions": {
+    "api/handler.js": {
+      "maxDuration": 120
+    },
+    "api/arena-realtime.js": {
+      "maxDuration": 300
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "same-origin"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/arena/realtime",
+      "destination": "/api/arena-realtime"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api/handler?route=:path*"
+    }
+  ]
+}

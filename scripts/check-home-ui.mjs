@@ -6,7 +6,7 @@ import {character,C} from '../public/models.js';
 import {createState} from '../public/rules.js';
 import {newRoom,addPlayer,roomSnapshot} from '../public/arena-core.js';
 const shell=await import('node:fs').then(fs=>fs.readFileSync('public/index.html','utf8'));
-assert.match(shell,/style\.css\?v=48/);assert.match(shell,/main\.js\?v=48/);
+assert.match(shell,/style\.css\?v=49/);assert.match(shell,/main\.js\?v=49/);
 let checks=0;
 async function check(name,run){
  const dom=new JSDOM('<div id="ui"></div>',{url:'https://brickwild.test/'});
@@ -31,9 +31,10 @@ await check('both modes require a name and recover from whitespace input',async(
  name('  River  ');$('start').click();assert.equal($('arena-lobby').open,true);$('arena-create').click();await app.entry;await Promise.resolve();assert.equal(app.starts,1);assert.equal($('hud').classList.contains('hidden'),false);assert.equal($('hud').getAttribute('aria-hidden'),'false');$('snapshot').click();assert.equal(app.snapshots,1);assert.equal(app.ui.playerName(),'River');assert.equal(app.joins[0].name,'River');assert.equal(app.joins[0].create,true);assert.match(app.joins[0].room,/^[A-Z2-9]{6}$/);
 });
 await check('Explore keeps newer speech controls and shows the full Practice route without Arena or rewards',async()=>{
- const app=setup();name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('toast').textContent,'Practice on the island.\nFollow the gold beacon and Speak / Build to create.');assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);const controls=$('movement-controls');assert.equal(controls.open,false);controls.querySelector('summary').click();assert.equal(controls.open,true);controls.querySelector('summary').click();assert.equal(controls.open,false);
+ const app=setup(),realNow=Date.now;let now=realNow();Date.now=()=>now;name('River');$('explore-start').click();assert.equal(app.joins.length,0);assert.equal(document.activeElement,$('help'));assert.equal($('toast').textContent,'Practice on the island.\nFollow the gold beacon and Speak / Build to create.');assert.equal($('practice-map-name').classList.contains('hidden'),false);now+=3501;app.ui.update(app.state);assert.equal($('practice-map-name').classList.contains('hidden'),true);Date.now=realNow;assert.equal($('imagine'),null);assert.equal($('mic').textContent.includes('Speak / Build'),true);const controls=$('movement-controls');assert.equal(controls.open,false);controls.querySelector('summary').click();assert.equal(controls.open,true);controls.querySelector('summary').click();assert.equal(controls.open,false);
  assert.match($('practice-route').textContent,/Scenic route/);assert.match($('practice-route').textContent,/Right on target/);assert.match($('practice-route').textContent,/Smash & grab/);assert.match($('practice-route').textContent,/Sky is the limit/);assert.equal(document.querySelector('.brick-counter'),null);
  app.state.gates.push('gate-1');app.ui.update(app.state);assert.equal($('practice-gates').textContent,'1/4');assert.ok($('practice-creations'));
+ app.state.speed=2;app.ui.update(app.state);assert.equal(document.body.classList.contains('hud-in-motion'),true);app.state.speed=0;app.ui.update(app.state);assert.equal(document.body.classList.contains('hud-in-motion'),false);
  Object.assign(app.state,{gates:[0,1,2,3],targets:[0,1,2],crates:[0,1,2],rings:[0,1,2,3,4],won:true,bricks:226});app.ui.update(app.state);assert.equal($('practice-route').classList.contains('complete'),true);assert.equal($('practice-reset').classList.contains('hidden'),false);$('practice-reset').click();assert.equal(app.resets,1);assert.equal($('practice-reset').classList.contains('hidden'),true);
 });
 await check('failed authentication preserves sign-in and Exit to home returns to the home screen',async()=>{

@@ -6,12 +6,16 @@ export const nonce=()=>crypto.randomUUID().replaceAll('-','')+crypto.randomUUID(
 // never strand later requests behind a shared promise; CAS serializes writes.
 export function arenaStore(db){if(!db)throw new ArenaError('The shared arena is unavailable. Please try Play again shortly.',503);
  return {
-  async roomExists(roomId){return !!await db.prepare('SELECT id FROM arena_rooms WHERE id = ?').bind(roomId).first();},
+  async roomExists(roomId){const now=Date.now(),row=await db.prepare('SELECT id, updated_at, lease_until FROM arena_rooms WHERE id = ?').bind(roomId).first();return !!row&&!(row.updated_at<now-15*60000&&row.lease_until<now);},
   async mutate(roomId,fn){const started=Date.now();for(let attempt=0;attempt<16&&Date.now()-started<1800;attempt++){
-   let row=await db.prepare('SELECT revision, snapshot, updated_at FROM arena_rooms WHERE id = ?').bind(roomId).first();const now=Math.max(Date.now(),row?JSON.parse(row.snapshot).time:0);
-   if(!row){const initial=newRoom(now,crypto.randomUUID());await db.prepare('INSERT INTO arena_rooms (id, revision, snapshot, updated_at) VALUES (?, 0, ?, ?) ON CONFLICT(id) DO NOTHING').bind(roomId,JSON.stringify(initial),now).run();continue;}
+   let row=await db.prepare('SELECT revision, snapshot, updated_at, transport, owner_id, owner_epoch, lease_until FROM arena_rooms WHERE id = ?').bind(roomId).first();const now=Math.max(Date.now(),row?JSON.parse(row.snapshot).time:0);
+   if(!row){const initial=newRoom(now,crypto.randomUUID());await db.prepare("INSERT INTO arena_rooms (id, revision, snapshot, updated_at, transport) VALUES (?, 0, ?, ?, 'http-v1') ON CONFLICT(id) DO NOTHING").bind(roomId,JSON.stringify(initial),now).run();continue;}
+   if(row.transport!=='http-v1'){
+    if(now-row.updated_at<=15*60000||row.lease_until>=now)throw new ArenaError('This Arena uses realtime rooms. Refresh Brickwild and join again.',409);
+    const initial=newRoom(now,crypto.randomUUID()),repinned=await db.prepare("UPDATE arena_rooms SET snapshot = ?, revision = revision + 1, updated_at = ?, transport = 'http-v1', owner_id = NULL, owner_epoch = owner_epoch + 1, lease_until = 0, checkpointed_at = ? WHERE id = ? AND revision = ? AND transport = ? AND lease_until < ?").bind(JSON.stringify(initial),now,now,roomId,row.revision,row.transport,now).run();if(repinned.meta.changes===1)continue;continue;
+   }
    let room=JSON.parse(row.snapshot);if(now-row.updated_at>15*60000)room=newRoom(now,crypto.randomUUID());advanceRoom(room,now);const result=await fn(room,now);room.revision=row.revision+1;
-   const written=await db.prepare('UPDATE arena_rooms SET snapshot = ?, revision = revision + 1, updated_at = ? WHERE id = ? AND revision = ?').bind(JSON.stringify(room),now,roomId,row.revision).run();
+   const written=await db.prepare("UPDATE arena_rooms SET snapshot = ?, revision = revision + 1, updated_at = ? WHERE id = ? AND revision = ? AND transport = 'http-v1'").bind(JSON.stringify(room),now,roomId,row.revision).run();
    if(written.meta.changes===1)return {room,result};
    await new Promise(resolve=>setTimeout(resolve,5+Math.random()*Math.min(80,5*(attempt+1))));
   }throw new ArenaError('The arena is busy. Reconnecting…',409);},

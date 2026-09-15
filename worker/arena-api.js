@@ -1,7 +1,7 @@
 import {avatarColor} from '../public/avatar-colors.js';
 import {newMotion,validFrames} from '../public/movement-stream.js';
 import {arenaStore,ArenaError,hash,nonce} from './arena-store.js';
-import {queuePlayer,startRoom,removePlayer,applyInput,roomSnapshot,makeKit} from '../public/arena-core.js';
+import {joinPlayer,startRoom,removePlayer,applyInput,roomSnapshot,makeKit,readyForNextRound} from '../public/arena-core.js';
 import {validateBlueprint} from '../public/blueprint.js';
 import {SUPPLY_BLUEPRINTS} from '../public/supply-catalog.js';
 const response=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -23,12 +23,13 @@ export async function handleArenaAPI(request,env,ctx={}){try{
   // A retry proves possession of the same random token and reuses one seat.
   // Reserve durably before the room write, so a lost response is recoverable.
   const saved=await store.saveSession({id,tokenHash:await hash(token),principal,roomId,playerId:crypto.randomUUID()}),playerId=saved.player_id;
-  try{const {room}=await store.mutate(roomId,async(r,t)=>{if(!await env.DB.prepare('SELECT id FROM arena_sessions WHERE id = ?').bind(id).first())throw new ArenaError('This join was canceled. Join again to continue.',410);requireMapClient(r,packet);if(!r.players[playerId]&&r.round?.status!=='waiting'&&!(r.match?.complete&&!Object.keys(r.players).length))throw new ArenaError('This match is already in progress. Join after the current game ends.',409);const p=r.players[playerId]||queuePlayer(r,playerId,name,t);p.lastSeen=t;p.name=name;p.avatarColor=avatarColor(packet.avatarColor);if(packet.motionVersion===1&&!p.motion)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){if(!resume)await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
+  try{const {room}=await store.mutate(roomId,async(r,t)=>{if(!await env.DB.prepare('SELECT id FROM arena_sessions WHERE id = ?').bind(id).first())throw new ArenaError('This join was canceled. Join again to continue.',410);requireMapClient(r,packet);const p=r.players[playerId]||joinPlayer(r,playerId,name,t);p.lastSeen=t;p.name=name;p.avatarColor=avatarColor(packet.avatarColor);if(packet.motionVersion===1&&!p.motion)p.motion=newMotion(t);return p;});ctx.waitUntil?.(store.cleanup().catch(()=>{}));return response({session:id,token,room:roomId,snapshot:roomSnapshot(room,playerId)});}catch(e){if(!resume)await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(id).run();throw e;}
 
  }
  const session=await store.session(request,packet);
  if(url.pathname==='/api/arena/leave'){await env.DB.prepare('DELETE FROM arena_sessions WHERE id = ?').bind(session.id).run();await store.mutate(session.room_id,r=>removePlayer(r,session.player_id));return response({left:true});}
  if(url.pathname==='/api/arena/start'){const {room}=await store.mutate(session.room_id,(r,t)=>startRoom(r,session.player_id,t));return response({snapshot:roomSnapshot(room,session.player_id)});}
+ if(url.pathname==='/api/arena/ready'){if(!Number.isSafeInteger(packet.roundId)||packet.roundId<1)throw new ArenaError('Invalid Arena round.');const {room}=await store.mutate(session.room_id,(r,t)=>readyForNextRound(r,session.player_id,packet.roundId,t));return response({snapshot:roomSnapshot(room,session.player_id)});}
  if(!['/api/arena/sync','/api/arena/build'].includes(url.pathname))return response({error:'Not found.'},404);
  if(!Number.isSafeInteger(packet.seq)||packet.seq<1||packet.seq>1e12)throw new ArenaError('Invalid input sequence.');
  if(packet.frames!==undefined&&(!validFrames(packet.frames)||!Number.isSafeInteger(packet.motionEpoch)||packet.motionEpoch<0))throw new ArenaError('Invalid movement frames.');
