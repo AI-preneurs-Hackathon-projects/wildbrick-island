@@ -128,11 +128,8 @@ try {
   assert.equal(firstReady.snapshot.round.intermissionEndsAt,originalIntermission,'one Ready keeps the automatic timeout');
   second.socket.send(JSON.stringify({type:'ready',requestId:31,roundId:finished.snapshot.round.id}));
   const allReady=await second.waitFor(message=>message.type==='result'&&message.requestId===31);
-  assert.equal(allReady.snapshot.readiness.allReady,true,'Ready is authoritative across realtime peers');
-  assert.ok(allReady.snapshot.round.intermissionEndsAt<=allReady.snapshot.time+3000,'all eligible peers shorten the remaining wait to at most three seconds');
-  first.socket.send(JSON.stringify({type:'ready',requestId:32,roundId:finished.snapshot.round.id}));
-  const duplicateReady=await first.waitFor(message=>message.type==='result'&&message.requestId===32);
-  assert.equal(duplicateReady.snapshot.round.intermissionEndsAt,allReady.snapshot.round.intermissionEndsAt,'repeated Ready cannot lengthen or double-start the countdown');
+  assert.equal(allReady.snapshot.round.id,finished.snapshot.round.id+1,'the last Ready opens the next Arena immediately');
+  assert.equal(allReady.snapshot.round.status,'active');
 
   second.socket.close();
   await new Promise(resolve => second.socket.once('close', resolve));
@@ -145,7 +142,7 @@ try {
   resumed.socket.send(JSON.stringify({type: 'leave', requestId: 4}));
   await resumed.waitFor(message => message.type === 'result' && message.requestId === 4);
   const returned=await connect('test:second',false,undefined);
-  assert.equal(returned.joined.snapshot.round.status,'finished','an explicit leaver can also return during intermission');
+  assert.equal(returned.joined.snapshot.round.status,'active','an explicit leaver can return after the immediate Ready transition');
   assert.notEqual(returned.joined.snapshot.self,second.joined.snapshot.self,'an explicit leave creates a fresh authenticated seat');
   returned.socket.send(JSON.stringify({type:'leave',requestId:6}));
   await returned.waitFor(message=>message.type==='result'&&message.requestId===6);

@@ -30,7 +30,7 @@ export function createRealtimeArenaClient({onSnapshot=()=>{},onStatus=()=>{},onE
  function settle(message){const pending=requests.get(message.requestId);if(!pending)return false;clearTimer(pending.timer);requests.delete(message.requestId);if(message.type==='error')pending.reject(Object.assign(Error(message.message||'The Arena action failed.'),{status:message.status}));else pending.resolve(message);return true;}
 
  function accept(next,{full=false}={}){
-  if(!next||!Number.isSafeInteger(next.revision)||(!full&&next.revision<=revision))return;
+  if(closed||!next||!Number.isSafeInteger(next.revision)||(!full&&next.revision<=revision))return;
   if(!full&&snapshot&&snapshot.epoch!==next.epoch)throw Object.assign(Error('This arena has ended. Join again to continue.'),{status:410});
   if(next.round?.mapId&&!MAP_CYCLE.includes(next.round.mapId))throw Object.assign(Error('A new Arena map is available. Refresh the Site to continue.'),{status:410});
   const authoritative=structuredClone(next.players.find(player=>player.id===next.self)||null);

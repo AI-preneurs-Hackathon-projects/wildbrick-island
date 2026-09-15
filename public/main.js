@@ -152,7 +152,7 @@ async function bootGame(){
   const goal=s.started&&!arenaMode?navigationGoal(s):null;guide.visible=!!goal;if(goal){guide.position.set(goal.x,(goal.y||0)+.7,goal.z);guide.rotation.y=s.time*.5;}
   renderer.render(scene,camera);
   uiTime+=dt;if(uiTime>.1){ui.update(s,input.yaw);arenaUI.update(arena);uiTime=0;}
-  frameCount++;frameCost+=dt;if(frameCount===240){if(frameCost/240>.032&&renderer.getPixelRatio()>1){renderer.setPixelRatio(1);renderer.setSize(innerWidth,innerHeight);}frameCount=0;frameCost=0;}
+  frameCount++;frameCost+=dt;if(frameCount===240){if(coarse&&frameCost/240>.032&&renderer.getPixelRatio()>1.25){renderer.setPixelRatio(Math.min(devicePixelRatio,1.25));renderer.setSize(innerWidth,innerHeight);}frameCount=0;frameCost=0;}
  };
  document.querySelector('#boot').style.display='none';ui.update(sim.state);renderer.setAnimationLoop(frame);
  // Optional browser tool support shares the same actions as the on-screen controls.
