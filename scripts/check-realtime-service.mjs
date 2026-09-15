@@ -62,6 +62,9 @@ try {
   const second = await connect('test:second', false);
   first.socket.send(JSON.stringify({type: 'start', requestId: 2}));
   assert.equal((await first.waitFor(message => message.type === 'result' && message.requestId === 2)).snapshot.round.status, 'active');
+  await new Promise(resolve=>setTimeout(resolve,5200));
+  assert.equal(first.socket.readyState,WebSocket.OPEN,'authenticated sockets survive the five-second admission guard');
+  assert.equal(second.socket.readyState,WebSocket.OPEN,'joined peers survive the five-second admission guard');
 
   const before = second.joined.snapshot.players.find(player => player.id === first.joined.snapshot.self);
   first.socket.send(JSON.stringify({type: 'input', seq: 1, roundId: 1, input: {z: 1, cameraYaw: 0}, afterEvent: 0}));

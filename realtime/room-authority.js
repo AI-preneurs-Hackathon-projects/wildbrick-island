@@ -137,10 +137,9 @@ export class RealtimeRoomAuthority {
   attach(socket, origin) {
     if (!this.accepting || this.sockets.size >= MAX_CONNECTIONS) { socket.close(1013, 'Arena service is busy'); return; }
     this.sockets.add(socket);
-    socket.arena = {stage: 'authenticate', origin, inputs: [], afterEvent: 0, isAlive: true, rate: {at: this.now(), tokens: 120}, pendingMessages: 0, messageChain: Promise.resolve()};
+    socket.arena = {stage: 'authenticate', origin, inputs: [], afterEvent: 0, isAlive: true, rate: {at: this.now(), tokens: 120}, pendingMessages: 0, messageChain: Promise.resolve(), authTimer: null, joinTimer: null};
     socket.on('pong', () => { socket.arena.isAlive = true; });
-    const authTimer = setTimeout(() => socket.close(1008, 'Authentication required'), AUTH_TIMEOUT_MS);
-    socket.once('close', () => clearTimeout(authTimer));
+    socket.arena.authTimer = setTimeout(() => socket.close(1008, 'Authentication required'), AUTH_TIMEOUT_MS);
     socket.on('message', (data, isBinary) => {
       if (++socket.arena.pendingMessages > MAX_INPUT_QUEUE) { socket.close(1013, 'Arena input queue is full'); return; }
       socket.arena.messageChain = socket.arena.messageChain.then(() => this.message(socket, data, isBinary))
@@ -189,10 +188,11 @@ export class RealtimeRoomAuthority {
     if (claims.origin !== socket.arena.origin) throw new ArenaError('Arena admission origin did not match.', 403);
     if (this.usedTickets.has(claims.jti)) throw new ArenaError('That Arena admission ticket was already used.', 401);
     this.usedTickets.set(claims.jti, claims.exp * 1000);
+    clearTimeout(socket.arena.authTimer);
+    socket.arena.authTimer = null;
     Object.assign(socket.arena, {stage: 'join', claims});
     send(socket, {type: 'authenticated'});
-    const joinTimer = setTimeout(() => socket.close(1008, 'Join required'), JOIN_TIMEOUT_MS);
-    socket.once('close', () => clearTimeout(joinTimer));
+    socket.arena.joinTimer = setTimeout(() => socket.close(1008, 'Join required'), JOIN_TIMEOUT_MS);
   }
 
   async loadRoom(claims, resume) {
@@ -235,6 +235,8 @@ export class RealtimeRoomAuthority {
       prior.close(4001, 'Session resumed elsewhere');
     }
     Object.assign(socket.arena, {stage: 'play', runtime, sessionId: session.id, playerId: session.player_id, inputs: [], afterEvent: 0, sessionTouchedAt: this.now()});
+    clearTimeout(socket.arena.joinTimer);
+    socket.arena.joinTimer = null;
     runtime.clients.add(socket);
     this.sessions.set(session.id, socket);
     send(socket, {type: 'joined', requestId: packet.requestId, room: claims.room, session: session.id, token, snapshot: roomSnapshot(runtime.room, session.player_id)});
@@ -297,6 +299,8 @@ export class RealtimeRoomAuthority {
 
   disconnect(socket) {
     const state = socket.arena;
+    clearTimeout(state?.authTimer);
+    clearTimeout(state?.joinTimer);
     state?.runtime?.clients.delete(socket);
     if (state?.sessionId && this.sessions.get(state.sessionId) === socket) this.sessions.delete(state.sessionId);
     this.sockets.delete(socket);
