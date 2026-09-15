@@ -211,7 +211,9 @@ export class RealtimeRoomAuthority {
 
   async join(socket, packet) {
     const allowed = new Set(['type', 'requestId', 'name', 'room', 'create', 'avatarColor', 'resume', 'motionVersion', 'mapVersion']);
-    if (packet.type !== 'join' || !validRequestId(packet.requestId) || Object.keys(packet).some(key => !allowed.has(key))) throw new ArenaError('Invalid Arena join request.');
+    if (packet.type !== 'join') throw new ArenaError('Arena join protocol was out of order.');
+    if (!validRequestId(packet.requestId)) throw new ArenaError('Invalid Arena join request identifier.');
+    if (Object.keys(packet).some(key => !allowed.has(key))) throw new ArenaError('Arena join request contained unexpected fields.');
     const claims = socket.arena.claims;
     if (packet.room !== claims.room || packet.create !== claims.create) throw new ArenaError('Arena admission does not match this room.', 403);
     if (packet.motionVersion !== 2 || packet.mapVersion !== 1) throw new ArenaError('Refresh Brickwild before joining this Arena.', 410);

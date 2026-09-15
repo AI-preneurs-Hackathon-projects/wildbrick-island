@@ -32,6 +32,7 @@ class HostedPeer {
     this.snapshotTimes = [];
     this.closeCount = 0;
     this.closeEvents = [];
+    this.connectionGeneration = 0;
   }
 
   async ticket() {
@@ -89,11 +90,16 @@ class HostedPeer {
   }
 
   async connect() {
+    const connectionGeneration = ++this.connectionGeneration;
+    this.messages.length = 0;
+    for (const wake of this.waiters.splice(0)) wake();
     const admission = await this.ticket();
     const headers = requestHeaders(this.cookie ? {cookie: this.cookie} : {});
     const socket = new WebSocket(admission.url, {origin, headers});
     this.socket = socket;
-    socket.on('message', raw => this.receive(raw));
+    socket.on('message', raw => {
+      if (this.connectionGeneration === connectionGeneration && this.socket === socket) this.receive(raw);
+    });
     socket.on('close', (code, reason) => {
       if (this.socket === socket) this.socket = null;
       this.closeCount++;
@@ -109,7 +115,7 @@ class HostedPeer {
     await this.waitFor(message => message.type === 'authenticated');
     this.send({type: 'join', requestId: ++this.requestId, name: this.name, room, create: this.create, avatarColor: '#ffcf55', resume: this.resume, motionVersion: 2, mapVersion: 1});
     const joined = await this.waitFor(message => message.type === 'joined' || message.type === 'error');
-    assert.equal(joined.type, 'joined', joined.message);
+    assert.equal(joined.type, 'joined', `${this.name}: ${joined.message}`);
     this.resume = {session: joined.session, token: joined.token};
     this.lastSnapshot = joined.snapshot;
     return joined;
@@ -151,9 +157,14 @@ try {
   const playerId = first.resume && first.lastSnapshot.self;
   const initial = second.lastSnapshot.players.find(player => player.id === playerId);
   const movingSeq = first.input({z: 1, cameraYaw: 0});
-  const moved = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= movingSeq));
+  await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= movingSeq));
+  const moved = await second.waitFor(message => {
+    if (message.type !== 'snapshot') return false;
+    const player = message.snapshot.players.find(candidate => candidate.id === playerId);
+    return player?.lastSeq >= movingSeq && Math.hypot(player.x - initial.x, player.z - initial.z) > 0.1;
+  });
   const movedPlayer = moved.snapshot.players.find(player => player.id === playerId);
-  assert.ok(Math.hypot(movedPlayer.x - initial.x, movedPlayer.z - initial.z) > 0.01, 'remote player advances from owner-clock snapshots');
+  assert.ok(Math.hypot(movedPlayer.x - initial.x, movedPlayer.z - initial.z) > 0.1, 'remote player advances from owner-clock snapshots after the input acknowledgement');
 
   while (second.snapshotTimes.length < 6) await second.waitFor(message => message.type === 'snapshot');
   const focusedTimes = second.snapshotTimes.slice(-6);
@@ -161,16 +172,26 @@ try {
   assert.ok(intervals.every(value => value < 180), `hosted snapshot gap exceeded focused bound: ${intervals.join(', ')}`);
 
   const stopSeq = first.input({z: 0});
-  await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= stopSeq));
-  const stopA = await second.waitFor(message => message.type === 'snapshot');
-  const stopB = await second.waitFor(message => message.type === 'snapshot' && message.snapshotSeq >= stopA.snapshotSeq + 2);
+  const stopAck = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= stopSeq));
+  const stopA = await second.waitFor(message => message.type === 'snapshot' && message.snapshotSeq > stopAck.snapshotSeq && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= stopSeq));
+  const stopB = await second.waitFor(message => message.type === 'snapshot' && message.snapshotSeq >= stopA.snapshotSeq + 2 && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= stopSeq));
   const stopPlayerA = stopA.snapshot.players.find(player => player.id === playerId);
   const stopPlayerB = stopB.snapshot.players.find(player => player.id === playerId);
   assert.ok(Math.hypot(stopPlayerA.x - stopPlayerB.x, stopPlayerA.z - stopPlayerB.z) < 0.001, 'stop does not coast between authoritative snapshots');
 
+  const reverseOrigin = stopPlayerB;
   const reverseSeq = first.input({z: -1}, {type: 'fire', id: 1});
-  const reversed = await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= reverseSeq));
+  await second.waitFor(message => message.type === 'snapshot' && message.snapshot.players.some(player => player.id === playerId && player.lastSeq >= reverseSeq));
+  const reversed = await second.waitFor(message => {
+    if (message.type !== 'snapshot') return false;
+    const player = message.snapshot.players.find(candidate => candidate.id === playerId);
+    return player?.lastSeq >= reverseSeq && Math.hypot(player.x - reverseOrigin.x, player.z - reverseOrigin.z) > 0.1;
+  });
+  const reversedPlayer = reversed.snapshot.players.find(player => player.id === playerId);
   assert.equal(reversed.snapshot.players.find(player => player.id === playerId).lastCommand, 1, 'move-and-fire is acknowledged once');
+  const forwardDelta = {x: movedPlayer.x - initial.x, z: movedPlayer.z - initial.z};
+  const reverseDelta = {x: reversedPlayer.x - reverseOrigin.x, z: reversedPlayer.z - reverseOrigin.z};
+  assert.ok(forwardDelta.x * reverseDelta.x + forwardDelta.z * reverseDelta.z < 0, 'reversal changes authoritative travel direction');
 
   second.socket.close(1000, 'Focused reconnect smoke');
   await second.waitFor(() => !second.socket, 5_000).catch(() => {});
