@@ -148,6 +148,15 @@ class HostedPeer {
 const first = new HostedPeer('Hosted One', true);
 const second = new HostedPeer('Hosted Two', false);
 const startedAt = Date.now();
+const waitForRoundFinished = async (peer, timeout = 20_000) => {
+  const deadline = Date.now() + timeout;
+  while (peer.lastSnapshot?.round?.status !== 'finished' && Date.now() < deadline) {
+    await peer.ensureConnected();
+    peer.input({z: 0});
+    await delay(500);
+  }
+  assert.equal(peer.lastSnapshot?.round?.status, 'finished', `${peer.name} did not receive the finished round after rollover`);
+};
 
 try {
   const firstJoin = await first.connect();
@@ -207,7 +216,7 @@ try {
   while (Date.now() - startedAt < HOLD_MS) {
     for (const peer of [first, second]) {
       if (await peer.ensureConnected()) process.stdout.write(`${peer.name} reconnected after hosted Function/connection rollover.\n`);
-      if (peer.lastSnapshot?.round?.status === 'active') peer.input({z: 0});
+      peer.input({z: 0});
     }
     const elapsed = Date.now() - startedAt;
     if (elapsed >= nextProgress) {
@@ -225,8 +234,7 @@ try {
     console.log(`Hosted Realtime Arena: ${FUNCTION_DURATION_MS}-millisecond diagnostic rollover and full resynchronization passed.`);
     process.exitCode = 0;
   } else {
-  if (first.lastSnapshot.round.status !== 'finished') await first.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
-  if (second.lastSnapshot.round.status !== 'finished') await second.waitFor(message => message.type === 'snapshot' && message.snapshot.round.status === 'finished', 20_000);
+  await Promise.all([waitForRoundFinished(first), waitForRoundFinished(second)]);
   const roundId = first.lastSnapshot.round.id;
   const readyOne = await first.request('ready', {roundId});
   assert.equal(readyOne.snapshot.readiness.readyCount, 1);
