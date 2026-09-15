@@ -24,11 +24,13 @@ Built for players who enjoy creative sandboxes and playful competition, Brickwil
 
 Creations can be saved, rebuilt, dropped, and picked up by another player. Your invention can change how you cross the island, approach a fight, or equip someone else.
 
-Practice provides space to experiment with driving, flying, targets, and destructible props. Arena gives those creations shared stakes through rounds, combat, and scores. The central loop is imagine, build, use, and share: creativity becomes part of playing.
+Practice provides space to experiment with driving, flying, targets, and destructible props. In Arena, invite friends into a shared room and battle each other using your generated weapons, creatures, and vehicles across three scored rounds. The central loop is imagine, build, use, and share: creativity becomes part of playing.
 
 ## Meaningful use of OpenAI tools — 30%
 
 OpenAI powers the defining action in Brickwild: inventing new playable equipment through language during a game. We use the Responses API with strict Structured Outputs to generate original brick geometry, colors, animation joints, grips, seats, projectile emitters, and supported gameplay traits.
+
+OpenAI audio transcription also powers the recorded-speech fallback, turning a spoken idea into text for the same creation pipeline. Players can describe what they want to build by voice or type their idea directly.
 
 A request for a rideable flying creature must become both a recognizable model and a functional mount. The generated blueprint connects the player's intent to its appearance and use. Our engine independently validates that data and applies trusted movement and combat rules, keeping abilities bounded. Model-generated code is never executed.
 
