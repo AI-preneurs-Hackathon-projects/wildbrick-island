@@ -23,7 +23,7 @@ import {createCreationService} from './creation-service.js';
 import {createAdventure} from './adventure.js';
 import {createArenaClient} from './arena-client.js?v=41';
 import {createArenaView} from './arena-view.js';
-import {createArenaUI} from './arena-ui.js?v=50';
+import {createArenaUI} from './arena-ui.js?v=51';
 import {navigationGoal,creationControls} from './guidance.js';
 import {composeGameSnapshot} from './snapshot.js';
 const dom=document.querySelector('#scene');

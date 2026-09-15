@@ -128,5 +128,6 @@ check('expired arena keeps vitals, exposes Rejoin, and hides Lower while the pla
  document.activeElement.blur();
  const down=new window.Event('pointerdown',{cancelable:true});Object.assign(down,{pointerId:12});document.querySelector('#descend').dispatchEvent(down);assert.equal(input.read().down,true);const released=new window.Event('pointerup');Object.assign(released,{pointerId:12});document.querySelector('#descend').dispatchEvent(released);assert.equal(input.read().down,false);
 });
+check('reopening Arena recalls the last same-tab room code for a quick rejoin',()=>{window.sessionStorage.setItem('brickwild-arena-room','HOLD42');arenaUI.reset();arenaUI.open();assert.equal(document.querySelector('#arena-room').value,'HOLD42');});
 dom.window.close();for(const k of ['window','document','location','HTMLInputElement','HTMLTextAreaElement','localStorage'])delete globalThis[k];
 console.log(`\n${checks} arena DOM/scene checks passed. No browser rendering, microphone or real multitouch claim.`);
