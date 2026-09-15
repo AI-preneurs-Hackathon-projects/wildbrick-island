@@ -67,3 +67,9 @@ No guarantee of faster gameplay. The frontend alone would not replace the source
 - Gateway mock acceptance: six groups pass, including actual worker schema/reasoning validation, key precedence, sanitized errors, no retries, WebM/MP4 translation and SQLite duplicate admission.
 - All new Vercel checks pass. Shared suite33/34 passes; unchanged main test check-round-refinements still omits X from expected help hints. Sites build plus both package checks pass (66 assets, three migrations).
 - Paid gates remain disabled; no billable provider requests made. Prepared launch requires approval of public paid AI use, then bounded live generation/transcription acceptance.
+
+## Public Gateway release acceptance
+
+- Yerzhan explicitly approved public paid creation/transcription using the shared hackathon key. Both production feature flags are now enabled.
+- Deployment EmkpobiFx87UEX1PFdrvKWqrCq1d: authenticated Gateway readiness succeeds for openai/gpt-5.4; transcription configuration ready.
+- First synthetic voice attempt returned400 before admission/provider call: Vercel preserves the source pathname and appends its rewrite route parameter. Corrected Node transport to strip that matching internal parameter while preserving all other query parameters for validation. Added real loopback regression coverage. No paid retry occurred.

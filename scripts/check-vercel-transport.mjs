@@ -5,7 +5,7 @@ import {createNodeHandler} from '../server/node-handler.js';
 
 const deferred = () => { let resolve; const promise = new Promise(r => resolve = r); return {promise, resolve}; };
 const received = deferred(), canceled = deferred(), finished = deferred();
-let normalSignal, observed, abortCount = 0;
+let normalSignal, normalUrl, observed, abortCount = 0;
 const transport = createNodeHandler(async request => {
   const url = new URL(request.url);
   const bytes = await request.arrayBuffer();
@@ -17,7 +17,7 @@ const transport = createNodeHandler(async request => {
     }, {once:true}));
     return Response.json({canceled:true});
   }
-  normalSignal = request.signal;
+  normalSignal = request.signal; normalUrl = url;
   return new Response(bytes, {headers:{'content-type':'application/octet-stream'}});
 });
 const server = http.createServer(async (req,res) => {
@@ -35,6 +35,12 @@ try {
   const echo = await fetch(base+'/api/echo',{method:'POST',body:binary});
   assert.deepEqual(new Uint8Array(await echo.arrayBuffer()),binary);
   assert.equal(normalSignal.aborted,false,'normal completion must not abort work');
+  const rewriteEcho = await fetch(base+'/api/transcribe?route=transcribe',{method:'POST',body:binary});
+  assert.deepEqual(new Uint8Array(await rewriteEcho.arrayBuffer()),binary);
+  assert.equal(normalUrl.pathname,'/api/transcribe');
+  assert.equal(normalUrl.search,'');
+  const extra = await fetch(base+'/api/transcribe?route=transcribe&unexpected=1',{method:'POST',body:binary});
+  await extra.arrayBuffer(); assert.equal(normalUrl.search,'?unexpected=1');
   const client = http.request(base+'/api/handler?route=generate',{method:'POST',headers:{'content-type':'application/json'} });
   client.on('error',()=>{});
   client.end('{"prompt":"toy"}');

@@ -21,8 +21,9 @@ export function createNodeHandler(handle, {waitUntil = () => {}} = {}) {
       init.duplex = 'half';
     }
     const routed = new URL(req.url, `https://${host}`);
-    if (routed.pathname === '/api/handler') {
-      const route = routed.searchParams.get('route') || '';
+    const route = routed.searchParams.get('route') || '';
+    // Vercel may preserve the original pathname while appending rewrite params.
+    if (routed.pathname === '/api/handler' || (route && routed.pathname === '/api/' + route)) {
       routed.pathname = '/api/' + route;
       routed.searchParams.delete('route');
     }
