@@ -4,7 +4,7 @@
   "outputDirectory": "vercel-public",
   "framework": null,
   "regions": [
-    "hnd1"
+    "sin1"
   ],
   "functions": {
     "api/handler.js": {

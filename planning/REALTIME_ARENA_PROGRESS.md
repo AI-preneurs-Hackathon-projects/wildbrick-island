@@ -35,6 +35,14 @@ Objective: replace request-driven Arena polling with a fixed-clock authoritative
 
 ## Remaining review and release steps
 
+### Render Redis cutover — 2026-09-15
+
+- Created dedicated paid 256 MB `wildbrick-arena-redis` (`red-dakk89oae00c73bo1mbg`) in Singapore, Ringi's Workspace / Wildbrick Island. Journal + snapshot persistence and noeviction; no existing database changed.
+- Prepared feature-only encrypted `REDIS_URL` override. Existing deployments are unchanged until redeployment. Vercel region configuration now targets `sin1` to colocate with Redis. Asset build passes.
+- Cutover is paused before deployment: external access remains disabled. Vercel dynamic outbound addressing requires either explicit approval for a public IP allow-list with mandatory password/TLS, or a separately approved restricted-egress topology. Automated security review blocked the broad allow-list; it has not been applied.
+- No live Redis smoke or user acceptance yet. Do not deploy this candidate until connectivity is authorized and verified. Main and production remain unchanged.
+- Rollback after eventual cutover: remove the branch-specific Render REDIS_URL override and revert the region commit, then redeploy the preview. The old Upstash subscription remains unchanged and its exhausted quota must be resolved before relying on that fallback. Never flush or delete either database.
+
 1. Run the two-person desktop review below on the tested preview. Only after review should the production flag be considered. No production merge or deployment is part of this branch.
 
 Local review: run `npm run dev:realtime`, open `http://127.0.0.1:4173/` in two separate desktop browser profiles at 1440x900, create/share one room, start as creator, then test continuous movement, stop/reversal, moving while firing, one disconnect/reconnect, and both Ready buttons between rounds. A four-profile join/fanout glance is optional. Practice is not required.
