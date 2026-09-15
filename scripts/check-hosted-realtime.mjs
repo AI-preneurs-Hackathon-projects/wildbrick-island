@@ -9,7 +9,7 @@ const origin = base.origin;
 const bypass = process.env.VERCEL_PROTECTION_BYPASS;
 const room = `H${Date.now().toString(36).slice(-7)}`.toUpperCase();
 const FUNCTION_DURATION_MS = Number(process.env.ARENA_FUNCTION_DURATION_MS || 300_000);
-const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || FUNCTION_DURATION_MS + 25_000);
+const HOLD_MS = Number(process.env.ARENA_ROLLOVER_MS || FUNCTION_DURATION_MS + 5_000);
 const ROLLOVER_ONLY = process.env.ARENA_ROLLOVER_ONLY === 'true';
 if (!Number.isFinite(FUNCTION_DURATION_MS) || FUNCTION_DURATION_MS < 30_000 || !Number.isFinite(HOLD_MS) || HOLD_MS < FUNCTION_DURATION_MS + 5_000) throw new Error('Hosted rollover timing must cover the configured Function lifecycle.');
 
