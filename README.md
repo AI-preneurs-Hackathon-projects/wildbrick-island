@@ -47,13 +47,13 @@ Server runtime settings:
 
 | Variable | Purpose |
 | --- | --- |
-| `OPENAI_API_KEY` | Server-only secret; the new Site needs its own key configured through secure Sites runtime settings |
+| `OPENAI_API_KEY` | Server-only secret used directly by both Sites and Vercel; configure it through the host's secure runtime settings |
 | `OPENAI_MODEL` | Selected model; source fallback is `gpt-5.4` |
 | `OPENAI_BLUEPRINT_DETAIL` | `compact` selects v4; other/unset selects legacy detailed v3 |
 | `OPENAI_REASONING_EFFORT` | `none` or `low`; unset source fallback is low |
 | `DB` | Sites-managed D1 binding |
 
-The new Site is configured for GPT-5.4, compact geometry and no reasoning effort; new AI designs remain unavailable until its own OpenAI key is configured. The final three live trials took 9.9–27.1 seconds per request; model work took 9.0–12.5 seconds. See [VALIDATION.md](VALIDATION.md) for comparisons, costs and limits. API model access was verified for GPT-5.4 and GPT-5.4 Mini. Secrets are never needed in browser code or repository files.
+The new Site is configured for GPT-5.4, compact geometry and no reasoning effort; new AI designs remain unavailable until its own OpenAI key is configured. Vercel uses the same direct OpenAI API contract and intentionally ignores legacy `AI_GATEWAY_*` variables. The final three live trials took 9.9–27.1 seconds per request; model work took 9.0–12.5 seconds. See [VALIDATION.md](VALIDATION.md) for comparisons, costs and limits. API model access was verified for GPT-5.4 and GPT-5.4 Mini. Secrets are never needed in browser code or repository files.
 
 D1 admission provides four expiring global generation slots, 30 starts/minute for the Site and eight starts/minute per requester, alongside two upstream requests per isolate and bounded body/output/time limits. These are resource protections, not player limits. A missing/unavailable admission database returns a retryable error. API account spend limits remain the billing boundary; cancellation cannot guarantee an upstream request is unbilled.
 
